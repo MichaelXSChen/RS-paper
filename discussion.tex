@@ -1,55 +1,83 @@
-\section{Discussions} \label{sec:discussion}
+\section{Discussions}\label{sec:discuss}
 
-This section first discusses \xxx's limitations and then introduces its 
-applications.
+This section discusses \xxx's limitations (\S\ref{sec:limits}) and its broad 
+applications (\S\ref{sec:apps}).
 
-\subsection{Limitation} \label{sec:limit}
+\subsection{Limitations}\label{sec:limits}
 
-% \xxx's key benefit is that a server program's blocking socket operations and 
-% \pthread synchronization operations return at the same logical clocks across 
-% different replicas, if a server program has no data race, no ad-hoc 
-% synchronization, and does not have nondeterministic functions (\eg, 
-% \v{rand()}).
+% P1: Soundness and completeness
+% State the main goal of our tool: scalable to large code and accurate. Neither
+% sound or complete.
+\xxx's main design goal is to achieve reasonable accuracy and scalability, 
+and it trades off soundness (\ie, do not miss any bugs), although evaluation 
+results show that our \xxx tool can already effectively detect \nbackendDetected out of \nreproduced 
+concurrency attacks. A typical way to ensure soundness is to plug in a sound 
+alias analysis tool (\eg,~\cite{bddbddb, dsa:pldi07}) to identify all LLVM 
+\v{load} and \v{store} instructions that may access the same memory. However, 
+typical alias analyses are known to be inaccurate (\eg, often report too 
+many false positives). \xxx can leverage advanced precise alias analysis 
+techniques~\cite{peregrine:sosp11, wu:pldi12, chimera:pldi12} to improve 
+soundness, and we leave it for future work.
 
-\xxx leverages \parrot to make synchronizations deterministic.  \parrot is
-explicitly designed not to handle data races. However, in the context of \xxx,
-data races are less harmful because, if they cause backups to crash, \xxx
-can still operate and recover as long as a quorum of the replicas is
-still alive. Moreover, leveraging \xxx's replication architecture, one can 
-deploy a race detector on a backup replica~\cite{repframe:apsys15}, achieving 
-both good \xxx performance and full determinism.
+% P2: Vulnerability site; limited, external functions.
+\xxx currently handles five types of regular vulnerability operations 
+(\S\ref{sec:patterns}), and it requires these operations to exist in the LLVM 
+bitcode. These five types of operations are sufficient to cover all 
+\nreproduced concurrency attacks we have reproduced, and more types can be 
+added. If developers are concerned about some third-party code that may contain 
+vulnerabilities, they should compile this code into the bitcode for \xxx.
 
-There are other sources of nondeterminism besides thread scheduling and
-request timing.  These other sources of nondeterminism may cause backups
-to diverge, too.  For example, backups may do different things based on
-their IP addresses, data read from \v{/dev/random}, addresses returned by
-\v{malloc}, physical time observed via \v{gettimeofday}, or delivery time
-of signals.  Prior work has shown how to eliminate these sources of
-nondeterminism using record-replay~\cite{scribe:sigmetrics2010, 
-respec:asplos10} or OS-level techniques~\cite{dos:osdi10}, which \xxx can 
-leverage.  Another solution is to treat all these sources as inputs and 
-leverage distributed consensus to let all replicas observe the same input.  We 
-leave these ideas for future work. We inspected server 
-programs' network outputs among replicas, and we found that these outputs 
-were consistent in \xxx except physical times (\S\ref{sec:correctness}).
+% P3: Static, can not figure out the exact value without actual executions. For 
+% example, branches taken to avoid vulnerabilities, pointer dereference values 
+% depending on inputs.
+\xxx's consequence analysis tool integrates call stack of a concurrency bug to 
+direct static analysis toward vulnerable program paths, but static analysis can 
+still report false positives because it lacks actual execution outcomes 
+(\eg, branches taken to avoid vulnerabilities, and pointer dereference values 
+depending on inputs). Developers can inspect the propagation chains output by
+\xxx's analyzer and refine their program inputs to validate the outcomes.
 
-For a server program that spawns multiple processes which communicate via
-IPC, \xxx currently does not make these IPC operations deterministic.  We
-expect that it should be easy to support deterministic IPC in \xxx because it
-already makes socket API deterministic.  In addition,
-dOS~\cite{dos:osdi10} and DDOS~\cite{ddos:asplos13} have many effective
-techniques for tackling this problem, which \xxx can leverage.
 
-\subsection{Applications} \label{sec:app}
 
-We envision three applications for \xxx. First, \xxx can 
-be leveraged by other replication concepts (\eg, byzantine fault 
-tolerance~\cite{pbft:osdi99, zyzzyva:sosp07}) 
-and record-replay~\cite{scribe:sigmetrics10, racepro:sosp11, respec:asplos10} 
-because they also suffer from nondeterminism. Second, promising 
-results in \repframe~\cite{repframe:apsys15} have shown that \xxx's transparent 
-replication architecture can enable multiple types of program analysis tools 
-within one execution, making a server program enjoy benefits of multiple 
-analyses. Third, \xxx's determinism as well as its \timealgo technique alone can 
-be applied to mitigate timing channels~\cite{Askarov:ccs10, Zhang:ccs11, 
-Aviram:ccsw10}.
+
+% False negative:
+% 1. No alias analysis. Focus on describing the limitations of alias: too many 
+% false positives, false negatives, and buggy.
+
+
+% False positive:
+% 1. library functions that couldn't obtain source code.
+% 2. data flow analysis is path insensitive
+% 3. data flow analysis is flow insensitive
+% 4. Static, can not figure out the exact value without actual executions. For 
+% example, branches taken to avoid vulnerabilities, pointer dereference values 
+% depending on inputs.
+
+\subsection{\xxx has Broad Applications}\label{sec:apps}
+
+% Spur new tools for concurrency attacks. Work with anormaly detections. Work 
+% with process race detections.
+We envision three applications for \xxx's techniques. First, \xxx can 
+spur new concurrency attack defense techniques by compensating various runtime 
+tools. For instance, we can leverage anomaly detection~\cite{schonberg:pldi89, 
+taskrecycling:ppopp90,diduce:icse02} and intrusion 
+detection~\cite{hofmeyr:syscall:ids, wagner:syscall:ids, wagner:intrusion} tools 
+to audit only the vulnerable program paths identified by \xxx, then these 
+runtime detection tools can greatly reduce the amount of program paths that need 
+to audit and improve performance. \xxx can also integrate with other bug 
+detection tools (\eg, process races~\cite{racepro:sosp11} and atomicity 
+bugs~\cite{ctrigger:asplos09}) to detect concurrency attacks caused by such 
+bugs.
+
+Second, \xxx's consequence analysis tool has the potential to detect various 
+consequences of software bugs. Software bugs have 
+caused many extreme disasters~\cite{10-historical-bug-consequences, 
+10-epic-software-bugs} in the last few decades, including losing big money and 
+taking lives. By adding new vulnerability and failure sites of such 
+consequences, \xxx can be applied to flagging bugs that can cause severe 
+consequences among the enormous bug reports.
+
+Third, \xxx's techniques can be applied to detect general concurrency bugs. 
+Both static and dynamic concurrency bug detectors are prone to false positives, 
+and inspecting these reports have caused too much manpower and money. 
+\xxx's false positive filters and analysis tool may mitigate these issues.

@@ -1,15 +1,8 @@
-\documentclass[10pt]{sosp2015}
-% \documentclass[10pt,onecolumn]{sosp2015}
-%\documentclass[10pt,twocolumn,letterpaper]{article}
-%\usepackage[10pt,inchmargins]{sigmin}  %% template from Xi Wang.
-%\special{papersize=8.5in,11in}
-%\setlength{\pdfpagewidth}{8.5in}
-%\setlength{\pdfpageheight}{11in}
-% \usepackage[noheadfoot,
-%             left=1in,right=1in,top=1in,bottom=1in,
-%             columnsep=0.3in
-%             ]{geometry}
-\usepackage[small,compact]{titlesec}
+\documentclass[letterpaper,twocolumn,10pt]{article}
+\usepackage{usenix}
+\usepackage[boxed, ruled, noline, noend]{algorithm2e}
+\usepackage[letterpaper,left=1in,right=1in,top=1in,bottom=1in]{geometry}
+%\usepackage[small,compact]{titlesec}
 \usepackage[font={small,bf}]{caption}    % added 9/10/13
 \usepackage[nolineno,noindent,norules]{lgrind}
 \usepackage{tightenum}
@@ -28,6 +21,9 @@
 \usepackage{flushend}
 \usepackage{hhline}
 \usepackage{authblk}
+\usepackage{pifont}
+\usepackage{listings}
+\usepackage[hyphens]{url}
 %\newcommand{\doi}{XXXXXX}
 
 
@@ -93,9 +89,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     macro
 
-\newcommand{\xxx}[0]{\textsc{Crane}\xspace}
+\newcommand{\xxx}[0]{\textsc{Owl}\xspace}
 \newcommand{\paxos}[0]{\textsc{Paxos}\xspace}
-\newcommand{\mytitle}[0]{\textbf {\paxos Made Transparent}}
+\newcommand{\mytitle}[0]{\textbf {Understanding and Detecting Concurrency 
+Attacks}}
 \newcommand{\mykeywords}[0]{State Machine Replication, Fault Tolerance, Stable 
 and Deterministic Multithreading, Software Reliability}
 
@@ -148,7 +145,7 @@ pdfdisplaydoctitle=true,
 %\parindent = 0.0in
 
 \renewcommand{\topfraction}{0.95}
-\addtolength{\textfloatsep}{-0.1in}
+%\addtolength{\textfloatsep}{-0.1in}
 %\addtolength{\floatsep}{0.025in}
 \renewcommand\floatpagefraction{.9}
 %\renewcommand\bottomfraction{.9}
@@ -160,10 +157,17 @@ pdfdisplaydoctitle=true,
 \makeatletter
 \def\v#1{{\mbox{\fontfamily{cmtt}\fontsize{\f@size}{\f@size}\selectfont #1}}}
 
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+
 \newcommand{\dmt}[0]{DMT\xspace}
 \newcommand{\smt}[0]{StableMT\xspace}
 \newcommand{\smr}[0]{SMR\xspace}
 
+\newcommand{\tsan}[0]{\textsc{TSan}\xspace}
+\newcommand{\valgrind}[0]{\textsc{Valgrind}\xspace}
+\newcommand{\ski}[0]{\textsc{Ski}\xspace}
 \newcommand{\racepro}[0]{\textsc{RacePro}\xspace}
 \newcommand{\criu}[0]{\textsc{CRIU}\xspace}
 \newcommand{\lxc}[0]{\textsc{LXC}\xspace}
@@ -183,16 +187,29 @@ pdfdisplaydoctitle=true,
 \newcommand{\ntimeout}[0]{$W_{timeout}$\xspace}
 \newcommand{\nclock}[0]{$N_{clock}$\xspace}
 
+\newcommand{\windows}{\v{Windows}\xspace}
+\newcommand{\chrome}{\v{Chrome}\xspace}
+\newcommand{\moonlight}{\v{Moonlight}\xspace}
+\newcommand{\linux}{\v{Linux}\xspace}
+\newcommand{\macos}{\v{Mac OS}\xspace}
+\newcommand{\ios}{\v{iOS}\xspace}
+\newcommand{\darwin}{\v{Darwin}\xspace}
+\newcommand{\iexplorer}{\v{IE}\xspace}
+\newcommand{\libsafe}{\v{Libsafe}\xspace}
+\newcommand{\libvirt}{\v{Libvirt}\xspace}
+\newcommand{\freebsd}{\v{FreeBSD}\xspace}
+\newcommand{\kde}{\v{KDE}\xspace}
+\newcommand{\ssdb}{\v{SSDB}\xspace}
 \newcommand{\apache}{\v{Apache}\xspace}
+\newcommand{\mysql}{\v{MySQL}\xspace}
 \newcommand{\mongoose}[0]{\v{Mongoose}\xspace}
 \newcommand{\ab}{\v{ApacheBench}\xspace}
 \newcommand{\clamav}{\v{ClamAV}\xspace}
 \newcommand{\upnp}{uPnP\xspace}
 \newcommand{\mediatomb}{\v{MediaTomb}\xspace}
+\newcommand{\memcached}{\v{Memcached}\xspace}
 \newcommand{\mencoder}{\v{mencoder}\xspace}
 \newcommand{\mongodb}{\v{MongoDB}\xspace}
-\newcommand{\ssdb}{\v{SSDB}\xspace}
-\newcommand{\mysql}{\v{MySQL}\xspace}
 \newcommand{\sysbench}{\v{SysBench}\xspace}
 \newcommand{\zookeeper}{\v{ZooKeeper}\xspace}
 
@@ -228,6 +245,7 @@ pdfdisplaydoctitle=true,
 \newcommand{\poll}[0]{\v{poll()}\xspace}
 \newcommand{\epollwait}[0]{\v{epoll\_wait()}\xspace}
 \newcommand{\accept}[0]{\v{accept()}\xspace}
+\newcommand{\uselib}[0]{\v{uselib()}\xspace}
 
 % Parrot primitives.
 \newcommand{\getturn}[0]{\v{get\_turn()}\xspace}
@@ -236,42 +254,50 @@ pdfdisplaydoctitle=true,
 \newcommand{\signal}[0]{\v{signal()}\xspace}
 
 % Evaluation stats.
-\newcommand{\github}[0]{\url{github.com/columbia/crane}}
+\newcommand{\github}[0]{\url{github.com/usec16-paper4/owl}}
 % \newcommand{\ntype}[0]{four\xspace}
-\newcommand{\nprog}[0]{five\xspace}
-\newcommand{\overheadmax}[0]{22.99\%\xspace}
-\newcommand{\overhead}[0]{34.19\%\xspace}
-\newcommand{\dmtspeedup}[0]{10.5\%\xspace}
-\newcommand{\proxyoverhead}[0]{2.33\%\xspace}
-\newcommand{\timebubblelow}[0]{66.65\%\xspace}
-\newcommand{\timebubblehigh}[0]{93.88\%\xspace}
-\newcommand{\recovertime}[0]{1.97ms\xspace}
-\newcommand{\downgradetime}[0]{0.36s\xspace}
-\newcommand{\mencoderspeedup}{\v{49\%}\xspace}
+\newcommand{\nprog}[0]{11\xspace}
+\newcommand{\nattacks}[0]{27\xspace}
+\newcommand{\nconfirmed}[0]{15\xspace}
+\newcommand{\nreproduced}[0]{11\xspace} % Concurrency attacks that we reproduced
+\newcommand{\nreproducedProgs}[0]{7\xspace}
+\newcommand{\nreproducedNoRetry}[0]{8\xspace}
+\newcommand{\nreproducedInter}[0]{7\xspace}
+\newcommand{\napacheDetected}[0]{783\xspace} % race report number of apache
+\newcommand{\nmysqlDetected}[0]{530\xspace} % race report number of mysql
+\newcommand{\nbackendDetected}[0]{10\xspace} % Concurrency attacks that backend is able to detect
+\newcommand{\nevalProg}[0]{9\xspace}
+\newcommand{\nbuggyProg}[0]{2\xspace}
+\newcommand{\nvulnerableProg}[0]{4\xspace}
+\newcommand{\nunknownVulUnknownBug}[0]{1\xspace}
+\newcommand{\nunknownVulknownBug}[0]{3\xspace}
+\newcommand{\nraces}[0]{16049\xspace} % Number of raw race reported by tsan
+\newcommand{\nknownBugProg}[0]{5\xspace} % Number of programs evaluated with known bugs
+\newcommand{\nnew}[0]{4\xspace}
+
 
 \def\LGfsize{\footnotesize}
 %\pagestyle{empty}
 
 
-\conferenceinfo{SOSP'15}{October 4--7, 2015, Monterey, CA}
-\copyrightyear{2015} 
-\copyrightdata{978-1-4503-3834-9/15/10} 
-\doi{2815400.2815427}
+% \conferenceinfo{SOSP'15}{October 4--7, 2015, Monterey, CA}
+% \copyrightyear{2015} 
+% \copyrightdata{978-1-4503-3834-9/15/10} 
+% \doi{2815400.2815427}
 
 \title{\mytitle}
-% \authorinfo{Heming Cui, Rui Gu, Cheng Liu, Tianyu Chen, Junfeng Yang}{The 
-% University of Hong Kong, Columbia University}
+% \authorinfo{XXX}{YYY}
 
-\author[+*]{Heming Cui}
-\author[*]{Rui Gu}
-\author[*]{Cheng Liu}
-\author[x]{Tianyu Chen}
-\author[*]{Junfeng Yang}
-\setlength{\affilsep}{0.5em}
-\renewcommand\AB@affilsepx{\hspace{28.0 mm}\protect\Affilfont}
-\affil[+]{\textrm\fontsize{10}{10}\selectfont The University of Hong Kong}
-\affil[*]{\textrm Columbia University}
-\affil[x]{\textrm Tsinghua University\vspace{-7.0 mm}}
+\author[*]{Authors}
+% \author[*]{Rui Gu}
+% \author[*]{Cheng Liu}
+% \author[x]{Tianyu Chen}
+% \author[*]{Junfeng Yang}
+% \setlength{\affilsep}{0.5em}
+% \renewcommand\AB@affilsepx{\hspace{28.0 mm}\protect\Affilfont}
+% \affil[+]{\textrm\fontsize{10}{10}\selectfont The University of Hong Kong}
+% \affil[*]{\textrm Columbia University}
+% \affil[x]{\textrm Tsinghua University\vspace{-7.0 mm}}
 
 \begin{document}
 
@@ -333,41 +359,39 @@ pdfdisplaydoctitle=true,
 \setlength{\footskip}{20pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{sloppypar}
+%\begin{sloppypar}
 
-\vskip 2mm
-\noindent {\small \bf Categories and Subject Descriptors:}
-{\small D.4.5~[{\bf Operating Systems}]: {Threads, Reliability};
-  C.2.4~[{\bf Computer-communication Networks}]: {Distributed Systems};}
-\vskip .1mm
-\noindent {\small \bf General Terms:} {\small Algorithms, Design,
-  Reliability, Performance}
-\vskip .1mm
-\noindent {\small \bf Keywords:} {\small \mykeywords}
+%\vskip 2mm
+%\noindent {\small \bf Categories and Subject Descriptors:}
+%{\small D.4.5~[{\bf Operating Systems}]: {Threads, Reliability};
+  %C.2.4~[{\bf Computer-communication Networks}]: {Distributed Systems};}
+%\vskip .1mm
+%\noindent {\small \bf General Terms:} {\small Algorithms, Design,
+  %Reliability, Performance}
+%\vskip .1mm
+%\noindent {\small \bf Keywords:} {\small \mykeywords}
 
-\end{sloppypar}
+%\end{sloppypar}
 
 \begin{sloppypar}
 
 \input{intro}
-% \input{background}
+% \input{study}
 % \input{overview}
-% % \input{interface}
-% \input{consensus}
-% \input{impl}
+% \input{tool}
+% \input{implementation}
 % \input{discussion}
-% \input{eval}
+% \input{evaluation}
 % \input{related}
 % \input{conclusion}
 % \input{ack}
-
 \end{sloppypar}
 
 % uncomment to tweak with bib spacing
 %\setlength\bibsep{2.25pt}
 {
 %\small
- \bibliographystyle{abbrvnat}
+ \bibliographystyle{abbrv}
  \bibliography{bib/biblio}
 }
 

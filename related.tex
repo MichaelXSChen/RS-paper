@@ -1,134 +1,155 @@
 \section{Related Work} \label{sec:related}
-\para{State machine replication (SMR).}  SMR has been studied by the literature 
-for decades, and it is recognized by both industry and academia as a powerful 
-fault-tolerance technique in clouds and distributed 
-systems~\cite{lamportclock,smr:tutorial}. As a common practice, SMR uses 
-\paxos~\cite{paxos,paxos:simple,paxos:complex} and its popular engineering 
-approaches~\cite{paxos:live,paxos:practical} as the consensus protocol to 
-ensure that all replicas see the same input request sequence. Since consensus 
-protocols are the core of SMR, a variety of study improve different aspects of 
-consensus protocols, including performance~\cite{epaxos:sosp13,paxos:fast} and 
-understandability~\cite{raft:usenix14}. Although \xxx's current implementation 
-takes a popular engineering approach~\cite{paxos:practical} for practicality, 
-it can also leverage other consensus protocols and approaches.
 
 
-At a system implementation level, \smr typically takes the ``agree-execute" 
-approach: replicas first ``agree" on a total order of input request as a input 
-sequence, and then ``execute" the requests that have reached this consensus. 
-Such typical systems include Chubby~\cite{chubby:osdi}, 
-ZooKeeper~\cite{zookeeper}, and the Microsoft \paxos~\cite{paxos} 
-implementation, and they have been widely used to maintain critical distributed 
-systems configurations (\eg, group leaders, distributed locks, and storage meta 
-data). SMR has also been applied broadly to build various highly available 
-services, including 
-storage~\cite{paxos:datastore,bolosky:nsdi11,spanner:osdi12} and wide-area 
-network~\cite{mencius:osdi08}. Hypervisor-based Fault 
-Tolerance~\cite{hft:sosp95} leverages a hypervisor to build a primary-back 
-system for single-core machines. Unlike \xxx, these systems are not designed to 
-transparently replicate general multithreaded server programs. Nevertheless, 
-\xxx takes the typical ``agree-execute" approach.
+\para{TOCTOU attacks.} TOCTOU (Time-Of-Check-to-Time-Of-Use) 
+attacks~\cite{bishop:tocttou,toctou:fast08, toctou:fast05,toctou:usec03} target 
+mainly the file system interface, and leverage the non-atomic nature on 
+time-of-check (\eg, \texttt{access()}) to time-of-use (\eg, \texttt{open()}) of
+a file to gain illegal file access.
 
+A prior concurrency attack study~\cite{con-tr} points out that concurrency 
+attacks are much broader and more difficult to track than TOCTOU attacks for 
+two main reasons. First, TOCTOU mainly causes illegal file access, while 
+concurrency attacks can cause a much broader range of security vulnerabilities, 
+ranging from gaining root privileges~\cite{uselib-bug-12791}, injecting 
+malicious code~\cite{freebsd-exploit-2009-3527}, to corrupting critical 
+memory~\cite{apache-bug-25520}. Second, concurrency attacks are mainly
+triggered by concurrent, miscellaneous memory access, thus concurrency attacks 
+are much more difficult to track than the file access in TOCTOU attacks.
 
-In order to support multi-threading in SMR, Eve~\cite{eve:osdi12} introduces a 
-new ``execute-verify" approach: it first executes a batch of requests 
-speculatively, and then verifies whether these requests have conflicts that 
-cause execution state divergence. If so, Eve rolls back the program to a state 
-before executing these requests and re-execute these requests sequentially. 
-Both Eve's execution divergence verification and rollbacks require developers 
-to manually annotate all shared states, which is time consuming and 
-error-prone. 
+Our study in this paper differs from prior study~\cite{con-tr} via 
+constructing actual inputs and scripts to trigger \nreproduced concurrency 
+attacks, and via deeply looking into their input patterns, source-level bug 
+patterns, and (in)effectiveness of existing race detection tools. This paper 
+also presents \xxx, the first analysis framework to detect concurrency attacks.
 
-Rex~\cite{rex:eurosys14} addresses the thread interleaving divergence problem 
-with a ``execute-agree-follow" approach: it first records thread interleavings 
-on the primary by executing requests, and then replays these interleavings 
-on the other backups. If the executed interleavings in the primary may not be 
-agreed on the other replicas, then Rex rollbacks the primary's states. These 
-rollbacks/checkpoints also require developers' manual efforts for every 
-program. Furthermore, Rex requires frequently shipping thread interleavings 
-across replicas, which may be slow. Unlike \xxx's transparent 
-checkpoint-restore mechanism, Rex requires program developers to implement 
-the checkpoint-restore logic.
+\para{Security defense techniques.} Defense techniques for single-threaded
+programs have been well studied, including
+metadata tracking~\cite{taintdroid:osdi10,
+lift:micro06,myers:information,valgrind:pldi}, anomaly
+detection~\cite{taskrecycling:ppopp90,schonberg:pldi89}, address space
+randomization~\cite{ aslr-fail:ccs04}, and static
+analysis~\cite{seth:pldi,engler:vmcai,wagner:syscall:ids,coverity:cacm,
+klee:osdi08}.
 
-To improve performance, some \smr systems~\cite{eve:osdi12, pbft:osdi99, 
-upright:sosp09, zyzzyva:sosp07, zookeeper} perform read-only optimization 
-on request interface and allow these requests to be processed rapidly without 
-consensus. \xxx currently does not explore this direction mainly for two 
-reasons. First, \xxx's performance overhead is already moderate in our 
-evaluation. Second, some read requests may still modify programs' internal 
-execution states (\eg, \apache's internal HTTP cache) and affect outputs. Thus,
-ensuring whether a request is indeed read-only for a general server program may 
-require understanding or crafting the program significantly, which may trade 
-off transparency. However, exploring the trade-off between \xxx's transparency 
-and performance is an interesting direction.
+However, with the presence of multithreading, most existing sequential defense 
+tools can be largely weakened or even completely bypassed~\cite{con-tr}. For 
+instance, concurrency bugs in global memory may corrupt metadata tags in 
+metadata tracking techniques. Anomaly detection lacks a concurrency model to 
+reason about concurrency bugs and attacks.
+% Static analysis has shown to find 
+% numerous bugs in real-world programs, however, when facing a program's huge 
+% amount of functions, program paths, and possible thread interleavings, static 
+% analysis usually reports too many false positives and bury the real ones 
+% (\S\ref{sec:study}).
 
-\para{\dmt and \smt systems.}  In order to make multi-threading easier to 
-understand, test, analyze, and replicate, researchers have built two types of 
-reliable multi-threading systems: (1) stable multi-threading systems (or 
-\smt)~\cite{grace:oopsla09, dthreads:sosp11, determinator:osdi10} that aim to 
-reduce the number of possible thread interleavings for program all inputs, and 
-(2) deterministic multi-threading systems (or \dmt)~\cite{dpj:oopsla09, 
-dmp:asplos09,kendo:asplos09,coredet:asplos10,dos:osdi10,ddos:asplos13,
-ics:oopsla13} that aim to reduce the number of possible thread interleavings on 
-each program input. Typically, these systems use deterministic logical clocks 
-instead of nondeterministic physical clocks to make sure inter-thread 
-communications (\eg, \mutexlock and accesses to global variables) can only 
-happen at some specific logical clocks. Therefore, given the same or similar 
-inputs, these systems can enforce the same thread interleavings and eventually 
-the same executions. These systems 
-have shown to greatly improve software reliability, including coverage of 
-testing inputs~\cite{ics:oopsla13} and speed of recording 
-executions\cite{dos:osdi10} for debugging.
+% \para{Program slicing.}  Program slicing~\cite{Tip:slicing} is a
+% general technique to prune irrelevant statements from a program or trace.
+% Recently, systems researchers have leveraged or invented slicing
+% techniques to block malicious input~\cite{castro:bouncer}, synthesize
+% executions for better error diagnosis~\cite{esd:eurosys10}, infer source
+% code paths from log messages for postmortem analysis~\cite{sherlog:asplos10}, 
+% and identify critical inter-thread reads that may lead to concurrency 
+% errors~\cite{conseq:asplos11}.
 
-Typical DMT systems, including \kendo~\cite{kendo:asplos09}, 
-\coredet~\cite{coredet:asplos10}, and \coredet-related 
-systems~\cite{dos:osdi10, ddos:asplos13}, improve performance by balancing each 
-thread's load with low-level instruction counts, so they are unstable to 
-input perturbations. \ddos~\cite{ddos:asplos13} demonstrates that a distributed 
-system can be made deterministic. However, our \xxx approach is more flexible, 
-because we can choose to focus on replicating servers' execution states only 
-and discard clients' states, then \xxx has fewer scheduling constraints and can 
-be more efficient.
-
-
-
-% %% First introduce checkpoint techniques that do not support threads.
-% \para{Checkpointing program states.} Checkpointing is a common technique in 
-% systems with critical fault-tolerance demands, and the specific checkpoint 
-% requirements depend on the target system design. In the last few decades, 
-% checkpointing distributed systems~\cite{beguelin:jpdc97, dejavu:ipdps07, 
-% dmtcp:ipdps09, oren:atc07} is well studied. Our \xxx system uses 
-% \criu~\cite{criu}, a robust, open source checkpoint-restore tool to build our 
-% transparent checkpoint-restore service. \xxx carefully selects a good 
-% checkpoint timing~\ref{sec:checkpoint} to avoid the tedious effort on 
-% checkpointing and restoring network stack.
-% 
-% %% Introduce techniques that support threads.
-% Recently, checkpointing threads on multi-core is studied in a debugging 
-% technique called deterministic 
-% replay~\cite{smp-revirt:vee08,pres:sosp09,odr:sosp09,scribe:sigmetrics10,
-% capo:asplos09}. For instance, SMP-ReVirt~\cite{smp-revirt:vee08} and 
-% Scribe~\cite{scribe:sigmetrics10} use clever page protection tricks to record 
-% memory accesses. Unfortunately, these checkpoint techniques do not meet 
-% \xxx's 
-% purpose, because the replayed executions in these systems are mainly for 
-% debugging and don't need to go live (\eg, the network sockets and file 
-% descriptors are normally fake). However, our \xxx system requires that 
-% the checkpointed executions must be live on remote nodes and can serve 
-% future requests.
-
-\para{Concurrency.} \xxx are mutually beneficial with much prior work on 
-concurrency error 
+\para{Concurrency reliability tools.} There are various prior works on 
+concurrency
+error 
 detection~\cite{yu:racetrack:sosp,savage:eraser,racerx:sosp03,lu:muvi:sosp,
-avio:asplos06,conmem:asplos10},
-diagnosis~\cite{racefuzzer:pldi08,ctrigger:asplos09,atomfuzzer:fse08}, and
-correction~\cite{dimmunix:osdi08,gadara:osdi08,wu:loom:osdi10,cfix:osdi12}. 
-On one hand, these techniques can be deployed in \xxx's backups and help 
-\xxx detect data races. On the other hand, \xxx's asynchronous replication 
-architecture can mitigate the performance overhead of these powerful 
-analyses~\cite{repframe:apsys15}.
+avio:asplos06,conmem:asplos10,conseq:asplos11},
+diagnosis~\cite{racefuzzer:pldi08,
+ctrigger:asplos09,atomfuzzer:fse08}, and
+correction~\cite{dimmunix:osdi08,gadara:osdi08,wu:loom:osdi10,cfix:osdi12}.
+These works mainly focus on the concurrency bugs themselves, and our \xxx
+framework focuses on the security consequence of concurrency 
+bugs. Therefore, these works are complementary to \xxx.
 
+Conseq~\cite{conseq:asplos11} is a tool that aims at detecting harmful
+concurrency bugs by analyzing its failure consequence. Conseq's main
+observation is that concurrency bugs and the bugs' failure sites
+are usually within short control and data flow propagation distance (
+\eg, within the same function). The concurrency attacks we target in \xxx 
+usually exploit corrupted memory that resides in program execution for a long 
+time. Thus, the propagations from concurrency bugs to attacks are often long 
+(\eg, through different functions). Conseq's proactive harmful thread 
+interleaving exploration technique would be useful for \xxx to get more 
+potentially vulnerable reports that require tricky thread interleavings to 
+trigger. 
+
+Unlike \xxx's forward propagation analysis, Conseq starts form a 
+failure site and goes backward to detect concurrency bugs. The reason is 
+because Conseq observes that concurrency bugs often have short propagation 
+distances to their failure sites. Conseq's analysis works well because: (1) 
+this distance is short, and (2) Conseq aims to detect concurrency bugs. 
+If the distance is long, backward analysis may have low scalability or 
+accuracy. \xxx does forward analysis because we aim to detect 
+concurrency attacks from the excessive bug reports and we observed that 
+concurrency bugs and their attacks often have long distances (\eg, across 
+different functions).
+
+\para{Static vulnerability detection tools.} There are already a 
+variety of static vulnerability detection 
+approaches~\cite{livshits05finding,yamaguchi:sp14,felmetsger:usec10,
+flowdroid:pldi14,srivastava:pldi11,zhang:usenix:sec02} because 
+static analysis can thoroughly analyze program code to find vulnerabilities. 
+These approaches can be classified into two categories based on whether they 
+target general or specific programs.
+
+The first category~\cite{livshits05finding,yamaguchi:sp14} targets general 
+programs and their approaches have shown to find severe vulnerabilities in large 
+code. However, these pure static analyses may not be adequate to cope with 
+concurrency attacks. Benjamin et al.~\cite{livshits05finding} leverages pointer 
+analysis to detect data flows from unchecked inputs to sensitive sites. 
+This approach ignores control flow and thus it is not suitable to track 
+concurrency attacks like the \libsafe one in \S\ref{sec:example}. Yamaguchi 
+et al.~\cite{yamaguchi:sp14} did not incorporate inter-procedural analysis and thus 
+is not suitable to track concurrency attacks either. Moreover, these general 
+approaches are not designed to reason about concurrent behaviors 
+(\eg,~\cite{yamaguchi:sp14} can not detect data races).
+
+Our \xxx framework belongs to the first category because it targets general 
+programs. Unlike the prior approaches in this category, \xxx incorporates 
+concurrency bug detectors to reason about concurrent behaviors, and \xxx's 
+consequence analyzer integrates critical dynamic information (\ie, call stacks) 
+into static analysis to practically enable the data-flow, control-flow, 
+and inter-procedural analysis features.
+
+The second category~\cite{felmetsger:usec10,
+flowdroid:pldi14,srivastava:pldi11,zhang:usenix:sec02} lets static analysis 
+focus on specific behaviors (\eg, APIs) in specific programs to achieve 
+scalability and accuracy. These approaches include checking web application 
+logic~\cite{felmetsger:usec10}, Android applications~\cite{flowdroid:pldi14}, 
+crossing checking security APIs~\cite{srivastava:pldi11}, and verifying the 
+Linux Security Module~\cite{zhang:usenix:sec02}. \xxx's analysis is 
+complementary to these approaches; \xxx can be further integrated with these 
+approaches to track concurrency attacks in specific scenarios.
+
+% Specific modules/apps.
+%   Toward Automated ... web applications: specific web applications.
+%   Vetting SSL ...: only for SSL APIs.
+%   FlowDroid: leverage Android lifecycle to improve precisions.
+%   A security Policy Oracle: spefic API cross checking.
+%   CQual: LSM only.
 % 
-% common weaknesses of Rex, ddos and dos: 
-%   - per-request consensus on schedule or logical time
-%   - no checkpoint and recovery
+% General programs.
+%   Modeling and Discovering ... Property Graphs: can not reason about 
+% concurrency (races), intra-procedural.
+%   finding Security vulnerabilities ... Static Analysis, Lam: no control flow 
+% analysis, may miss the libsafe bugs. Do not handle control-flow indirect 
+% propagations.
+
+\noindent {\bf Symbolic execution.} Symbolic execution is an advanced program
+analysis technique that can systematically explore a program's execution paths
+to find bugs. Researchers have built scalable and effective symbolic execution 
+systems to detect software 
+bugs~\cite{dart:pldi,cute:fse,godefroid:grammar-fuzzing,
+godefroid:whitebox-fuzzing,
+klee:osdi08,yang:malicious-disk:oakland06,cadar:exe:ccs06,s2e:hotdep09,
+taas:socc10, ucklee:usec15}, block malicious 
+inputs~\cite{castro:bouncer}, preserve privacy in error 
+reports~\cite{castro:bug-report-privacy}, and detect programming rule 
+violations~\cite{woodpecker:asplos13}. Specifically, 
+UCKLEE~\cite{ucklee:usec15} has shown to effectively detect hundreds of 
+security vulnerabilities in widely used programs. Symbolic execution 
+is orthogonal to \xxx; it can be leveraged by \xxx to automatically generate 
+programs inputs.

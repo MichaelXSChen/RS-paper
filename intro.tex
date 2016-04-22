@@ -1,10 +1,10 @@
 \section{Introduction} \label{sec:intro}
 
-% P1: Defintion of State machine replication (SMR) and its value on 
-% fault-tolerance. Emphasis that SMR is especially useful to server
-% applications that provide on-line service.
-
-\emph{State machine replication (\smr)} models a program as a deterministic 
-state machine, where the states are important program data and the transitions 
-are deterministic executions of program code under input 
-requests~\cite{crane:sosp15}.
+%P1: Concurrency bugs are harmful and pervasive. 
+Driven by the rise of multi-core hardware, multithreaded programs have become
+increasingly prevalent. However, despite much effort,
+these programs are still notoriously difficult to get right. They are 
+plagued with concurrency bugs (\ie, shared memory access among threads without 
+proper synchronization). These bugs caused severe consequences such as 
+memory corruption, wrong outputs, and program 
+crashes~\cite{lu:concurrency-bugs}. 
