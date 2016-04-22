@@ -1,0 +1,134 @@
+\section{Related Work} \label{sec:related}
+\para{State machine replication (SMR).}  SMR has been studied by the literature 
+for decades, and it is recognized by both industry and academia as a powerful 
+fault-tolerance technique in clouds and distributed 
+systems~\cite{lamportclock,smr:tutorial}. As a common practice, SMR uses 
+\paxos~\cite{paxos,paxos:simple,paxos:complex} and its popular engineering 
+approaches~\cite{paxos:live,paxos:practical} as the consensus protocol to 
+ensure that all replicas see the same input request sequence. Since consensus 
+protocols are the core of SMR, a variety of study improve different aspects of 
+consensus protocols, including performance~\cite{epaxos:sosp13,paxos:fast} and 
+understandability~\cite{raft:usenix14}. Although \xxx's current implementation 
+takes a popular engineering approach~\cite{paxos:practical} for practicality, 
+it can also leverage other consensus protocols and approaches.
+
+
+At a system implementation level, \smr typically takes the ``agree-execute" 
+approach: replicas first ``agree" on a total order of input request as a input 
+sequence, and then ``execute" the requests that have reached this consensus. 
+Such typical systems include Chubby~\cite{chubby:osdi}, 
+ZooKeeper~\cite{zookeeper}, and the Microsoft \paxos~\cite{paxos} 
+implementation, and they have been widely used to maintain critical distributed 
+systems configurations (\eg, group leaders, distributed locks, and storage meta 
+data). SMR has also been applied broadly to build various highly available 
+services, including 
+storage~\cite{paxos:datastore,bolosky:nsdi11,spanner:osdi12} and wide-area 
+network~\cite{mencius:osdi08}. Hypervisor-based Fault 
+Tolerance~\cite{hft:sosp95} leverages a hypervisor to build a primary-back 
+system for single-core machines. Unlike \xxx, these systems are not designed to 
+transparently replicate general multithreaded server programs. Nevertheless, 
+\xxx takes the typical ``agree-execute" approach.
+
+
+In order to support multi-threading in SMR, Eve~\cite{eve:osdi12} introduces a 
+new ``execute-verify" approach: it first executes a batch of requests 
+speculatively, and then verifies whether these requests have conflicts that 
+cause execution state divergence. If so, Eve rolls back the program to a state 
+before executing these requests and re-execute these requests sequentially. 
+Both Eve's execution divergence verification and rollbacks require developers 
+to manually annotate all shared states, which is time consuming and 
+error-prone. 
+
+Rex~\cite{rex:eurosys14} addresses the thread interleaving divergence problem 
+with a ``execute-agree-follow" approach: it first records thread interleavings 
+on the primary by executing requests, and then replays these interleavings 
+on the other backups. If the executed interleavings in the primary may not be 
+agreed on the other replicas, then Rex rollbacks the primary's states. These 
+rollbacks/checkpoints also require developers' manual efforts for every 
+program. Furthermore, Rex requires frequently shipping thread interleavings 
+across replicas, which may be slow. Unlike \xxx's transparent 
+checkpoint-restore mechanism, Rex requires program developers to implement 
+the checkpoint-restore logic.
+
+To improve performance, some \smr systems~\cite{eve:osdi12, pbft:osdi99, 
+upright:sosp09, zyzzyva:sosp07, zookeeper} perform read-only optimization 
+on request interface and allow these requests to be processed rapidly without 
+consensus. \xxx currently does not explore this direction mainly for two 
+reasons. First, \xxx's performance overhead is already moderate in our 
+evaluation. Second, some read requests may still modify programs' internal 
+execution states (\eg, \apache's internal HTTP cache) and affect outputs. Thus,
+ensuring whether a request is indeed read-only for a general server program may 
+require understanding or crafting the program significantly, which may trade 
+off transparency. However, exploring the trade-off between \xxx's transparency 
+and performance is an interesting direction.
+
+\para{\dmt and \smt systems.}  In order to make multi-threading easier to 
+understand, test, analyze, and replicate, researchers have built two types of 
+reliable multi-threading systems: (1) stable multi-threading systems (or 
+\smt)~\cite{grace:oopsla09, dthreads:sosp11, determinator:osdi10} that aim to 
+reduce the number of possible thread interleavings for program all inputs, and 
+(2) deterministic multi-threading systems (or \dmt)~\cite{dpj:oopsla09, 
+dmp:asplos09,kendo:asplos09,coredet:asplos10,dos:osdi10,ddos:asplos13,
+ics:oopsla13} that aim to reduce the number of possible thread interleavings on 
+each program input. Typically, these systems use deterministic logical clocks 
+instead of nondeterministic physical clocks to make sure inter-thread 
+communications (\eg, \mutexlock and accesses to global variables) can only 
+happen at some specific logical clocks. Therefore, given the same or similar 
+inputs, these systems can enforce the same thread interleavings and eventually 
+the same executions. These systems 
+have shown to greatly improve software reliability, including coverage of 
+testing inputs~\cite{ics:oopsla13} and speed of recording 
+executions\cite{dos:osdi10} for debugging.
+
+Typical DMT systems, including \kendo~\cite{kendo:asplos09}, 
+\coredet~\cite{coredet:asplos10}, and \coredet-related 
+systems~\cite{dos:osdi10, ddos:asplos13}, improve performance by balancing each 
+thread's load with low-level instruction counts, so they are unstable to 
+input perturbations. \ddos~\cite{ddos:asplos13} demonstrates that a distributed 
+system can be made deterministic. However, our \xxx approach is more flexible, 
+because we can choose to focus on replicating servers' execution states only 
+and discard clients' states, then \xxx has fewer scheduling constraints and can 
+be more efficient.
+
+
+
+% %% First introduce checkpoint techniques that do not support threads.
+% \para{Checkpointing program states.} Checkpointing is a common technique in 
+% systems with critical fault-tolerance demands, and the specific checkpoint 
+% requirements depend on the target system design. In the last few decades, 
+% checkpointing distributed systems~\cite{beguelin:jpdc97, dejavu:ipdps07, 
+% dmtcp:ipdps09, oren:atc07} is well studied. Our \xxx system uses 
+% \criu~\cite{criu}, a robust, open source checkpoint-restore tool to build our 
+% transparent checkpoint-restore service. \xxx carefully selects a good 
+% checkpoint timing~\ref{sec:checkpoint} to avoid the tedious effort on 
+% checkpointing and restoring network stack.
+% 
+% %% Introduce techniques that support threads.
+% Recently, checkpointing threads on multi-core is studied in a debugging 
+% technique called deterministic 
+% replay~\cite{smp-revirt:vee08,pres:sosp09,odr:sosp09,scribe:sigmetrics10,
+% capo:asplos09}. For instance, SMP-ReVirt~\cite{smp-revirt:vee08} and 
+% Scribe~\cite{scribe:sigmetrics10} use clever page protection tricks to record 
+% memory accesses. Unfortunately, these checkpoint techniques do not meet 
+% \xxx's 
+% purpose, because the replayed executions in these systems are mainly for 
+% debugging and don't need to go live (\eg, the network sockets and file 
+% descriptors are normally fake). However, our \xxx system requires that 
+% the checkpointed executions must be live on remote nodes and can serve 
+% future requests.
+
+\para{Concurrency.} \xxx are mutually beneficial with much prior work on 
+concurrency error 
+detection~\cite{yu:racetrack:sosp,savage:eraser,racerx:sosp03,lu:muvi:sosp,
+avio:asplos06,conmem:asplos10},
+diagnosis~\cite{racefuzzer:pldi08,ctrigger:asplos09,atomfuzzer:fse08}, and
+correction~\cite{dimmunix:osdi08,gadara:osdi08,wu:loom:osdi10,cfix:osdi12}. 
+On one hand, these techniques can be deployed in \xxx's backups and help 
+\xxx detect data races. On the other hand, \xxx's asynchronous replication 
+architecture can mitigate the performance overhead of these powerful 
+analyses~\cite{repframe:apsys15}.
+
+% 
+% common weaknesses of Rex, ddos and dos: 
+%   - per-request consensus on schedule or logical time
+%   - no checkpoint and recovery

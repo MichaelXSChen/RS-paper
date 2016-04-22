@@ -1,0 +1,69 @@
+Major iterms:
+
+1. Find a good example. Illustrate the benefit of per-burst consensus vs. per 
+request consensus. Workload: one put and and get. dont' say curl, just a 
+simplified client.
+  Key points (entropy) to make in this example:
+  (1) [done] Timebubble component is essential for determinism (or 
+consistency). If disable this component, output is inconsistent across 
+replicas. Confirmed in correctness evaluation.
+  (2) [done] Timebubble mechanism is also essential for correctness (forward 
+progress) in our system. Otherwise while the worker threads are serving 
+requests, client's CLOSE() have not come yet, they can not proceed and execute 
+pthreads synchronizations, or proceed inconsistently across replicas. They need 
+time bubbles to consistently proceed across replicas.
+  (3) [done] Per-request consensus for logical clock is not necessary (aka 
+timebubble is efficient). Justified by eval, low percentage of timebubbles. 
+  
+
+
+2. [done] Why are the applications we evaluated require SMR? First, these 
+applications 
+already have critical internal storage. Either file storage or database 
+storage. Second, according to the reviewers' comments, even developers can 
+separate the storage and frontend servers, this process requires lots of expert 
+knowledge. It would be great if we can have CRANE to do this automatically.
+
+3. [done] Correctness evaluation. Output sequence.
+
+4. Sensitivity of our CRANE systems parameters. Size of big and small 
+timebubbles.
+
+5. [mostly done] Added lxc checkpoint description. Intro, Overview, Impl, Eval 
+[todo].
+
+
+Minor items:
+
+1. [done, timing channels] Other broader applications of time bubbling? 
+Avoiding time channels?
+
+2. [done, in intro] Scope of our runtime systems. Current implementation 
+supports POSIX, and can be extended to other runtimes.
+
+3. [done] Mention that we can also handle read-only requests, but just not 
+necessary 
+because currently the performance overhead is already low.
+
+4. [done, emphasis dOS applies DMT] DDOS's single point of failures.
+
+5. Chubby. Is it a file system service or lock service?
+
+6. [done, added to intro] Is determinism a key difficulty of SMR? Yes, 
+recognized by the community (cite dOS, DDOS, REX, and EVE).
+
+7. [done] Can other consensus procotols such as Raft be used in our system? Yes, as 
+long as they can enforce a consistent sequence of input requests.
+
+8. [done] Add app of CRANE on making program analyses more effective.
+  [no need] Intro. Mention this. Enable "multiple" analysese within one 
+execution.
+  [done] Discussion. Mention in more details.
+  
+9. [done] Remove the server bootstraps assumption from text. We have 
+implemented it.
+
+10. [done] Refine workloads description in the beginning of eval. Range from 
+CPU to IO bounds, diverse servers.
+
+11. [done] Why is the system named CRANE?

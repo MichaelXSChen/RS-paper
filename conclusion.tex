@@ -1,0 +1,15 @@
+\section{Conclusion} \label{sec:conclusion}
+We have presented \xxx, a \smr system that 
+transparently replicates general server programs without 
+requiring server developers' intervention. It provides a new state machine 
+interface compatible to socket API, and it leverages 
+deterministic multithreading to enforce the same schedules for a multithreaded 
+server program across replicas. \xxx creates a \timealgo technique to 
+efficiently enforce consistent logical times on admitting network requests 
+across replicas.
+
+Evaluation on \nprog widely used server programs shows that 
+\xxx is easy to use, has moderate overhead, and provides practical recovery 
+support. \xxx has the potential to expand the adoption of \smr and to provide 
+transparent fault-tolerance support for general server programs. \xxx's 
+source code is at \github.

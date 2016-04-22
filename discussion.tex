@@ -1,0 +1,55 @@
+\section{Discussions} \label{sec:discussion}
+
+This section first discusses \xxx's limitations and then introduces its 
+applications.
+
+\subsection{Limitation} \label{sec:limit}
+
+% \xxx's key benefit is that a server program's blocking socket operations and 
+% \pthread synchronization operations return at the same logical clocks across 
+% different replicas, if a server program has no data race, no ad-hoc 
+% synchronization, and does not have nondeterministic functions (\eg, 
+% \v{rand()}).
+
+\xxx leverages \parrot to make synchronizations deterministic.  \parrot is
+explicitly designed not to handle data races. However, in the context of \xxx,
+data races are less harmful because, if they cause backups to crash, \xxx
+can still operate and recover as long as a quorum of the replicas is
+still alive. Moreover, leveraging \xxx's replication architecture, one can 
+deploy a race detector on a backup replica~\cite{repframe:apsys15}, achieving 
+both good \xxx performance and full determinism.
+
+There are other sources of nondeterminism besides thread scheduling and
+request timing.  These other sources of nondeterminism may cause backups
+to diverge, too.  For example, backups may do different things based on
+their IP addresses, data read from \v{/dev/random}, addresses returned by
+\v{malloc}, physical time observed via \v{gettimeofday}, or delivery time
+of signals.  Prior work has shown how to eliminate these sources of
+nondeterminism using record-replay~\cite{scribe:sigmetrics2010, 
+respec:asplos10} or OS-level techniques~\cite{dos:osdi10}, which \xxx can 
+leverage.  Another solution is to treat all these sources as inputs and 
+leverage distributed consensus to let all replicas observe the same input.  We 
+leave these ideas for future work. We inspected server 
+programs' network outputs among replicas, and we found that these outputs 
+were consistent in \xxx except physical times (\S\ref{sec:correctness}).
+
+For a server program that spawns multiple processes which communicate via
+IPC, \xxx currently does not make these IPC operations deterministic.  We
+expect that it should be easy to support deterministic IPC in \xxx because it
+already makes socket API deterministic.  In addition,
+dOS~\cite{dos:osdi10} and DDOS~\cite{ddos:asplos13} have many effective
+techniques for tackling this problem, which \xxx can leverage.
+
+\subsection{Applications} \label{sec:app}
+
+We envision three applications for \xxx. First, \xxx can 
+be leveraged by other replication concepts (\eg, byzantine fault 
+tolerance~\cite{pbft:osdi99, zyzzyva:sosp07}) 
+and record-replay~\cite{scribe:sigmetrics10, racepro:sosp11, respec:asplos10} 
+because they also suffer from nondeterminism. Second, promising 
+results in \repframe~\cite{repframe:apsys15} have shown that \xxx's transparent 
+replication architecture can enable multiple types of program analysis tools 
+within one execution, making a server program enjoy benefits of multiple 
+analyses. Third, \xxx's determinism as well as its \timealgo technique alone can 
+be applied to mitigate timing channels~\cite{Askarov:ccs10, Zhang:ccs11, 
+Aviram:ccsw10}.

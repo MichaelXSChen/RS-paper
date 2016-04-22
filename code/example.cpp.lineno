@@ -1,0 +1,25 @@
+1 : int main(int argc, char **argv) {
+2 :  FILE *input_desc;
+3 :  int argind = 1;
+4 :  const char *infile = "-";
+5 :  do { // iterate over input files and print one by one
+6 :    if(argind < argc)
+7 :      infile = argv[argind];
+8 :    if(strcmp(infile, "-")) // input is a file
+9 :      input_desc = fopen(infile, "r");
+10:    else // input is @stdin@
+11:      input_desc = stdin;
+12:    if(!input_desc) continue;
+13:    int c;
+14:    while((c = fgetc(input_desc)) != EOF) {
+15:      if(c < 32 && c != '\n') { // non-printable char
+16:        putchar('^');
+17:        putchar(c + 64);
+18:      } else // printable char
+19:        putchar(c);
+20:    }
+21:    if(infile[0] != '-' || infile[1] != 0)
+22:      fclose(input_desc); // input is a file
+23:  } while (++argind < argc);
+24:  return 0;
+25: }
