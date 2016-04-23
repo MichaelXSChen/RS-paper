@@ -5,38 +5,7 @@ applications (\S\ref{sec:apps}).
 
 \subsection{Limitations}\label{sec:limits}
 
-% P1: Soundness and completeness
-% State the main goal of our tool: scalable to large code and accurate. Neither
-% sound or complete.
-\xxx's main design goal is to achieve reasonable accuracy and scalability, 
-and it trades off soundness (\ie, do not miss any bugs), although evaluation 
-results show that our \xxx tool can already effectively detect \nbackendDetected out of \nreproduced 
-concurrency attacks. A typical way to ensure soundness is to plug in a sound 
-alias analysis tool (\eg,~\cite{bddbddb, dsa:pldi07}) to identify all LLVM 
-\v{load} and \v{store} instructions that may access the same memory. However, 
-typical alias analyses are known to be inaccurate (\eg, often report too 
-many false positives). \xxx can leverage advanced precise alias analysis 
-techniques~\cite{peregrine:sosp11, wu:pldi12, chimera:pldi12} to improve 
-soundness, and we leave it for future work.
-
-% P2: Vulnerability site; limited, external functions.
-\xxx currently handles five types of regular vulnerability operations 
-(\S\ref{sec:patterns}), and it requires these operations to exist in the LLVM 
-bitcode. These five types of operations are sufficient to cover all 
-\nreproduced concurrency attacks we have reproduced, and more types can be 
-added. If developers are concerned about some third-party code that may contain 
-vulnerabilities, they should compile this code into the bitcode for \xxx.
-
-% P3: Static, can not figure out the exact value without actual executions. For 
-% example, branches taken to avoid vulnerabilities, pointer dereference values 
-% depending on inputs.
-\xxx's consequence analysis tool integrates call stack of a concurrency bug to 
-direct static analysis toward vulnerable program paths, but static analysis can 
-still report false positives because it lacks actual execution outcomes 
-(\eg, branches taken to avoid vulnerabilities, and pointer dereference values 
-depending on inputs). Developers can inspect the propagation chains output by
-\xxx's analyzer and refine their program inputs to validate the outcomes.
-
+TBD.
 
 
 
@@ -55,29 +24,4 @@ depending on inputs). Developers can inspect the propagation chains output by
 
 \subsection{\xxx has Broad Applications}\label{sec:apps}
 
-% Spur new tools for concurrency attacks. Work with anormaly detections. Work 
-% with process race detections.
-We envision three applications for \xxx's techniques. First, \xxx can 
-spur new concurrency attack defense techniques by compensating various runtime 
-tools. For instance, we can leverage anomaly detection~\cite{schonberg:pldi89, 
-taskrecycling:ppopp90,diduce:icse02} and intrusion 
-detection~\cite{hofmeyr:syscall:ids, wagner:syscall:ids, wagner:intrusion} tools 
-to audit only the vulnerable program paths identified by \xxx, then these 
-runtime detection tools can greatly reduce the amount of program paths that need 
-to audit and improve performance. \xxx can also integrate with other bug 
-detection tools (\eg, process races~\cite{racepro:sosp11} and atomicity 
-bugs~\cite{ctrigger:asplos09}) to detect concurrency attacks caused by such 
-bugs.
-
-Second, \xxx's consequence analysis tool has the potential to detect various 
-consequences of software bugs. Software bugs have 
-caused many extreme disasters~\cite{10-historical-bug-consequences, 
-10-epic-software-bugs} in the last few decades, including losing big money and 
-taking lives. By adding new vulnerability and failure sites of such 
-consequences, \xxx can be applied to flagging bugs that can cause severe 
-consequences among the enormous bug reports.
-
-Third, \xxx's techniques can be applied to detect general concurrency bugs. 
-Both static and dynamic concurrency bug detectors are prone to false positives, 
-and inspecting these reports have caused too much manpower and money. 
-\xxx's false positive filters and analysis tool may mitigate these issues.
+TBD.
