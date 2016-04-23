@@ -1,15 +1,30 @@
-Stat machine replication definition. Focus on networking part, message passing, 
-traditional TCP/IP network. Attractive for general applications, especially 
-online services that put more and more data in memory for speed. Two challenge: 
-slow coordination; no systematic mechanism to practically enforce same 
-execution states among replicas. \xxx, efficient, application agonistic SMR 
-system. \xxx addresses the first challenge by leveraging RDMA to build an 
-speedy paxos protocol. \xxx leverages this protocol to efficiently detect 
-execution divergence that affect network outputs and perform roll back. 
 
-Evaluation highlights: (1) 10+ general applications, including key-value 
-stores, SQL servers, security servers, ldap servers, and multimedia servers, 
-efficient, little overhead. (2) recover from divergence caused by concurrency 
-bugs, while redis's replication system failed to detect the divergence. (3) 
-with X lines of modifications, faster than redis's own replication system by XX 
-times. 
+% S1: SMR, reliable, good for online services, machines, network. 
+% S2: but going through network round trips for requests hurt latency of 
+% services.
+% S3: Traditional network layers or OS are not inherent to consensus protocols 
+% because these protocols have already considered exceptional cases such as 
+% packet losses and kernel failures.
+% S4: We can leverage RDMA (one side read/write).
+% S5: \xxx, a speed input coordination protocol that levearages fastest RDMA 
+% operations.
+% \xxx addresses an important challenge that practically enforce execution 
+% states on systems nondeterminism such as thread nondeternimism and systems 
+% resources contentions.
+
+% Stat machine replication definition. Focus on networking part, 
+% message passing, 
+% traditional TCP/IP network. Attractive for general applications, especially 
+% online services that put more and more data in memory for speed. Two challenge: 
+% slow coordination; no systematic mechanism to practically enforce same 
+% execution states among replicas. \xxx, efficient, application agonistic SMR 
+% system. \xxx addresses the first challenge by leveraging RDMA to build an 
+% speedy paxos protocol. \xxx leverages this protocol to efficiently detect 
+% execution divergence that affect network outputs and perform roll back. 
+
+% Evaluation highlights: (1) 10+ general applications, including key-value 
+% stores, SQL servers, security servers, ldap servers, and multimedia servers, 
+% efficient, little overhead. (2) recover from divergence caused by concurrency 
+% bugs, while redis's replication system failed to detect the divergence. (3) 
+% with X lines of modifications, faster than redis's own replication system by XX 
+% times. 
