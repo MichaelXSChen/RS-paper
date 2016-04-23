@@ -1,2 +1,14 @@
-Not only can bugs in single-threaded programs lead to security vulnerabilities, 
-but bugs in multithreaded programs can also lead to \emph{concurrency attacks}. 
+Stat machine replication definition. Focus on networking part, message passing, 
+traditional TCP/IP network. Attractive for general applications, especially 
+online services that put more and more data in memory for speed. Two challenge: 
+slow coordination; no systematic mechanism to practically enforce same 
+execution states among replicas. \xxx, efficient, application agonistic SMR 
+system. \xxx addresses the first challenge by leveraging RDMA to build an 
+speedy paxos protocol. \xxx leverages this protocol to efficiently detect 
+execution divergence that affect network outputs and perform roll back. 
+
+Evaluation highlights: (1) 10+ general applications, including key-value 
+stores, SQL servers, security servers, ldap servers, and multimedia servers. 
+(2) efficient, little overhead. (3) recover from divergence caused by 
+concurrency bugs. (4) with X lines of modifications, faster than redis's own 
+replication system by XX times. 

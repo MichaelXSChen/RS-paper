@@ -1,10 +1,26 @@
 \section{Introduction} \label{sec:intro}
 
-%P1: Concurrency bugs are harmful and pervasive. 
-Driven by the rise of multi-core hardware, multithreaded programs have become
-increasingly prevalent. However, despite much effort,
-these programs are still notoriously difficult to get right. They are 
-plagued with concurrency bugs (\ie, shared memory access among threads without 
-proper synchronization). These bugs caused severe consequences such as 
-memory corruption, wrong outputs, and program 
-crashes~\cite{lu:concurrency-bugs}. 
+%P1: SMR difinition; traditional network message passing; reliable; attractive 
+% for general servers.
+SMR~\cite{crane:sosp15}. 
+
+% P2: most servers lack such a service due to two challenges. First, two slow, 
+% TCP/IP. Example, Calvin.
+
+% P3: no systematic mechanism to automatically enforce execution states for 
+% these servers. Current approach: (1) ping. (2) DMT, record replay. (3) 
+% verification.
+
+% P4: Falcon; key features.
+
+% P5: Falcon: RDMA input coordination.
+
+% P6: Falcon: output checker.
+
+% P7: essense: complete architecture. agree-execute-enforcement.
+
+% P8: Evaluatuion, with highlight items, match abstract, but more details.
+
+% P9: Contribution.
+
+% P10. Remaining of paper.
