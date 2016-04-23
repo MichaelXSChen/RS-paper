@@ -8,7 +8,8 @@ speedy paxos protocol. \xxx leverages this protocol to efficiently detect
 execution divergence that affect network outputs and perform roll back. 
 
 Evaluation highlights: (1) 10+ general applications, including key-value 
-stores, SQL servers, security servers, ldap servers, and multimedia servers. 
-(2) efficient, little overhead. (3) recover from divergence caused by 
-concurrency bugs. (4) with X lines of modifications, faster than redis's own 
-replication system by XX times. 
+stores, SQL servers, security servers, ldap servers, and multimedia servers, 
+efficient, little overhead. (2) recover from divergence caused by concurrency 
+bugs, while redis's replication system failed to detect the divergence. (3) 
+with X lines of modifications, faster than redis's own replication system by XX 
+times. 
