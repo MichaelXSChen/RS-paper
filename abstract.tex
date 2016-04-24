@@ -15,7 +15,7 @@
 State machine replication (SMR) runs the same program on several replicas, and 
 it can enforce same inputs for each replica with a distributed consensus 
 protocol (\eg, \paxos) despite replica failures. This strong fault-tolerance is 
-attractive for building a general SMR system for general server programs. 
+attractive for building a general SMR system for server programs. 
 However, to agree on inputs, these consensus protocols go through 
 traditional network layers (\eg, OS kernels) and incur prohibitively latency 
 for servers. We argue that these network layers are \emph{not} inherent in SMR 
