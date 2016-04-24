@@ -12,17 +12,17 @@
 % states on systems nondeterminism such as thread nondeternimism and systems 
 % resources contentions.
 
-State machine replication (SMR) runs the same program on several replicas, and 
-it can enforce same inputs for each replica with a distributed consensus 
-protocol (\eg, \paxos) despite replica failures. This strong fault-tolerance is 
-attractive for building a general SMR system for server programs. 
-However, to agree on inputs, these consensus protocols go through 
-traditional network layers (\eg, OS kernels) and incur prohibitively latency 
-for servers. We argue that these network layers are \emph{not} inherent in SMR 
-because consensus protocols can already tolerate various faults (\eg, OS 
-failures). We present \xxx, a fast, general SMR system for server programs by 
-leveraging Remote Direct Memory Access (RDMA). \xxx introduces a simple, 
-deployable consensus protocol that exploits fastest RDMA one-sided operations to 
+State machine replication (SMR) runs replicas of the same program and 
+enforces same program inputs among replicas with a distributed consensus 
+protocol (\eg, \paxos) despite replica failures. This strong 
+fault-tolerance is attractive for building a general SMR system for server 
+programs. However, to agree on inputs, these consensus protocols go through 
+traditional network layers and incur prohibitively latency for servers. We 
+argue that these network layers are \emph{not} inherent in SMR because 
+consensus protocols can already tolerate various faults (\eg, OS failures). We 
+present \xxx, a fast, general SMR system for server programs by leveraging 
+Remote Direct Memory Access (RDMA). \xxx introduces a simple, deployable 
+consensus protocol that exploits fastest RDMA one-sided write operations to 
 agree on inputs. With this protocol, \xxx addresses a difficult challenge, 
 automatically enforcing same execution states for active replicas, by presenting 
 a fast, application-agnostic output checking protocol.
