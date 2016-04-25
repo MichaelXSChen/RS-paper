@@ -20,7 +20,7 @@ for server programs. Unfortunately, to agree on inputs, traditional consensus
 protocols often incur prohibitive network latency for servers. We present \xxx, 
 a simple, deployable SMR system for general server programs by leveraging 
 Remote Direct Memory Access (RDMA). \xxx intercepts inputs in a server's socket 
-API, and it runs a new \paxos consensus protocol that needs only two efficient 
+API, and it runs a new \paxos consensus protocol that needs only two fast 
 RDMA one-sided write operations for each input in normal case. \xxx 
 addresses a pervasive challenge, avoiding a server' execution state divergence 
 in active replicas, by presenting a fast, application-agnostic output checking 
