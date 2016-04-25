@@ -1,0 +1,78 @@
+\section{False Positive Filters} \label{sec:impl}
+
+Concurrency error reports are often plagued with ample false positive reports,
+where the structural thread interleavings are indeed buggy, but these ``bugs"
+are often benign or intended behaviors (\eg, customized, ad-hoc
+synchronizations~\cite{syncfinder:osdi10}). Pruning these reports can
+greatly reduce both the developers' and the \xxx vulnerability analyzer's
+burdens on analyzing the bug reports.
+
+\xxx provides four common types of simple false positives filters. These 
+filters are general to both applications and kernels; they can also be applied 
+to existing concurrency error detection tools, confirmed in our evaluation 
+(\S\ref{sec:evaluation}).
+
+% Duplicate call stack filter.
+The first type is duplicate call stack filter. Lots of bug reports share the 
+same \v{load} instruction and the same call stack for this instruction. We 
+simply prune all these reports but one. This filter is particularly effective 
+on pruning duplicate reports for the Linux kernel (\S\ref{sec:racefilter}), 
+thanking to our \xxx framework that enables call stacks for kernels 
+(\S\ref{sec:integration}).
+
+% Busy loop filter.
+The second type is semaphore-like ad-hoc synchronizations, where one thread is
+busy waiting on a shared variable until another thread sets this variable to be
+``true". We address this type with two steps. First, we find out
+if the ``read" instruction of the corrupted variable is in a loop with static
+analysis. Then, if we encounter a branch instruction in our corrupted variable
+chain, we ask the LLVM LoopInfo pass whether the successors of the basic block
+of this instruction can break out of a loop. If so, we tag this report as
+an ``ad-hoc sync". Compared to prior static ad-hoc sync identification
+method~\cite{syncfinder:osdi10}, our approach leverages the actual runtime
+information of read instruction and thus ours can be simpler and more precise.
+Evaluation confirmed that this filter can filter out up to 63.3\% of race
+reports with a precision of almost 100\% by our manual inspection.
+
+% (TBD: can we give an example in our bug study that we can find but SyncFinder
+% can not find? For example, read and write are in different functions?)
+
+% Bit operation filter.
+% For tsan hacking:
+
+The third type is bit operations, in which different threads access distinct
+bits of a shared variable. We address this type by providing a statistics of all
+the bits modified for each write instruction. Whenever a write instruction is
+encountered, the thread-sanitizer will then XOR the original value and the new
+value to compute a bitmap of all the bits changed at this particular write. All
+such bitmap for a specific write instruction will be or'ed to deduce the
+aforementioned statistics. The statistics will then be fed to back-end to check
+if the read side is using any of the bits. If so, we declare the pair as a real
+race and continue analysis on the back-end. Otherwise, we tag such a report as a
+``bit operation".
+% If given a read/write pair of the same variable,
+% where the write thread is modifying the bit field not used by the read thread,
+% it will be misidentified as a race.
+
+% based on the number of bits that hasn't been changed by the write,
+% nor used by the read.
+
+% For example, the race will be given the lowest priority if
+% union of the bits used by read and the bits changed by write equals the total
+% bits of the variable and the intersection of the two is empty. Out tool will
+% still analysis the low priority races while advising the developer to not
+% focusing primarily on them.
+
+% Mutex operation filter.
+The fourth type is customized mutex operations. We address this type by 
+filtering
+out the reports if the latest called function in a bug report's call stack
+contains key words ``mutex, rw\_lock, rwlock, mtx, spinlock, spin\_lock",
+thanking to our \xxx framework that enables call stacks for both applications
+and kernels. 
+
+% A general design for both applications and kernels.
+
+% How to work with applications and application detection tools.
+
+% Compensate the lack of pointer aliasing.
