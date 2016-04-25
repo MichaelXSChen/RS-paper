@@ -9,7 +9,7 @@ paper-rdma-paxos
 > git submodule update
 > make
 
-Then, use acroread or okular to open the pdf file. Recommended to use okular as the pdf viewer because
+2. Use acroread or okular to open the pdf file. Recommended to use okular as the pdf viewer because
 once you rebuild the pdf, okular will automatically update the pdf.
 > okular p.pdf &
 
