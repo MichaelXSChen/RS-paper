@@ -2,16 +2,60 @@
 
 %P1: SMR difinition; traditional network message passing; reliable; attractive 
 % for general servers.
-SMR~\cite{crane:sosp15}. 
+State machine replicaion (SMR) runs the same program on a 
+number of replicas and uses a distributed consensus protocol (\eg, 
+\paxos~\cite{crane:sosp15}) to enforce the same inputs among 
+replicas. Before an input (\eg, a client request) is process by 
+a program, this input requires only a quorom (often, a marjority) of 
+replicas to agree on, thus SMR can tolerate various faults such as minor replica 
+failures. As a quorum of replicas keep agreeing on inputs, SMR guarantees that 
+these replias always process same inputs and transit same execution states 
+without divergence. Due to this strong fault-tolerance, recent SMR systems have 
+shown promising results on greatly improving the availability of various 
+programs, including systems that target both specific 
+programs~\cite{chubby:osdi, zookeeper} and general 
+programs~\cite{crane:sosp15,eve:osdi12,rex:eurosys14}.
 
 % P2: most servers lack such a service due to two challenges. First, two slow, 
-% TCP/IP. Example, Calvin.
+% TCP/IP. Example, Calvin. For this reason, many storage systems give in SMR 
+% (\eg, % Haibo's), although themselves really want SMR.
+Unfortunately, despite these promising advances, two practical challenges still 
+prevent SMR from being widely deployed for general programs, especially 
+server programs that naturally demand high availability. The first challenge is 
+performance. To reach consensus on input requests, traditional consensus 
+protocols invoke TCP/UDP messages, which go through software network layers 
+and OS kernels and often cause prohibitive latency. This network latency is 
+especially severe in modern server storage servers (\eg, key-value stores) that 
+tend to move computation and data into memory. To mitigate this challenge, Some 
+SMR systems~\cite{calvin:sigmod12,rex:eusorys14} batch requests into one 
+consensus round, but this could only mitigate throught lost but not latency. As 
+a possible consequence, although many recent storage systems~\cite{drtm} 
+explicitly stated that they needed a replication system for high availability, 
+they finely didn't adopt the batching approach.
 
 % P3: no systematic mechanism to automatically enforce execution states for 
 % these servers. Current approach: (1) ping. (2) DMT, record replay. (3) 
-% verification.
+% verification. Lack confidence on SMR.
+The second challenge is that an automated, fine-grained approach is needed to 
+avoid execution divergence of active (\ie, alive) replicas. Even in the absence 
+of replica failures or network partitions, the executions of different replicas 
+can still diverge due to contention of 
+inter-thread resources~\cite{coredet:asplos10} (\eg, shared memory) and systems 
+resources~\cite{racepro:sosp11} (\eg, files and network ports). This challenge 
+not only lies in standard SMR systems which require deterministic executions, 
+but it is also pervasive in commodity replication systems (\eg, \redis, 
+\memcached, and \mysql) that seek for fault-tolerance in some degree. commodity 
+systems typically use `ping" to check whether replicas are working as expected, 
+but this coarse-grained approach can not detect execution divergence of 
+resource contentions because a program can just compute wrong outputs without 
+crashing. Recent SMR systems leverage either deterministic multithreading 
+techniques~\cite{rex:eurosys14,crane:sosp15} or detecting divergence of 
+execution by manually annotating program states by threads, artificially 
+trading off performance or automatacity.
 
-% P4: Falcon; key features.
+% P4.0: opportunity, RDMA. We argue that, network layers are not inherent.
+
+% P4: Falcon; key features. Hook sockets in servers.
 
 % P5: Falcon: RDMA input coordination.
 
@@ -19,7 +63,7 @@ SMR~\cite{crane:sosp15}.
 
 % P6: Falcon: output checker.
 
-% P7: essense: complete architecture. agree-execute-enforcement.
+% P7: conceptual level: complete architecture. agree-execute-enforcement.
 
 % P8: implementation. support checkpoint.
 
