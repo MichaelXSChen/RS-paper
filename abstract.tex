@@ -14,27 +14,27 @@
 
 State machine replication (SMR) runs replicas of the same program and 
 enforces same program inputs among replicas with a distributed consensus 
-protocol (\eg, \paxos) despite replica failures. This strong 
+protocol (\eg, \paxos) even facing replica failures. This strong 
 fault-tolerance is particularly attractive for building a general SMR system 
 for server programs. Unfortunately, to agree on inputs, traditional consensus 
 protocols go through software network layers and incur prohibitively latency 
-for servers. We argue that these network layers are \emph{not} inherent in SMR 
-because consensus protocols can already tolerate faults in these layers (\eg, 
-OS crashes). We present \xxx, a fast, general SMR system for 
-server programs by leveraging Remote Direct Memory Access (RDMA). \xxx 
-introduces a simple, deployable consensus protocol that exploits fastest RDMA 
-one-sided write operations to agree on inputs. With this protocol, \xxx 
-addresses a difficult challenge, automatically enforcing same execution states 
-for active replicas, by presenting a fast, application-agnostic output checking 
-protocol.
+for servers. We argue that these network layers are \emph{not} inherent to SMR 
+because consensus protocols can already tolerate various faults (\eg, crash in 
+the OS layer). We present \xxx, a simple, deployable SMR system for server 
+programs by leveraging Remote Direct Memory Access (RDMA). \xxx intercepts 
+inputs in a server's socket API and runs a fast consensus protocol that exploits 
+the most efficient RDMA one-sided write operations to agree on these inputs. 
+\xxx addresses a pervasive challenge, efficiently avoiding servers' execution 
+state divergence in active replicas, by presenting a fast, application-agnostic 
+output checking mechanism with our consensus protocol.
 
-Evaluation on \nprog popular, diverse server programs (\eg, \memcached, \mysql, 
-and \clamav) shows that \xxx is: (1) general, it supports these programs 
-without any modification; (2) efficient, it incurs merely \overhead 
-mean overhead on these programs on popular benchmarks, and it runs 6X$\sim$8X 
-faster than three existing replication systems; and (3) robust, it 
-recovered replica output divergence caused by a software bug in \redis, while 
-\redis's own replication service missed it.
+Evaluation on \nprog popular, diverse servers (\eg, \memcached, \mysql, 
+and \clamav) shows that \xxx is: (1) general, it ran these servers without any 
+modification; (2) fast, it incured merely \overhead mean overhead 
+on these programs on popular benchmarks, and it ran 6X$\sim$8X faster than 
+three replication systems; and (3) robust, it detected and recovered execution 
+divergence caused by a software bug in \redis, while \redis's own replication 
+service missed the bug.
 
 % Stat machine replication definition. Focus on networking part, 
 % message passing, 
