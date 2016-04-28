@@ -178,10 +178,40 @@ replication system.
 \end{tightenum}  
 % % tighten items, highlighted.
 
-% P10: Contribution. Applications: other replications, parallel program 
-% analysis, and datacenter OS (it's efficiency and strong consistency makes 
-% system calls go beyond single machine).
-New design space. comprehensive model. many applications: other replications, 
-parallel analysis, datacenter OS.
+% P10: Conceptual contribution. Applications: other replications, parallel 
+% program % analysis, and datacenter OS (it's efficiency and strong consistency 
+% makes % system calls go beyond single machine).
+% New design space. comprehensive model. many applications: other replications, 
+% parallel analysis, datacenter OS.
+Our major conceptual contribution is to explore a new design point: 
+leveraging RDMA to build a fast, general \paxos 
+consensus protocol. This new protocol incorporates fasted RDMA hardware 
+features, while it still pertains same fault-tolerance guarantees as 
+traditional \paxos protocols. \xxx has the potential to serve as an effective 
+research template for other replication areas (\eg, byzantine fault-tolerance). 
+In addition, a fast, general SMR service has been long persued as a fundamental 
+building block for the emerging datacenter operation system.
+
+% P10: Engineering contribution. Potential to substitue customized replication 
+% in commodity systems and use a general ones. Easy to verify, easy to get 
+% right, easy to use.
+Our major engineering contribution includes the \xxx implemention and its 
+evaluation on \nprog diverse, widely used server programs. Due to the lack of a 
+general SMR system, industrial developers have spent tremondous efforts on 
+building specific replication systems for their own programs and ``invent the 
+wheels again and again". Note that understanding, building, and maintaining a 
+usable SMR systems requires extreme expert knowledege, burdens, and are 
+extremely challenging (so many \paxos papers). For example, the \redis or 
+\memcached lag bug. Our \xxx system and evaluation has shown promising results 
+on building a fast, general, and extendible SMR system and help developers 
+greatly release these burdens.
 
 % P11: Remaining of paper.
+The remaining of this paper is organized as follows. \S\ref{sec:background} 
+introduces background on \paxos and RDMA features. \S\ref{sec:overview} gives 
+an overview of our \xxx system with key components. \S\ref{sec:input} presents 
+our input coordination protocol. \S\ref{sec:output} output checking 
+protocol. \S\ref{sec:impl} introduces implementation details.  
+\S\ref{sec:discuss} \xxx's discusses limitations and applications. 
+\S\ref{sec:evaluation} presents evaluation results, \S\ref{sec:related} 
+discusses related work, and \S\ref{sec:conclusion} concludes.   
