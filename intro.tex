@@ -1,18 +1,18 @@
 \section{Introduction} \label{sec:intro}
 
 %P1: SMR difinition; traditional network message passing; reliable; attractive 
-% for general servers.
+% for general servers. Emphasis persistent storage.
 State machine replicaion (SMR) runs the same program on a 
 number of replicas and uses a distributed consensus protocol (\eg, 
 \paxos~\cite{crane:sosp15}) to enforce the same inputs among 
-replicas. Before an input (\eg, a client request) is process by 
-a program, this input requires only a quorom (often, a marjority) of 
-replicas to agree on, thus SMR can tolerate various faults such as minor replica 
-failures. As a quorum of replicas keep agreeing on inputs, SMR guarantees that 
-these replias always process same inputs and transit same execution states 
-without divergence. Due to this strong fault-tolerance, recent SMR systems have 
-shown promising results on greatly improving the availability of various 
-programs, including systems that target both specific 
+replicas. To agree on a new input, typical consensus protocols store the input 
+in replicas' persistent storage and only require a marjority of replicas to 
+agree on this input. If a program always produces the same output on the same 
+input, SMR guarantees that active replicas perform same execution state 
+transitions without divergence despite various faults such as minor replica 
+failovers. Due to this strong fault-tolerance, recent SMR 
+systems have shown promising results on greatly improving the availability of 
+various programs, including systems that target both specific 
 programs~\cite{chubby:osdi, zookeeper} and general 
 programs~\cite{crane:sosp15,eve:osdi12,rex:eurosys14}.
 
@@ -44,31 +44,144 @@ inter-thread resources~\cite{coredet:asplos10} (\eg, shared memory) and systems
 resources~\cite{racepro:sosp11} (\eg, files and network ports). This challenge 
 not only lies in standard SMR systems which require deterministic executions, 
 but it is also pervasive in commodity replication systems (\eg, \redis, 
-\memcached, and \mysql) that seek for fault-tolerance in some degree. commodity 
-systems typically use `ping" to check whether replicas are working as expected, 
-but this coarse-grained approach can not detect execution divergence of 
-resource contentions because a program can just compute wrong outputs without 
-crashing. Recent SMR systems leverage either deterministic multithreading 
-techniques~\cite{rex:eurosys14,crane:sosp15} or detecting divergence of 
-execution by manually annotating program states by threads, artificially 
-trading off performance or automatacity.
+\memcached, and \mysql) that seek for fault-tolerance in some degree.
 
 % P4.0: opportunity, RDMA. We argue that, network layers are not inherent.
+Recently, Remote Direct Access Memory (RDMA) has become increasingly 
+cost-efficient to be adopted in data center networking. RDMA's advantages such 
+as make opens new opportunity to build fast consensus protocols. For 
+instance, one-sided write operations allow one machine to directly writes to 
+a remote machine without the involement of remote machine's software network 
+layers, OS kernels, or CPU. Although these software layers play important roles 
+in the reliability of traditional network communications, we argue that these 
+layers are not inherent to distributed consensus protocols. For 
+instance, the \paxos consensus protocol has theoretically proven in the 
+tolerance of of various faults (\eg, NIC failures and OS kernel crashes) and 
+provided high availability in practice.
 
 % P4: Falcon; key features. Hook sockets in servers.
+This paper present \xxx, an SMR systems that replicates general server programs 
+efficiently by exploiting the fastest RDMA operations. With \xxx, 
+a server program just runs as if it is the single copy, and \xxx automatically 
+deploys this program on replicas of machines. \xxx enforces same network 
+inputs and verifies network outputs for replicas. If \xxx finds that a replica 
+produces an different output from what other replicas agree on, \xxx recovers 
+this replica to a previous program checkpoint and re-executes inputs that have 
+been agreed on from the checkpoint. 
 
-% P5: Falcon: RDMA input coordination.
+
+% First, introduce naive approach. IPoverIB.
+
+% P5: Falcon: RDMA input coordination. Persistent stores; two RDMA writes 
+% between two machines; no context switch.
+To coordinate inputs among replicas, \xxx intercepts a server program's socket 
+APIs (\eg, \recv) to caputure inputs and introduces a new RDMA-accelerated 
+\paxos protocol to let replicas agree on these inputs. To ease understanding 
+and checking tooks. this protocol complies with common style of popular paxos 
+protocal~\cite{paxos:practical}. In the normal case of this protocol, contrast 
+to existing implementations which require one network round-trip (\ie, two 
+messages for every two replicas), our protocal only requires two most efficient 
+one-sided write operations.
 
 % P5.1: Support read-only optimization.
 
 % P6: Falcon: output checker.
+However, input coordination is not sufficient to practically enforce same 
+execution states for the same program across replicas. Nowadays most server 
+programs already adopt multi-threading or multi-process models to harness the 
+power of multi-core and improve performance. Contentions on inter-thread 
+resources (\eg, global memory and \pthread mutex locks) and systems resources 
+(\eg, network ports and files) can easily cause program execution states among 
+replicas to diverge an can never converge again. 
+
+To address this challenge, recent SMR systems leverage either deterministic 
+multithreading techniques~\cite{rex:eurosys14,crane:sosp15} or detecting 
+divergence of execution by manually annotating program states by threads, 
+artificially trading off performance or automatacity.
+
+% Typical commodity 
+% replication systems ignore this challenge and use `ping" to check whether 
+% replicas are working as expected, but this coarse-grained approach can not 
+% detect execution divergence of resource contentions because a program can just 
+% compute wrong outputs without crashing. 
+
+Our key idea is that we don't need to a program's every (or every batch) 
+network outputs because they most replicas's outputs indicate that this output 
+is most likely the produced one. Either necessary or sufficient. Not necessary 
+because most executions already produce same program behaviors (including 
+outputs) even with concurrency bugs. Not sufficient because it could be all 
+replicas producing the same buggy output and bypass consensus protocols. All we 
+need is just lazily compare outputs and if a divergence is detected, we roll 
+back programs and re-execute them.
+
+To implement this idea, \xxx's output verification protocol first . network 
+outputs on each individual replica, computes  hash values incremental:
+compute the hash value of a union of last hash value and the output  and 
+periodically invoke our \paxos consensus protocol to exchange the hash value. 
+Then, if minor replicas' outputs diverge from the majority ones, we just roll 
+back and re-execute these minor replicas without perturbing the others to agree 
+on and process new inputs. If a majority can not reach, \xxx simply rolls back 
+the XXX (leader?). Evaluation confirmed that XX.XX\% cases.
+
 
 % P7: conceptual level: complete architecture. agree-execute-enforcement.
+In a conceptual level, to provide pratical SMR service for general programs, 
+\xxx presents a new agree-execute-verify execution model, which contrasts from 
+previous agree-execute models and execute-verify models. We argue that agree is 
+essential to SMR due to its strong fault-tolerance on machine failures and 
+packet losses (even RDMA networks have packet loss when machines fail or 
+programs crash). Having a general input coordination protocol also mitigates 
+the need of writing application-specific input mixer and manually code 
+annotation. Moreover, a automatic, fast output verification protocol is 
+essential to SMR because we aim to replicate general, diverse server programs 
+that may diverge due to resource contentions. In sum, by coordinating inputs 
+and verifying outputs among replicas, \xxx practically enforces same execution 
+states and outputs among replicas.
 
-% P8: implementation. support checkpoint.
+% P8: implementation. POSIX. support checkpoint.
+We implemented \xxx in Linux. \xxx intercepts common POSIX incoming socket 
+operations (\eg, \accept and \recv) to coordinate inputs using the Infiniband 
+RDMA architecture. \xxx also intercepts outcoming socket operations (\eg, 
+\send) to invoke the output checking protocol. This simple, deployable 
+interface design makes \xxx support general server programs without modifying 
+them. To support practical checkpoint and restore on server 
+programs, \xxx leverages \criu.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
+We evaluated \xxx on \nprog server programs, including \calvin, an advanced 
+database system that leverages \zookeeper as its SMR service, and \npopularprog 
+widely used server programs: \nkvprog key value stores (\redis, 
+\memcached, \ssdb, and \mongodb), one SQL server \mysql, one anti-virus server 
+\clamav, one multimedia storage server \mediatomb, one LDAP server \openldap, 
+one FTP server \tftp. Our evaluation shows that
 
-% P10: Contribution.
+\begin{tightenum}
+\item \xxx is general. For the \npopularprog widely used server programs, \xxx 
+ran them without any modification. We only needed to modify \calvin because it 
+integrates its sever and client in the same process; we wrote a \nlinescalvin 
+patch to make \calvin's server use POSIX sockets to accept client requests.
+
+\item \xxx is fast. Compared to the \nprog servers' unreplicated executions, 
+\xxx incurred merely \tputoverhead overhead on throughtput and \latencyoverhead 
+on response time in average. \xxx is \fasterthanzookeeper faster than \calvin's 
+zookeeper-based SMR service on response time.
+
+\item \xxx is robust. Among XXX repeated executions, \xxx detected and 
+recovered execution divergence caused by a software bug in \redis, while 
+\redis's own replication service missed the bug.
+
+\item \xxx is extensible. To extend optimization on read-only requests, XX 
+lines of code in our two provided APIs, \xxx is able to avoid the read-only 
+requests in \redis to do consensus and XX times faster than \redis's own 
+replication system. 
+
+\end{tightenum}  
+% % tighten items, highlighted.
+
+% P10: Contribution. Applications: other replications, parallel program 
+% analysis, and datacenter OS (it's efficiency and strong consistency makes 
+% system calls go beyond single machine).
+New design space. comprehensive model. many applications: other replications, 
+parallel analysis, datacenter OS.
 
 % P11: Remaining of paper.
