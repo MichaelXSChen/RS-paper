@@ -79,11 +79,49 @@ how it works (\S\ref{sec:example}).
 % TBD. Input coordinator and output checker. Components.
 
 % System model. Replicas. RDMA. LAN. Clients.
+To replicate a server program, \xxx is deployed in a datacenter, with a set of 
+three or five replicas connecting with RDMA architecture, InfiniBand. Client 
+programs located in LAN or WAN network and send client requests to the leader 
+machine as if only one server program is running. If clients send requests to 
+the wrong machines, \xxx's backup machines deny the requests and reply the 
+leader's IP.
+
+Figure~\ref{fig:arch} shows \xxx's architecture. \xxx intercepts four types of 
+socket operations: the \accept type, the \recv type, the \send type, and the 
+\close type. These types invoke five key components, the input coordination 
+protocol (for short, \emph{coordinator}), the output checking protocol (the 
+\emph{checker}), the follower thread (\emph{follower}), the checkpoint helper 
+thread (\emph{checkpoint helper}), and the \emph{guard} (for checkpointing and 
+restoring a server program's process state and file system state). The follower 
+is only active on backup replicas.
 
 % Input coordination protocol.
-Figure~\ref{fig:arch} shows \xxx's architecture.
+Once the server program in the leader machine receives a client request 
+connenction, \xxx intercepts the \accept function call in the server side in 
+all replicas and ask the input coordinator to invoke consensus on building a 
+new connection. Once a majority of replicas agree, the leader machine returns 
+from the \accept call, and the replica's machine's follower sets up a new
+connection between this thread and the server.
+
+When a client program sends a actual request to the server, the leader's server 
+traps into the \recv function call and invoke consensus on this new input. If 
+a consensus is made, the leader directly returns from this function call and 
+processes the request, and the backup's follower forwards this request to the 
+server program on its own machine.
 
 % Output checking protcol.
+% Challenge: what if leader does more sends and replicas do fewer sends?
+When a request is processed and the server is about to send reply to client, 
+\xxx traps into the \send call, computes historical hash value on inputs when 
+4K bytes (MTU size), and then periodically invoke the output coordination 
+protocol. All backups return consensus reply to the leader with their own hash 
+values if this value is available on their replica.
+
+If divergent hash is detected, XXX. Guard.
+
+% follower
+
+% checkpoint helper.
 
 % The guard component. Checkpoint and restore.
 
