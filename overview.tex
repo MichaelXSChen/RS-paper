@@ -104,6 +104,31 @@ thread (\emph{checkpoint helper}), and the \emph{guard} (for checkpointing and
 restoring a server program's process state and file system state). The follower 
 is only active on backup replicas.
 
+
+
+% Coordinator: leader side.
+
+% Coordinator: backup side.
+
+% Consensus log. Same in both leader and backups.
+
+% Output checker: leader side.
+
+% Output checker: backup side.
+
+% Guard: leader side.
+
+% Guard: backup sides.
+
+
+\subsection{Example}\label{sec:example}
+
+% TBD. A simple server with recv(), accept(), and send(). Must have a 
+% concurrency bug in this toy program? Race on global var or heap?
+
+% Describe the example code.
+Describe the example code.
+
 % Input coordination protocol.
 Once the server program in the leader machine receives a client request 
 connenction, \xxx intercepts the \accept function call in the server side in 
@@ -127,15 +152,3 @@ protocol. All backups return consensus reply to the leader with their own hash
 values if this value is available on their replica.
 
 If divergent hash is detected, XXX. Guard.
-
-% follower
-
-% checkpoint helper.
-
-% The guard component. Checkpoint and restore.
-
-
-\subsection{Example}\label{sec:example}
-
-% TBD. A simple server with recv(), accept(), and send(). Must have a 
-% concurrency bug in this toy program? Race on global var or heap?
