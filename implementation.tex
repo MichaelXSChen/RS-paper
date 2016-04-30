@@ -1,13 +1,20 @@
-\section{Runtime} \label{sec:runtime}
+% \section{Runtime} \label{sec:runtime}
+% 
+% \subsection{Wrappers for Servers} \label{sec:wrapper}
+% 
+% TBD.
 
-\subsection{Wrappers for Servers} \label{sec:wrapper}
 
-TBD.
-
-\subsection{Read-only Optimization} \label{sec:readopt}
-
-TBD.
+% TBD.
 
 \section{Implementation Details} \label{sec:impl}
 
-TBD.
+\subsection{Read-only Optimization} \label{sec:readopt}
+
+% TBD. Two APIs. isReadOnly(char*buf); Or just one API? Let client hooked by 
+% LD_PRELOAD, marked 'r' and reply size 'sz'.
+
+\subsection{RDMA Queue Pairs Management} \label{sec:qp}
+
+% Sync every 8K bytes.?
+
