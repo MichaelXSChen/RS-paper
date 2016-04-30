@@ -95,30 +95,79 @@ machine as if only one server program is running. If clients send requests to
 the wrong machines, \xxx's backup machines deny the requests and reply the 
 leader's IP.
 
-Figure~\ref{fig:arch} shows \xxx's architecture. \xxx intercepts four types of 
-socket operations: the \accept type, the \recv type, the \send type, and the 
-\close type. These types invoke five key components, the input coordination 
+% \xxx intercepts four types of 
+% socket operations: the \accept type, the \recv type, the \send type, and the 
+% \close type. 
+Figure~\ref{fig:arch} shows \xxx's architecture within one replica machine. To 
+run a server's x86 binary in a replica, \xxx simply runs this command: 
+``LD\_PRELOAD=falcon.so ./server". \xxx invokes a server program's socket calls 
+(\eg, \recv) and involve four key components: the input coordination 
 protocol (for short, \emph{coordinator}), the output checking protocol (the 
-\emph{checker}), the follower thread (\emph{follower}), the checkpoint helper 
-thread (\emph{checkpoint helper}), and the \emph{guard} (for checkpointing and 
-restoring a server program's process state and file system state). The follower 
-is only active on backup replicas.
+\emph{checker}), the in-memory consensus log (the \emph{log}), the guard process 
+that handles checkpointing and recovering the process state and file system 
+state of the server program (the \emph{guard}).
 
 
 
-% Coordinator: leader side.
+% Coordinator: leader side. 
+The coordinator is invoke when a server's thread calls a socket call to 
+accept/close a client socket connection or to receive input bytes from the 
+connection. On the leader replica, \xxx executes the actual Libc socket 
+call, extracts the returned contents of this call (\eg, the returned buffer 
+from \recv), and invokes the coordinator for a new consensus request on this 
+socket call with the contents. Sending consensus request is fast because the 
+leader coordinator directly writes a socket call request to remote backup 
+replicas' log with RDMA. In this request, in order tell the backups what socket 
+calls they should execute, this request also carries the latest request 
+viewstamp that has reached consensus (\ie, the latest committed request).
+
+% This coordinator invokes a consensus request by: (1) assigns this call a 
+% monotonically increasing index (\ie, a viewstamp) in the log, (2) builds a 
+% socket call struct (\S\ref{sec:input}), (3) store the struct to persistent 
+% storage, (4) appends it to the log according to the index, and (5) writes this 
+% struct to all remote backup replicas' log.
 
 % Coordinator: backup side.
+On a backup replica, \xxx's coordinator check its own log to receive new 
+consensus requests, and it directly sends an Yes or No ACK by writing the 
+remote leader's same struct for this socket call with RDMA. The backup 
+coordinator then forwards all the requests up to the latest committed socket 
+call to its local server process. \xxx does not need to intercept a 
+server's socket calls in backups because these servers just follow the 
+leader's consensus requests. To respond consensus requests rapidly, each 
+backup coordinator spawns a dedicated thread. This thread runs a busy loop to 
+pull consensus requests from the consensus log. This high-perfomance thread 
+runs in a spare dedicated CPU core and elinimates context switches, unlike 
+traditional TCP/IP that block threads socket calls to wait for requests.
 
 % Consensus log. Same in both leader and backups.
+A consensus log appending operation is invoked whenever a leader's server 
+executes a socket call (except \send calls, handled by output checker). The 
+leader coordinator just appends socket calls to the log and backups follow 
+socket calls in this log.
 
-% Output checker: leader side.
+% Output checker: leader side. % Output checker: backup side.
+Output checker is occasionally invoked as the leader's server program executes 
+\send operations. For every 4K bytes (MTU size) of output in each connection, 
+the checker unions the current hash with these bytes and computes a new hash. 
+Then, for every \emph{Tcheck} hash generations, the checker invokes a consensus 
+request on this hash value. This output consensus is the same as the 
+coordinator's input consensus except that backups' output checkers send ACKs 
+with their own hash values with the same index, whenever the hash values are 
+ready (some backups may run slowly). When a majority of hashes are back, the 
+leader's output checker compares these values and then makes an effort to roll 
+back divergent replicas to a previous checkpoint before the last matching hash. 
+The leader's checker rolls back other replicas by sending roll-back requests to 
+the local guard.
 
-% Output checker: backup side.
-
-% Guard: leader side.
-
-% Guard: backup sides.
+% Guard: leader side. % Guard: backup sides.
+% Question: how does the backup replicas know the last matching hash? Through 
+% committed viewstamp for the \send.
+The leader's guard accepts roll-back requests from the output checker and 
+forwards the requests to the corresponding guard on another, divergent repilca. 
+The divergent replca's guard then rolls back the server program to a previous 
+checkpoint before the last matching one, and then invokes the local input 
+coordinator to re-forward the requests in stable storage to the server.
 
 
 \subsection{Example}\label{sec:example}
@@ -147,7 +196,7 @@ is only active on backup replicas.
 % concurrency bug in this toy program? Race on global var or heap?
 
 % Describe the example code.
-Describe the example code.
+% Describe the example code. Describe a 'set' command from key-value store.
 
 % Input coordination protocol.
 Once the server program in the leader machine receives a client request 

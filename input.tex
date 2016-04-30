@@ -4,6 +4,14 @@
 
 \subsection{Normal Case Operations} \label{sec:normal}
 
+% Question: What if on a machine, it viewed it as the leader, it executes the 
+% actual socket call, and then it invokes the consensus, but then it is no 
+% longer the leader any more. How to undo the actual socket calls? Cases:
+  %% On accept(). The old leader has already accepted and asks for consensus.
+  %% On recv(). The old leader has already received.
+  %% On send().
+  %% On close().
+
 % TBD.
 
 % First, log format details.
