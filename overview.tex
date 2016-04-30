@@ -167,7 +167,9 @@ The leader's guard accepts roll-back requests from the output checker and
 forwards the requests to the corresponding guard on another, divergent repilca. 
 The divergent replca's guard then rolls back the server program to a previous 
 checkpoint before the last matching one, and then invokes the local input 
-coordinator to re-forward the requests in stable storage to the server.
+coordinator to re-forward the requests in stable storage to the server. There 
+is no a second output hash comparisons between backups and leader until the 
+leader invokes a new output checking consensus request next time.
 
 
 \subsection{Example}\label{sec:example}
@@ -197,27 +199,40 @@ coordinator to re-forward the requests in stable storage to the server.
 
 % Describe the example code.
 % Describe the example code. Describe a 'set' command from key-value store.
+Figure~\ref{fig:example} shows a simplified server code based on the \redis 
+key-value store, and Figure~\ref{fig:client} shows a client cocde. The server 
+accepts a new connection from a client, receives one input request, process the 
+request, and then sends a reply. Suppose the client sends a ``SET a b" request.
 
 % Input coordination protocol.
-Once the server program in the leader machine receives a client request 
-connenction, \xxx intercepts the \accept function call in the server side in 
-all replicas and ask the input coordinator to invoke consensus on building a 
-new connection. Once a majority of replicas agree, the leader machine returns 
-from the \accept call, and the replica's machine's follower sets up a new
-connection between this thread and the server.
+Once the client calls its \connect, the leader's server program calls the 
+\accept call intercepted by \xxx. The leader's input coordinator then invokes 
+consensus on building a new connection by writing a struct for \accept to 
+remote backups with RDMA. Once a majority of backups agree, the leader machine 
+returns from the \accept call and continues to run.
 
-When a client program sends a actual request to the server, the leader's server 
-traps into the \recv function call and invoke consensus on this new input. If 
-a consensus is made, the leader directly returns from this function call and 
-processes the request, and the backup's follower forwards this request to the 
-server program on its own machine.
+When a client program calls its \send, leader's server traps into \xxx's \recv 
+function call, which a invokes consensus on this new input ``SET a b". If 
+a consensus is made by a majority of replicas, the leader directly returns from 
+\recv and processes the request, and each replica's dedicated thread sets up 
+a new connection to the local server because the \recv consensus request 
+notifies the backups that the last call, \accept, has reached consensus.
+
 
 % Output checking protcol.
 % Challenge: what if leader does more sends and replicas do fewer sends?
-When a request is processed and the server is about to send reply to client, 
-\xxx traps into the \send call, computes historical hash value on inputs when 
-4K bytes (MTU size), and then periodically invoke the output coordination 
-protocol. All backups return consensus reply to the leader with their own hash 
-values if this value is available on their replica.
+When a request is processed and the server is about to send reply to the 
+client, \xxx traps into the \send call, computes historical hash value on 
+inputs when 4K bytes (MTU size). Since this request is short, no output check 
+will be invoked at this time. All backups return consensus reply to the leader 
+with their own hash values if this value is available on their replica. 
+Similarly, backups do the earlier socket call: the backups' follower forwards 
+``SET a b" request to the local server program.
 
-If divergent hash is detected, XXX. Guard.
+% TBD Question: must ask Cheng. The close logic is not clear. What do the 
+% leaders and backups do for close()? Why do we have to need a NOP (if 
+% backup thread does not close its connection to local server, it does not 
+% matter, right)? 
+% Finally, the leader's server program executes a \close call. Similarly, the 
+% leader invokes consensus on this call, and the backups have this \close call in 
+% their log so that they can close the 
