@@ -1,7 +1,26 @@
 \section{Output Checking Protocol} \label{sec:output}
 
-TBD.
+% TBD.
+
+% Strawmen approach? Necessary?
+
+% Leverage the input protocol to carry the hash of outputs.
 
 \subsection{Checkpoint and Rollback} \label{sec:checkpoint}
 
-TBD.
+% TBD.
+
+% Regularly: periodically checkpoint.
+
+% When divergence is detected, spawn the mechanism, show workflow.
+
+% Orthogonal to the \paxos protocol, just feel like some replicas restart 
+% themselves. Paxos can handle this.
+
+% Sound. As long as local machines have a checkpoint with a viewstamp before 
+% the last matched output check.
+
+% Efficient. Occasionally check hash. 
+
+
+

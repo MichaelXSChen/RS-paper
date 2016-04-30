@@ -1,19 +1,38 @@
 \section{Input Coordination Protocol} \label{sec:input}
 
-TBD.
+% TBD.
 
 \subsection{Normal Case Operations} \label{sec:normal}
 
-TBD.
+% TBD.
 
-\subsubsection{Primitives} \label{sec:primitive}
+% First, log format details.
 
-TBD.
+% Second, leader thread behavior on \recv(). Return from orig recv, grab 
+% spin % lock and get view stamp, store the log, and post send to all replicas. 
+% Non blocking. Wait % for over half agree, and then execute the operation.
+
+% Post send carry the last committed (consensus reached) operation.
+
+% One key issue, check integrity. Strawmen approach, check viewstamp first.
+
+% Third, replica thread behavior on \recv(). Block on latest un agreed log, 
+% wait for the % consensus log, check integrity, check view id, and then store to 
+% BDB. and % then execute the committed but not executed requests from BDB.
+
+% \subsubsection{Primitives} \label{sec:primitive}
+% 
+% TBD.
 
 \subsubsection{Handling Concurrent Connections} \label{sec:concurrent}
 
-TBD.
+% TBD. Strawmen approach, use fds on leader machines.
+
+% Use viewstamp of the accept() operation, consistent across replicas.
+
+% What does replica thread do. High performance loop on a dedicated core.
 
 \subsection{Leader Election} \label{sec:election}
 
-TBD.
+% % TBD. Four steps. Use one log operation or a few operations to do so. Clean, 
+% match the PMS intention.
