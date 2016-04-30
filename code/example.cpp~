@@ -6,7 +6,7 @@ void main(int argc, char *argv[]) {
   fds[nfds].events = POLLIN;
   nfds++;
   ...; // Call bind() and listen().
-  while (poll(fds, nfds, 0) > 0) {
+  while (poll(...)) {
     for (int i=0; i<MAX; i++) {
       if(fds[i].revents == POLLIN) {
         if (fds[i].fd == sock) {
