@@ -1,0 +1,28 @@
+1 : viewstamp_t idx;
+2 : void invoke_consensus_req(node *cur, 
+3 :     call type, data, data_size) {
+4 :   vs;
+5 : 
+6 :   // Local preparation.
+7 :   spin_lock();
+8 :   vs = idx++;
+9 :   spin_unlock();
+10:   call_entry *entry = build_entry(cur,vs,data,data_size);
+11:   mem_write(cur_log_offset, entry); 
+12:   store_entry(entry);
+13: 
+14:   // RDMA write.
+15:   for (i = 0; i < group_size; i++) {
+16:     RDMA_write(i, remote_log_offset[i], entry);
+17:   }
+18:   
+19:   // Wait for quorum.
+20: recheck:
+21:   for (i = 0; i < ; i++) {
+22:     bitmap += ack[i].reply;
+23:   }
+24:   if (reach_quorum()) {
+25:     process_req();
+26:   } else
+27:     goto recheck;
+28: }

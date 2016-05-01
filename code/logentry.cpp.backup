@@ -1,5 +1,5 @@
 struct log_entry_t {
-  consensus_ack ack[MAX]; // Output hash
+  consensus_ack ack[MAX];
   viewstamp_t vs;
   int node_id;
   viewstamp_t conn_vs; // viewstamp when connection was accepted.

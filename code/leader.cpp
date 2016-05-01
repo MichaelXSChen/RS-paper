@@ -1,28 +1,28 @@
-void main(int argc, char *argv[]) {
-  int nfds = 0;
-  struct pollfd fds[MAX];
-  int sock = socket(...);
-  fds[nfds].fd = sock;
-  fds[nfds].events = POLLIN;
-  nfds++;
-  ...; // Call bind() and listen().
-  while (poll(fds, nfds, 0) > 0) {
-    for (int i=0; i<MAX; i++) {
-      if(fds[i].revents == POLLIN) {
-        if (fds[i].fd == sock) {
-          fds[nfds].fd = accept(sock, ...);
-          fds[nfds].events = POLLIN;
-          nfds++;
-        } else {
-          char in[1024], out[1024];
-          recv(fds[i].fd, in, ...);
-          process_request(in, out);
-          send(fds[i].fd, out, ...);
-          close(fds[i].fd);
-          fds[i].fd = fds[i].events = 0;
-          nfds--;
-        }
-      }
-    }
+viewstamp_t idx;
+void invoke_consensus_req(node *cur, 
+    call type, data, data_size) {
+  vs;
+
+  // Local preparation.
+  spin_lock();
+  vs = idx++;
+  spin_unlock();
+  call_entry *entry = build_entry(cur,vs,data,data_size);
+  mem_write(cur_log_offset, entry); 
+  store_entry(entry);
+
+  // RDMA write.
+  for (i = 0; i < group_size; i++) {
+    RDMA_write(i, remote_log_offset[i], entry);
   }
+  
+  // Wait for quorum.
+recheck:
+  for (i = 0; i < ; i++) {
+    bitmap += ack[i].reply;
+  }
+  if (reach_quorum()) {
+    process_req();
+  } else
+    goto recheck;
 }
