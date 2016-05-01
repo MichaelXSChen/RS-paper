@@ -1,8 +1,13 @@
 \section{Input Coordination Protocol} \label{sec:input}
 
-% TBD.
+This section first introduces the workflow of \xxx input coordination protocol 
+in normal case, and describes how to elect a new leader for exceptional 
+cases.
 
 \subsection{Normal Case Operations} \label{sec:normal}
+
+
+\subsubsection{Primitives} \label{sec:primitive}
 
 % Question: What if on a machine, it viewed it as the leader, it executes the 
 % actual socket call, and then it invokes the consensus, but then it is no 
@@ -12,9 +17,7 @@
   %% On send().
   %% On close().
 
-% TBD.
-
-% First, log format details.
+% First, basic roles. log format details.
 
 % Second, leader thread behavior on \recv(). Return from orig recv, grab 
 % spin % lock and get view stamp, store the log, and post send to all replicas. 
@@ -28,11 +31,7 @@
 % wait for the % consensus log, check integrity, check view id, and then store to 
 % BDB. and % then execute the committed but not executed requests from BDB.
 
-% \subsubsection{Primitives} \label{sec:primitive}
-% 
-% TBD.
-
-\subsubsection{Handling Concurrent Connections} \label{sec:concurrent}
+\subsection{Handling Concurrent Connections} \label{sec:concurrent}
 
 % TBD. Strawmen approach, use fds on leader machines.
 
@@ -42,5 +41,7 @@
 
 \subsection{Leader Election} \label{sec:election}
 
-% % TBD. Four steps. Use one log operation or a few operations to do so. Clean, 
-% match the PMS intention.
+% % Use one log operation or a few operations to do so. Clean, 
+% match the PMS intention. Explain why this design choice is good.
+
+% TBD. Four steps. 

@@ -236,3 +236,8 @@ Similarly, backups do the earlier socket call: the backups' follower forwards
 % Finally, the leader's server program executes a \close call. Similarly, the 
 % leader invokes consensus on this call, and the backups have this \close call in 
 % their log so that they can close the 
+
+% TBD: what is the interesting outcome of this program running with Falcon? 
+% Replicating all inputs without modifications? Any chart figure/schedule? 
+% Two points so far: automatically replicating all inputs without modification; 
+% can tolerate one replica failure; the other two can still process requests.

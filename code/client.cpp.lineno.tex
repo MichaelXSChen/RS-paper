@@ -1,0 +1,12 @@
+% Remember to use the lgrind style
+
+\Head{}
+\File{client.cpp.lineno}{2016}{5}{1}{17:58}{276}
+\index{main}\Proc{main}\L{\LB{\N{1}\V{:}_\K{void}_\V{main}(\V{argc},_\K{char}_*\V{argv})_\{}}
+\L{\LB{\N{2}\V{:}}\Tab{5}{.\,.\,.;_\C{}//_Get_server_IP:port_from_argv[\,].\CE{}}}
+\L{\LB{\N{3}\V{:}}\Tab{5}{\K{int}_\V{sock}_=_\V{socket}(.\,.\,.);}}
+\L{\LB{\N{4}\V{:}}\Tab{5}{\V{connect}(\V{sock},_.\,.\,.);_\C{}//_Connect_to_IP:port.\CE{}}}
+\L{\LB{\N{5}\V{:}}\Tab{5}{\V{send}(\V{sock},_.\,.\,.);_\C{}//_Send_a_http_request.\CE{}}}
+\L{\LB{\N{6}\V{:}}\Tab{5}{\V{recv}(\V{sock},_.\,.\,.);_\C{}//_Wait_for_server{'}s_response.\CE{}}}
+\L{\LB{\N{7}\V{:}}\Tab{5}{\V{close}(\V{sock});}}
+\L{\LB{\N{8}\V{:}_\}}}
