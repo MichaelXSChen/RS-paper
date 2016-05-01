@@ -1,28 +1,20 @@
-1 : void main(int argc, char *argv[]) {
-2 :   int nfds = 0;
-3 :   struct pollfd fds[MAX];
-4 :   int sock = socket(...);
-5 :   fds[nfds].fd = sock;
-6 :   fds[nfds].events = POLLIN;
-7 :   nfds++;
-8 :   ...; // Call bind() and listen().
-9 :   while (poll(fds, nfds, 0) > 0) {
-10:     for (int i=0; i<MAX; i++) {
-11:       if(fds[i].revents == POLLIN) {
-12:         if (fds[i].fd == sock) {
-13:           fds[nfds].fd = accept(sock, ...);
-14:           fds[nfds].events = POLLIN;
-15:           nfds++;
-16:         } else {
-17:           char in[1024], out[1024];
-18:           recv(fds[i].fd, in, ...);
-19:           process_request(in, out);
-20:           send(fds[i].fd, out, ...);
-21:           close(fds[i].fd);
-22:           fds[i].fd = fds[i].events = 0;
-23:           nfds--;
-24:         }
-25:       }
-26:     }
-27:   }
-28: }
+1 : viewstamp_t idx;
+2 : void follow_consensus(node *cur, 
+3 :     call type, data, data_size) {
+4 : 
+5 :   // check log entry integrity.
+6 :   data size > 0 and canary value is there.
+7 :   
+8 :   // check viewstamp and agree/reject. Local preparation.
+9 :   if (entry.view_id == my.view_id) {
+10:     store_record(entry);
+11:     ack = build_ack();
+12:   }
+13:   // Send back 
+14:   send back to leader by writing ACK [i] with remote start addr + i*sizeof(ack);
+15:   
+16:   //
+17:   extract latest committed requests and execute them;
+18:   
+19: 
+20: }

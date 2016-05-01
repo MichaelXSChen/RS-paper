@@ -1,28 +1,20 @@
-void main(int argc, char *argv[]) {
-  int nfds = 0;
-  struct pollfd fds[MAX];
-  int sock = socket(...);
-  fds[nfds].fd = sock;
-  fds[nfds].events = POLLIN;
-  nfds++;
-  ...; // Call bind() and listen().
-  while (poll(fds, nfds, 0) > 0) {
-    for (int i=0; i<MAX; i++) {
-      if(fds[i].revents == POLLIN) {
-        if (fds[i].fd == sock) {
-          fds[nfds].fd = accept(sock, ...);
-          fds[nfds].events = POLLIN;
-          nfds++;
-        } else {
-          char in[1024], out[1024];
-          recv(fds[i].fd, in, ...);
-          process_request(in, out);
-          send(fds[i].fd, out, ...);
-          close(fds[i].fd);
-          fds[i].fd = fds[i].events = 0;
-          nfds--;
-        }
-      }
-    }
+viewstamp_t idx;
+void follow_consensus(node *cur, 
+    call type, data, data_size) {
+
+  // check log entry integrity.
+  data size > 0 and canary value is there.
+  
+  // check viewstamp and agree/reject. Local preparation.
+  if (entry.view_id == my.view_id) {
+    store_record(entry);
+    ack = build_ack();
   }
+  // Send back 
+  send back to leader by writing ACK [i] with remote start addr + i*sizeof(ack);
+  
+  //
+  extract latest committed requests and execute them;
+  
+
 }
