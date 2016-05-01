@@ -1,10 +1,11 @@
 % Remember to use the lgrind style
 
 \Head{}
-\File{logentry.cpp}{2016}{5}{1}{18:06}{313}
+\File{logentry.cpp}{2016}{5}{2}{1:58}{343}
 \L{\LB{\K{struct}_\V{log\_entry\_t}_\{}}
 \L{\LB{}\Tab{2}{\V{consensus\_ack}_\V{ack}[\V{MAX}];_\C{}//_Output_hash\CE{}}}
 \L{\LB{}\Tab{2}{\V{viewstamp\_t}_\V{vs};}}
+\L{\LB{}\Tab{2}{\V{viewstamp\_t}_\V{last\_committed};}}
 \L{\LB{}\Tab{2}{\K{int}_\V{node\_id};}}
 \L{\LB{}\Tab{2}{\V{viewstamp\_t}_\V{conn\_vs};_\C{}//_viewstamp_when_connection_was_accepted.\CE{}}}
 \L{\LB{}\Tab{2}{\K{int}_\V{call\_type};_\C{}//_socket_call_type.\CE{}}}

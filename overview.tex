@@ -229,6 +229,8 @@ with their own hash values if this value is available on their replica.
 Similarly, backups do the earlier socket call: the backups' follower forwards 
 ``SET a b" request to the local server program.
 
+% TBD: explain why we do not need to intercept poll() function.
+
 % TBD Question: must ask Cheng. The close logic is not clear. What do the 
 % leaders and backups do for close()? Why do we have to need a NOP (if 
 % backup thread does not close its connection to local server, it does not 

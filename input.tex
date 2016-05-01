@@ -27,14 +27,89 @@ cases.
   %% On close().
 
 % First, basic roles. log format details.
+\xxx' input coordination protocol contains three roles. The first role is a 
+\paxos consensus log (for short, \emph{log}) which resides in each replica and 
+contains the same  sequence of socket calls called by a server program. The 
+second role is a leader thread which invokes consensus request and writes to its 
+local log as well as remote replicas' logs. In \xxx, leader threads are just 
+a server program's worker threads that processes client requests. A leader 
+replica can have multiple leader threads depending on how many threads  Third, 
+a follower thread which (dis)agrees consensus requests on a backup replica.
+
+Figure~\ref{fig:logentry} shows the data structure of a log entry in \xxx's 
+consensus log. Most fields are regular as those in a typical \paxos protocol 
+except three ones: the \v{ack} array, the client connection ID \v{conn\_vs}, 
+and the type ID of a socket call \v{call\_type}. The \v{ack} array is for 
+replicas to write back their consensus replies to the leader via a RDMA one-side 
+write. The \v{conn\_vs} is for identifying which connection this socket call 
+belongs to (see \ref{sec:conclusion}). The \v{call\_type} identifies four types 
+of socket calls in \xxx: the \accept type (\eg, \accept), the \recv type 
+(\eg, \recv and \myread), the \send type (\eg, \send and \mywrite), and the 
+\close type (\eg, \close).
 
 % Second, leader thread behavior on \recv(). Return from orig recv, grab 
 % spin % lock and get view stamp, store the log, and post send to all replicas. 
 % Non blocking. Wait % for over half agree, and then execute the operation.
+A leader thread invokes a consensus request when it calls a socet call with 
+the \recv type. A consensus request includes four steps. The first step is 
+executing the actual socket call, because \xxx needs to get the actual received 
+data bytes and then replicates them in remote replicas' logs.
+
+The second step is local preparation, including assigning a global, 
+monotonically increashing viewstamp to locate this entry in the consensus log, 
+building a log entry struct for this call, and writing this entry to its local 
+SSD.
+
+The third step is sending consensus requests to replicas by using RDMA 
+one-sided write to write this struct to remote replicas' logs. Note that these 
+RDMA write operations do not need to wait for the struct actually be written to 
+remote logs. Instead, \xxx's leader thread just return immediately after 
+putting the structs to the RDMA QP (Queue Pair) between a backup replica, 
+because \paxos protocol \xxx implements has already considered packet losses 
+(\eg, due to remote replica failures).
+
+The fourth step is waiting for replicas' consensus replies. The leader does a
+busy loop to check the \v{ack} array until it sees that a majority of replicas, 
+including itself, have aggreed on this log entry. In normal case, both the 
+third and fourth steps will return immediately because no synchronization 
+context switch is involved.
 
 % Post send carry the last committed (consensus reached) operation.
 
 % One key issue, check integrity. Strawmen approach, check viewstamp first.
+On a replica side, one tricky issue on replying consensus request is that, 
+unlike traditional TCP/UDP messages, RDMA on-sided write operations do not 
+guarantee atomicy. For instance, a leader thread can be doing a remote RDMA 
+write on the viewstamp \v{vs}, while a follower thread can be reading this 
+variable concurrently without knowing when the leader's write can finish, 
+causing the replica to read a partial (wrong) value. Thus, in a 
+RDMA-accelerated protocol, an extra mechanism is needed to gurantee that a 
+leader's write has finished and then replicas can agree or disagree.
+
+\xxx's follower thread tackles this issue by adding a canary value after the 
+actual \v{data} array. Leveraging a RDMA feature that its writes are lossless 
+in normal case, the follower thread always checks the canary value according to 
+\v{data\_size} and then starts the consensus reply decision. This check 
+guarantees that a log entry is completely written in a local backup.
+
+To ahchieve small consensus latency, \xxx's follower thread does a busy loop 
+on a dedicated CPU core to agree on consensus requests from the leader. Each 
+backup only needs one follower thread. This thread always busy reading the 
+latest un-agreed log entry in its local log, and it it sees a log entry has 
+completely written, it runs three steps. First, it does a regular \paxos view 
+ID checking to see whether the leader is up to date, and if so, it stores the 
+log entry in its local SSD. Second, it does a RDMA write to send back a Yes/No 
+ack to the leader's \v{ack} array element with its own node ID.
+
+Third, the follower thread does a regular \paxos check on \v{last\_committed} 
+and executes all socket calls that it has not executed before this viewstamp. 
+It ``executes" each log entry by sending the data in each entry to the local 
+server program. On replicas, server programs run as is without being 
+intercepted.
+
+% Question: one key question, can RDMA lose packets in between? I mean, both 
+% data_size and canary value are correct, but packets in the middle are lost. 
+% This may violate \paxos's non-corrupting packets assumption.
 
 % Third, replica thread behavior on \recv(). Block on latest un agreed log, 
 % wait for the % consensus log, check integrity, check view id, and then store to 
@@ -43,6 +118,9 @@ cases.
 \subsection{Handling Concurrent Connections} \label{sec:concurrent}
 
 % TBD. Strawmen approach, use fds on leader machines.
+
+%% thread ID mapping is not good too, because accept and recv can be called by 
+% different threads in leader side.
 
 % Use viewstamp of the accept() operation, consistent across replicas.
 

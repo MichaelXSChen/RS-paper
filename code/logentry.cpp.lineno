@@ -1,9 +1,10 @@
-1: struct log_entry_t {
-2:   consensus_ack ack[MAX]; // Output hash
-3:   viewstamp_t vs;
-4:   int node_id;
-5:   viewstamp_t conn_vs; // viewstamp when connection was accepted.
-6:   int call_type; // socket call type.
-7:   size_t data_sz; // data size in the call.
-8:   char data[0]; // data, with canary value in last byte.
-9: } log_entry;
+1 : struct log_entry_t {
+2 :   consensus_ack ack[MAX]; // Output hash
+3 :   viewstamp_t vs;
+4 :   viewstamp_t last_committed;
+5 :   int node_id;
+6 :   viewstamp_t conn_vs; // viewstamp when connection was accepted.
+7 :   int call_type; // socket call type.
+8 :   size_t data_sz; // data size in the call.
+9 :   char data[0]; // data, with canary value in last byte.
+10: } log_entry;
