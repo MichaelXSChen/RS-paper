@@ -7,15 +7,15 @@
 State machine replicaion (SMR) runs the same program on a 
 number of replicas and uses a distributed consensus protocol (\eg, 
 \paxos~\cite{crane:sosp15}) to enforce the same inputs among 
-replicas. Consensus on a new input can be achieved as long as a majority of 
+replicas. Consensus on a new input can be achieved if a majority of 
 replicas agree, thus SMR can tolerate various faults such as minor replica 
-failures. SMR's strong fault-tolerance stems from its \emph{synchronized} 
-replication: before processing a request, a replica must stores this input in 
-its stage storage and receives a majority of replica aggreements. Due to this 
-strong fault-tolerance, recent SMR systems have shown promising results on 
-greatly improving the availability of various programs, including systems that 
-target both specific programs~\cite{chubby:osdi, zookeeper} and general 
-programs~\cite{crane:sosp15,eve:osdi12,rex:eurosys14}.
+failures. SMR's strong fault-tolerance mainly stems from its 
+\emph{synchronized} replication: before processing an input, each replica must 
+stores this input in local stage storage and receives a majority of replica 
+aggreements. Due to this strong fault-tolerance, recent SMR systems have shown 
+promising results on greatly improving the availability of various programs, 
+including systems that target both specific programs~\cite{chubby:osdi, 
+zookeeper} and general programs~\cite{crane:sosp15,eve:osdi12,rex:eurosys14}.
 
 % P2: most servers lack such a service due to two challenges. First, two slow, 
 % TCP/IP. Example, Calvin. For this reason, many storage systems give in SMR 
