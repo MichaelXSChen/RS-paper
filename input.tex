@@ -1,8 +1,10 @@
 \section{Input Coordination Protocol} \label{sec:input}
 
-This section first introduces the workflow of \xxx input coordination protocol 
-in normal case, and describes how to elect a new leader for exceptional 
-cases.
+This section introduces the basic workflow of \xxx's \paxos-based input 
+coordination protocol in normal case (\S\ref{sec:normal}), describes how it 
+handles concurrent connections (\S\ref{sec:concurrent}), presents the leader 
+election protocol (\S\ref{sec:election}), and then discusses the reliability 
+of our protocol (\S\ref{sec:guarantees}).
 
 \subsection{Normal Case Operations} \label{sec:normal}
 
@@ -16,7 +18,7 @@ cases.
 \vspace{-.05in}
 \end{figure}
 
-\subsubsection{Primitives} \label{sec:primitive}
+% \subsubsection{The Basic } \label{sec:primitive}
 
 % Question: What if on a machine, it viewed it as the leader, it executes the 
 % actual socket call, and then it invokes the consensus, but then it is no 
@@ -111,6 +113,19 @@ each backup machine only has one follower thread and nowadays machines often
 have spare cores, we didn't find that the spin loop of this thread brought 
 bring negative performance impact in our evaluation.
 
+% Performance: two RDMA writes and two SSD stores. No context switches.
+This protocol is highly optimized for minimizing consensus latency in normal 
+case. In total, a consensus between the leader and one backup only requires 
+two one-sided RDMA write operations (one from the leader to the backup and the 
+other from the backup to the leader) and two SSD write operations (each in 
+leader and backup). Although each RDMA one-sided operation takes about 3 \us, 
+\xxx's protocol just puts the log entry to the RDMA Queue Pair without needing 
+to wait until the write succeeds on the remote backup, because the leader will 
+have \paxos's consensus reply (the RDMA write from the backup to leader). In 
+addition, neither a leader thread or a follower thread does a synchronization 
+context switch during this consensus (a synchronization context switch 
+typically takes sub milli seconds, pretty slow).
+
 % Question: one key question, can RDMA lose packets in between? I mean, both 
 % data_size and canary value are correct, but packets in the middle are lost. 
 % This may violate \paxos's non-corrupting packets assumption.
@@ -159,3 +174,41 @@ and it cleans up the map on a corresponding \sendto call.
 % match the PMS intention. Explain why this design choice is good.
 
 % TBD. Four steps. Four entries?
+
+\subsection{Reliability and Safety} \label{sec:guarantees}
+
+% Follow PMP, ease to understand, absorbe good exeprience.
+To minimize protocol-level software bugs, \xxx's input coordination protocol 
+design chooses the same replica behavior as a popular, traditional 
+\paxos protocol protocol~\cite{paxos:practical}, although \xxx uses RDMA 
+operations to deliver consensus requests and replies and added some extra data 
+structure fields. For instance, both \xxx and the 
+protocol~\cite{paxos:practical} involve two messages between a leader replica 
+and a backup replica in normal case, and they both have the same four steps 
+involved by same replica roles on leader election. We made this design choice 
+because \paxos is notoriously difficult to understand, test, and verify; 
+sticking with a traditional replica behavior helps us incorporate the readily 
+mature understanding, engineering experience, and the theoretically verified 
+reliability rules~\cite{nsdi07} into our new RDMA-accelerated \paxos protocol.
+
+% Define safety: TBD.
+One key guarantee that must be enforced in \paxos is safety: the agreed socket 
+call must be an actual proposed one; if agreed, all active replicas must 
+consistently enforce this call. Safety is another important sweet spot that our 
+protocol inherites from traditional \paxos protocol when we sticking with same 
+replica behavior in traditional ones. As the traditional protocol, our input 
+coordination protocol also uses view IDs and viewstamps to enforce a consistent, 
+up-to-date leadership across replicas. To address the atomicy issue between 
+remote RDMA writes and local memory reads, our protocol addes an completion 
+check on log entries (\S\ref{sec:normal}).
+% In short, our 
+% design choice makes our input coordination protocol enforce the same level of 
+% safety as traditional \paxos protocols~\cite{paxos, paxos:simple, 
+% paxos:practical}.
+
+% Safety, viewstamp.
+
+% Store to stable storage.
+
+% Any unique changes that prevent us from providing guarantees? The delta 
+% changes? Packets. Logs?
