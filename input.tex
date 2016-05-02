@@ -192,15 +192,15 @@ mature understanding, engineering experience, and the theoretically verified
 reliability rules~\cite{nsdi07} into our new RDMA-accelerated \paxos protocol.
 
 % Define safety: TBD.
-One key guarantee that must be enforced in \paxos is safety: the agreed socket 
-call must be an actual proposed one; if agreed, all active replicas must 
-consistently enforce this call. Safety is another important sweet spot that our 
-protocol inherites from traditional \paxos protocol when we sticking with same 
-replica behavior in traditional ones. As the traditional protocol, our input 
-coordination protocol also uses view IDs and viewstamps to enforce a consistent, 
-up-to-date leadership across replicas. To address the atomicy issue between 
-remote RDMA writes and local memory reads, our protocol addes an completion 
-check on log entries (\S\ref{sec:normal}).
+A \paxos protocol must ensure safety: the agreed operation must be an actually 
+proposed one; if agreed, all active replicas must consistently enforce this 
+operation. Safety is another important sweet spot that \xxx's input 
+coordination protocol inherites from traditional \paxos protocol by sticking 
+with same replica behavior in traditional ones. As a traditional protocol, 
+our input coordination protocol also uses view IDs and viewstamps to enforce a 
+consistent, up-to-date leadership across replicas. To address the atomicy issue 
+between remote RDMA writes and local memory reads, our protocol addes an 
+completion check on log entries (\S\ref{sec:normal}).
 % In short, our 
 % design choice makes our input coordination protocol enforce the same level of 
 % safety as traditional \paxos protocols~\cite{paxos, paxos:simple, 
