@@ -105,7 +105,11 @@ Third, the follower thread does a regular \paxos check on \v{last\_committed}
 and executes all socket calls that it has not executed before this viewstamp. 
 It ``executes" each log entry by sending the data in each entry to the local 
 server program. On replicas, server programs run as is without being 
-intercepted.
+intercepted. In short, this follower thread runs a high performance loop to 
+respond consensus requests and forward data to the local server program. Since 
+each backup machine only has one follower thread and nowadays machines often 
+have spare cores, we didn't find that the spin loop of this thread brought 
+bring negative performance impact in our evaluation.
 
 % Question: one key question, can RDMA lose packets in between? I mean, both 
 % data_size and canary value are correct, but packets in the middle are lost. 
@@ -117,12 +121,35 @@ intercepted.
 
 \subsection{Handling Concurrent Connections} \label{sec:concurrent}
 
+Unlike traditional \paxos protocols which mainly handle single-threaded 
+programs due to their deterministic state machine assumption, \xxx aims to 
+support both single-threaded as well as multithreaded server programs running 
+on multi-core machines. Therefore, a strongly consistent mechanism is needed to 
+match every concurrent client connection on the leader and to its matching 
+connection on replica machines. A naive approach could be matching a leader's 
+socket descriptor to the same one on a backup replica, but note that backups' 
+servers may return different descriptors because such systems resources could 
+be contended by other threads in the server's process and nondeterministic.
+
+Fortunately, \paxos have already made viewstamps of socket calls strongly 
+consistent across replicas. For TCP connections, \xxx addes the 
+\v{conn\_vs} field, the viewstamp of the the first socket call in each 
+connection (aka, \accept) to as the connection ID for socket calls in the 
+log. On a local replica, \xxx maintains a hash map between this connection ID 
+to the actual local socket descriptor for each connection, then \xxx ensures 
+that data bytes are forwarded from a leader's connection to the right matching 
+connection on backups. \xxx also intercepts socket calls with the \close type 
+to clean up this map. For servers that use UDP to serve requests, \xxx maps the 
+viewstamp of a \recvfrom call to the socket descriptor returned from this call, 
+and it cleans up the map on a corresponding \sendto call. 
+
 % TBD. Strawmen approach, use fds on leader machines.
 
 %% thread ID mapping is not good too, because accept and recv can be called by 
 % different threads in leader side.
 
 % Use viewstamp of the accept() operation, consistent across replicas.
+
 
 % What does replica thread do. High performance loop on a dedicated core.
 
@@ -131,4 +158,4 @@ intercepted.
 % % Use one log operation or a few operations to do so. Clean, 
 % match the PMS intention. Explain why this design choice is good.
 
-% TBD. Four steps. 
+% TBD. Four steps. Four entries?
