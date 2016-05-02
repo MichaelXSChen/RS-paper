@@ -67,7 +67,7 @@ needs to be rolled back, the local guard forwards the roll back request to the
 guard in that remote replica.
 
 We explicitly design this output checking protocol to be fast with two 
-considrations: (1) since this hash comparison consensus happens occasionally 
+considrations: (1) because the hash comparison consensus happens occasionally 
 (every \thashcomp hash generations), the performance penalty on this output 
 consensus is negligible; and (2) all or most replicas' hash values are 
 the same in normal case.
