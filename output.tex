@@ -3,13 +3,19 @@
 % TBD. Motivation of this approach. Make replicas follow consistent execution 
 % states. Recover from bugs that diverge executions. 
 
-\subsection{Checkpoint and Rollback} \label{sec:checkpoint}
+\subsection{Workflow} \label{sec:output-workflow}
+
+% Two variables. Tckpt and Tcmp
+
+% Generating hashes.
 
 % Strawmen approach? Necessary?
 
-% Leverage the input protocol to carry the hash of outputs.
+% Leverage the input protocol to carry the hash of outputs. Occasionally.
 
 % When divergence is detected, spawn the mechanism, show workflow.
+
+% Efficient. Occasionally check hash. 
 
 \subsection{Checkpoint and Rollback} \label{sec:checkpoint}
 
@@ -23,7 +29,8 @@
 % Sound. As long as local machines have a checkpoint with a viewstamp before 
 % the last matched output check.
 
-% Efficient. Occasionally check hash. 
+% Closing RDMA sockets before checkpoint because CRIU does not support such 
+% special memory.
 
 
 

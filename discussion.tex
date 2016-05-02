@@ -13,6 +13,20 @@ applications (\S\ref{sec:apps}).
 %% No lxc.
 
 
-\subsection{\xxx has Broad Applications}\label{sec:apps}
+\subsection{Applications in Broad Research Areas}\label{sec:apps}
 
-TBD.
+% Other replication topics.
+
+% Parallel program analysis. Such a short coordination time can make replicas 
+% run almost as fast as each other, support many time-critical analyses 
+% such as race detection and security defenses.
+
+% One idea: can leverage the checkpoint and rollback protocok, and the 
+% consensus part, to build a system that can automatically bypass concurrency 
+% bugs without fixing them. The way to bypass: proactively reordering socket 
+% calls. Self-healing system.
+
+% A core building block in future operating systems. Maintain a consistent view 
+% of computing resources and data. Used in scheduling framework (Mesos) because 
+% its latency is almost compatible with context switches of processes (sub 
+% milli seconds). 
