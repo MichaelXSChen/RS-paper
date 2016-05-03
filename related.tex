@@ -1,4 +1,27 @@
 \section{Related Work} \label{sec:related}
 
 
-\para{State machine replication.} TBD.
+\para{State machine replication.} TBD. General literature.
+
+% Various paxos protocols. Ours is complementary.
+
+% Three systems aim to provide SMR services to server programs. Eve, Rex, Dare, 
+% Crane.
+% Type I: Dare. Weaker durability. Four RDMA writes. We have two RDMA writes 
+% plus two SSD writes. Compatible perf. Not for general server programs.
+
+% Type II: Eve, Rex, Crane. All slow. Eve has output check, but also slow, use 
+% TCP, and needs annotation.
+
+
+\para{RDMA techniques.} Othre RDMA applications. KV. Transactions 
+(last SOSP).
+
+\para{DMT.} Increasing assurance of replicas on thread schedulings. Not general 
+as Falcon's checkpoint techniques. But complementary for example ClamAV.
+
+\para{Concurrency.} Pervasive in real-world applications. Threads. Processes. 
+Break SMR's state machine assumption. complementary.
+
+
+
