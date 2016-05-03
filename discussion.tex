@@ -13,19 +13,21 @@ false positive when it uses multiple threads to serve the same client
 connection and uses these threads to concurrently produce outputs 
 (\eg, \clamav). Running a DMT scheduler in \xxx can address this problem. In 
 our evaluation, all programs except \clamav uses only one thread to process one 
-client connection and they don't have such false positives. A server program 
-may have false negative when it triggers a software bug but the bug does not 
-propogate to network outputs. On client programs' point of view, such bugs do 
-not matter; \xxx already checkpoints file system state to mitigate this issue.
+client connection and they don't have such false positives.
 
-Once execution divergence is detected in a replica, \xxx's rollback mechanism 
+A server program may also have false negative when it triggers a software bug 
+but the bug does not propogate to network outputs. On client programs' point of 
+view, such bugs do not matter; \xxx already checkpoints file system state to 
+mitigate this issue.
+
+When execution divergence is detected in a replica, \xxx's rollback mechanism 
 is not designed to guarantee that the re-executions of this replica will 
-definitely eliminates this divergence. The reason is that both our 
-evaluation and a previous work Eve~\cite{eve:osdi12} found that divergence 
+definitely avoids this divergence. We made this design choice because both 
+our evaluation and a previous work Eve~\cite{eve:osdi12} found that divergence 
 happens extremely rarely in evaluation. Specifically, although Eve provided a 
-sequential re-execution approach to overcome divergence, which \xxx can 
-leverage, but even the evaluation in Eve didn't experience any divergence and 
-thus their approach was not in use at all.
+sequential re-execution approach to with divergence avoidance guarantee, which 
+\xxx can leverage, but even Eve's evaluation didn't experience any divergence 
+and thus this approach was not in use at all.
 
 % Have not hooked time and rand(). Can use PMP approach. Not a problem for 
 % evaluated apps. 
