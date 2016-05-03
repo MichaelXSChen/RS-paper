@@ -74,10 +74,10 @@ We explicitly design this output checking protocol to be fast with two
 considrations: (1) because the hash comparison consensus happens occasionally 
 (every \thashcomp hash generations), the performance penalty on this output 
 consensus is negligible; and (2) all or most replicas' hash values are 
-the same in normal case. Two parameters, \thashcomp and \twait, may affect the 
-performance of \xxx's output checking protocol. We did an evaluation on 
-diverse server programs and found that these default values are reasonable, 
-general settings to these programs (\S\ref{sec:sensitivity}).
+the same in normal case. Two parameters, \thashcomp and \twait, may be 
+sensitive to \xxx's performance. We did an evaluation on diverse server 
+programs and found that these default values are reasonable, general settings to 
+these programs (\S\ref{sec:sensitivity}).
 
 % When divergence is detected, spawn the mechanism, show workflow.
 
@@ -99,12 +99,13 @@ general settings to these programs (\S\ref{sec:sensitivity}).
 A guard process is running on each replica to checkpoint and restore the local 
 server program. The guard does two tasks. First, \xxx assigns one backup 
 replica's guard to checkpoint the local server program's process state and file 
-system state within a physical period \tcheckpoint (by default, one hour in 
-\xxx). Such a checkpoint does not affect leader to process requests because the 
-leader and the other backups can still reach a consensus quorum. Each 
-checkpoint is associate with a last committed socket call viewstamp of the 
-server program. After each periodical checkpoint, the backup distributes the 
-checkpoint tar bar to the other replicas to cope with replica failovers.
+system state within a physical duration \tcheckpoint (by default, one hour in 
+\xxx). Such a checkpoint operation and its duration are not sensitive to \xxx's 
+performance because the leader and the other backups can still reach a 
+consensus quorum rapidly. Each checkpoint is associate with a last committed 
+socket call viewstamp of the server program. After each periodical checkpoint, 
+the backup distributes the checkpoint tar bar to the other replicas to cope 
+with replica failovers.
 
 Specifically, \xxx leverages CRIU, a popular, open source process checkpoint 
 tool, to checkpoint a server program's process state (\eg, CPU registers and 
