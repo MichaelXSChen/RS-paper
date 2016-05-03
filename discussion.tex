@@ -24,7 +24,9 @@ When execution divergence is detected in a replica, \xxx's rollback mechanism
 is not designed to guarantee that the re-executions of this replica will 
 definitely avoids this divergence. We made this design choice because both 
 our evaluation and a previous work Eve~\cite{eve:osdi12} found that divergence 
-happens extremely rarely in evaluation. Specifically, although Eve provided a 
+happens extremely rarely in evaluation. In our evaluation, we found that simply 
+re-executing the log can practically make \xxx's replicas converge to 
+same execution states. A similar finding is that although Eve provided a 
 sequential re-execution approach to with divergence avoidance guarantee, which 
 \xxx can leverage, but even Eve's evaluation didn't experience any divergence 
 and thus this approach was not in use at all.
