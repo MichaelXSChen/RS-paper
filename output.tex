@@ -32,7 +32,9 @@ replicas. The index of this hash in the generated sequence is consistent across
 replicas because each replica runs the same mechanism to generate the hash 
 sequence.
 
-% Generating hashes.
+% TBD. Briefly describe why using our input coordination protocol for output 
+% checking is good. Simply the whole system, reliable (tolerate packet 
+% lossses and consistency, thanks to paxos), fast, already have ACK mechanisms.
 
 % Leverage the input protocol to carry the hash of outputs. Occasionally.
 To compare a hash across replicas, \xxx's output checking protocol is the same 
@@ -47,7 +49,9 @@ follower threads on backup replicas carry their local hash values in the \v{ack}
 array according to the connection ID \v{conn\_vs}. Once a quorum of \v{ack} 
 is ready, the leader simply detects divergence with the hash values in its 
 local \v{ack} array. Note that at this moment, some replicas may not send back 
-their reply yet, the leader just makes an effort to detect such divergence.
+their reply yet because only a quorum is reached. To make an effort to collect 
+a complete hash values, \xxx waits for \twait (by default, 20 \us) and then 
+starts to detect divergence on hash values.
 
 Figure~\ref{fig:divergence} shows the workflow on how the leader checks 
 present replies and handles divergence, which include four possible cases: 
@@ -70,7 +74,10 @@ We explicitly design this output checking protocol to be fast with two
 considrations: (1) because the hash comparison consensus happens occasionally 
 (every \thashcomp hash generations), the performance penalty on this output 
 consensus is negligible; and (2) all or most replicas' hash values are 
-the same in normal case.
+the same in normal case. Two parameters, \thashcomp and \twait, may affect the 
+performance of \xxx's output checking protocol. We did an evaluation on 
+diverse server programs and found that these default values are reasonable, 
+general settings to these programs (\S\ref{sec:sensitivity}).
 
 % When divergence is detected, spawn the mechanism, show workflow.
 
@@ -85,9 +92,7 @@ the same in normal case.
 \vspace{-.05in}
 \end{figure}
 
-\subsection{Checkpoint and Restore} \label{sec:checkpoint}
-
-% TBD.
+\subsection{Checkpoint and Restore Implementations} \label{sec:checkpoint}
 
 % Regularly: periodically checkpoint. Contain both process state and file 
 % system state, so that we do not need to check output to file system.
