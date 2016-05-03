@@ -1,14 +1,40 @@
 \section{Discussions}\label{sec:discuss}
 
-This section discusses \xxx's limitations (\S\ref{sec:limits}) and its broad 
-applications (\S\ref{sec:apps}).
+This section discusses \xxx's limitations (\S\ref{sec:limits}) and its 
+applications in other research areas (\S\ref{sec:apps}).
 
 \subsection{Limitations}\label{sec:limits}
 
+% Clamav style.
+\xxx's output checking protocol may have false positives or false negatives, 
+because it just makes an effort to practically indicate that replicas are 
+running the same execution states. A server program running in \xxx may have 
+false positive when it uses multiple threads to serve the same client 
+connection and uses these threads to concurrently produce outputs 
+(\eg, \clamav). Running a DMT scheduler in \xxx can address this problem. In 
+our evaluation, all programs except \clamav uses only one thread to process one 
+client connection and they don't have such false positives. A server program 
+may have false negative when it triggers a software bug but the bug does not 
+propogate to network outputs. On client programs' point of view, such bugs do 
+not matter; \xxx already checkpoints file system state to mitigate this issue.
+
+Once execution divergence is detected in a replica, \xxx's rollback mechanism 
+is not designed to guarantee that the re-executions of this replica will 
+definitely eliminates this divergence. The reason is that both our 
+evaluation and a previous work Eve~\cite{eve:osdi12} found that divergence 
+happens extremely rarely in evaluation. Specifically, although Eve provided a 
+sequential re-execution approach to overcome divergence, which \xxx can 
+leverage, but even the evaluation in Eve didn't experience any divergence and 
+thus their approach was not in use at all.
+
 % Have not hooked time and rand(). Can use PMP approach. Not a problem for 
 % evaluated apps. 
-
-% Clamav style.
+\xxx currently does not hook random functions such as \v{gettimeofday()} and 
+\v{rand()} because our output checkers have not detected network output 
+divergence comming from these functions. Existing 
+approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can be 
+leveraged to intercept these functions and make them produce same results among 
+replicas.
 
 % No guarantees on recovery. Best effort. But, can we actually server requests 
 % one by one?
