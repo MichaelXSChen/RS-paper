@@ -5,6 +5,19 @@ applications in other research areas (\S\ref{sec:apps}).
 
 \subsection{Limitations}\label{sec:limits}
 
+% Input coordination protocol.
+
+% Have not hooked time and rand(). Can use PMP approach. Not a problem for 
+% evaluated apps. 
+\xxx currently does not hook random functions such as \v{gettimeofday()} and 
+\v{rand()} because our output checkers have not detected network output 
+divergence comming from these functions. Existing 
+approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can be 
+leveraged to intercept these functions and make them produce same results among 
+replicas.
+
+% Output checking protocol.
+
 % Clamav style.
 \xxx's output checking protocol may have false positives or false negatives, 
 because it just makes an effort to practically indicate that replicas are 
@@ -29,16 +42,7 @@ re-executing the log can practically make \xxx's replicas converge to
 same execution states. A similar finding is that although Eve provided a 
 sequential re-execution approach to with divergence avoidance guarantee, which 
 \xxx can leverage, but even Eve's evaluation didn't experience any divergence 
-and thus this approach was not in use at all.
-
-% Have not hooked time and rand(). Can use PMP approach. Not a problem for 
-% evaluated apps. 
-\xxx currently does not hook random functions such as \v{gettimeofday()} and 
-\v{rand()} because our output checkers have not detected network output 
-divergence comming from these functions. Existing 
-approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can be 
-leveraged to intercept these functions and make them produce same results among 
-replicas.
+and thus this approach was not invoked.
 
 % No guarantees on recovery. Best effort. But, can we actually server requests 
 % one by one?
@@ -48,11 +52,33 @@ replicas.
 
 \subsection{Applications in Broad Research Areas}\label{sec:apps}
 
+\xxx's a fast, general SMR service can be applied broadly in many research 
+area, and here we elaborate three. First, \xxx's RDMA-accelerated \paxos 
+protocol and its implementation could be an effective template for 
+many other distributed protocols in datacenters. For instance, an immediate 
+extension of \xxx is to make it tolerate byzantine faults. Another promising 
+direction is three-phase commit (3PC): 3PC is often blamed by its intolerance on 
+network partitions and asynchronour communications, and its high latency caused 
+by the three round-trip communications. Fortunately, within the RDMA-enabled 
+datacenter context, people may leverage \xxx's techniques and exprience to 
+build a significantly faster and more reliable 3PC protocols.
+
 % Other replication topics.
 
 % Parallel program analysis. Such a short coordination time can make replicas 
 % run almost as fast as each other, support many time-critical analyses 
 % such as race detection and security defenses.
+Second, by efficiently constructing multiple, equivalent executions for the 
+same program, \xxx can benefit distributed program analysis techniques. Bounded 
+by the limited computing resources on single machine, recent advanced 
+reliability and security analaysis frameworks are moving towards distributed in 
+order to offload analyses on multiple machines. \xxx can be leveraged in these 
+frameworks so that developers of analysis tools can just focus on their own 
+analysis logic, while \xxx's general replication architecture efficiently 
+handles the rest. Moreover, analyses developers can tightly integrate their 
+tools with \xxx (\eg, they can proactively diversify the orders of socket 
+calls in \xxx's consensus logs among replicas to improve replicas' tolerance on
+security attacks).
 
 % One idea: can leverage the checkpoint and rollback protocok, and the 
 % consensus part, to build a system that can automatically bypass concurrency 
@@ -62,4 +88,12 @@ replicas.
 % A core building block in future operating systems. Maintain a consistent view 
 % of computing resources and data. Used in scheduling framework (Mesos) because 
 % its latency is almost compatible with context switches of processes (sub 
-% milli seconds). 
+% milli seconds).
+Third, \xxx can be a core building block in the emerging datacenter operating 
+systems~\cite{hotos15, mesos, web-article}. As a datacenter continuously 
+emerges a computer, an OS may be increasingly needed for thus a giant 
+computer. \xxx's fast, general coordination service is espeicially suitable 
+for such an OS's scheduler to maintain a consistent, reliable view on both 
+computing resources and data in a datacenter. For instance,, \xxx's latency is 
+largely between 15 to 20 \us, much smaller than a typical context swtich of a 
+process (typically, a few hundreds \us).
