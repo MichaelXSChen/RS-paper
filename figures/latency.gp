@@ -114,7 +114,7 @@ set ytics 30
 set origin 0.0,0.15
 set size 1.0,0.85
 #set title "(g) Redis"
-set label 11 center at graph 0.5,0.0 "(g) Redis" font ",35"
+set label 11 center at graph 0.5,-0.25 "(g) Redis" font ",35"
 
 plot 'latency.dat' using 1:14 with linespoints title "origin" ls 1,'latency.dat' using 1:15 with linespoints title "hook" ls 2
 #plot sin(x) ls 7
@@ -127,7 +127,7 @@ set ytics 50
 set origin 1.0,0.15
 set size 1.0,0.85
 #set title "(h) Ssdb"
-set label 11 center at graph 0.5,0.0 "(h) Ssdb" font ",35"
+set label 11 center at graph 0.5,-0.25 "(h) Ssdb" font ",35"
 
 plot 'latency.dat' using 1:16 with linespoints title "origin" ls 1,'latency.dat' using 1:17 with linespoints title "hook" ls 2
 #plot sin(x) ls 8
@@ -140,7 +140,7 @@ set ytics 0.5
 set origin 2.0,0.15
 set size 1.0,0.85
 #set title "(i) OpenTftp"
-set label 11 center at graph 0.5,0.0 "(i) OpenTftp" font ",35"
+set label 11 center at graph 0.5,-0.25 "(i) OpenTftp" font ",35"
 
 plot 'latency.dat' using 1:18 with linespoints title "origin" ls 1,'latency.dat' using 1:19 with linespoints title "hook" ls 2
 #plot sin(x) ls 9
