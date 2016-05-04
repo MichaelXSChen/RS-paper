@@ -84,6 +84,11 @@ tools with \xxx (\eg, they can proactively diversify the orders of socket
 calls in \xxx's consensus logs among replicas to improve replicas' tolerance on
 security attacks).
 
+% TBD: use \xxx to detect software bugs by checking outputs, even in 
+% real-world deployments. XXX make program % inputs strongly consistent across 
+% replicas, so output divergence are likely % from software bugs. XXX promising % 
+% results in our evaluation. Find a bug in % ssdb?
+
 % One idea: can leverage the checkpoint and rollback protocok, and the 
 % consensus part, to build a system that can automatically bypass concurrency 
 % bugs without fixing them. The way to bypass: proactively reordering socket 
