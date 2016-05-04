@@ -1,5 +1,68 @@
 \section{Evaluation} \label{sec:evaluation}
-TBD.
+
+Our evaluation used three Dell R430 servers as replicas. Each server having 
+Linux 3.XX.X, 2.6 GHz Intel Xeon CPU with 24 hyperthreading cores, 32GB memory, 
+and 1T SSD. Each machine has a Mellanox ConnectX-3 Pro Dual Port 40 Gbps NIC. 
+These NIC are connected using the InfiniBand RDMA architecture through a Dell 
+S6000 high-performance switch with 32 40Gpbs ports. The price of these 
+RDMA-relevant hardware were moderate: each server costs US \$5,328 and the 
+switch costs US \$12,894.
+
+We evaluated \xxx on \nprog server programs, including \redis, 
+\memcached, \ssdb, and \mongodb, \nkvprog key value stores; \mysql, a SQL 
+server; \clamav, a anti-virus server that scans files and delete malicious 
+ones; \mediatomb, a multimedia storage server that stores and transcodes video 
+and audeo files; \openldap, a LDAP server, \tftp, a FTP server. In addition 
+to these widely used \npopularprog programs, We have also evaluated \calvin, an 
+advanced transactional database system that leverages \zookeeper as its SMR 
+service. All these programs are multithreaded except \redis (but it can still 
+serve requests concurrently using Libevent). These servers all process, 
+update, and store important data and files, thus the high fault-tolerance of SMR 
+is especially attractive to these programs.
+
+\begin{table}[b]
+\footnotesize
+\centering
+\vspace{-.05in}
+\begin{tabular}{lrr}
+{\bf Program} & {\bf Benchmark} & {\bf Benchmark workload description}\\
+\hline\\[-2.3ex]
+\clamav & clamdscan  & Scan files in \clamav source directory\\
+\mediatomb & ApacheBench  & Transcode video files in parallel\\
+% TBD: portion of read/write? half/half? 10% writes?
+\memcached & mcperf  & Concurrent set and put operations\\
+\mongodb & YCSB  & Workload C\\
+\mysql & Sysbench  & Concurrent SQL transactions\\
+\openldap & slapd\-mtread  & \openldap's test program\\
+\redis & redis\-benchmark  & Concurrent set and put operations\\
+\ssdb & ssdb-bench  & Concurrent set and put operations\\
+\tftp & tftp  & Concurrent uploading files \\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Benchmarks and workloads.}} 
+\label{tab:benchmarks}
+\end{table}
+
+
+% Benchmarks table.
+To evaluate the \xxx's practicality, we used popular third-party or the 
+developers' own performance benchmarks for all these servers. For benchmark 
+workload settings, we used the benchmarks' default workloads whenever 
+available. Table~\ref{tab:benchmarks} introduces the benchmarks and workloads 
+we used. To mitigate network latency of public network, all benchmarks were 
+ran in a Dell R320 server, with Linux 3.XX.X, 2.2GHz Intel Xeon with 12 
+hyperthreading cores, 16GB memory, and 160G SSD. This server connects with the 
+replica machines with 1GBps 1Gbps bandwidth LAN, with a mean 401 \us ping 
+round-trip latency. A larger latency (\eg, running clients from WAN) will 
+further mask \xxx's overhead. We spawned up to 16 concurrent connections 
+which made these servers reached peak throughput, and then we measured both 
+response time (latency) and throughput. We also measured \xxx's bare 
+latency on consensus. Each performance data point in the evaluation is taken 
+from the mean value of 10 repeated executions.
+
+% evaluation metric. client benchmarks all run in LAN, average latency
+
+
 
 \subsection{Performance Overhead} \label{sec:overhead}
 

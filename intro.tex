@@ -149,12 +149,13 @@ them. To support practical checkpoint and restore on server
 programs, \xxx leverages \criu.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
-We evaluated \xxx on \nprog server programs, including \calvin, an advanced 
-database system that leverages \zookeeper as its SMR service, and \npopularprog 
+We evaluated \xxx on \nprog server programs, including \npopularprog 
 widely used server programs: \nkvprog key value stores (\redis, 
 \memcached, \ssdb, and \mongodb), one SQL server \mysql, one anti-virus server 
 \clamav, one multimedia storage server \mediatomb, one LDAP server \openldap, 
-one FTP server \tftp. Our evaluation shows that
+one FTP server \tftp. We have also evaluated \calvin, an advanced transactional 
+database system that leverages \zookeeper as its SMR service. Our evaluation 
+shows that
 
 \begin{tightenum}
 \item \xxx is general. For the \npopularprog widely used server programs, \xxx 
