@@ -1,4 +1,11 @@
 \section{Conclusion}\label{sec:conclusion}
 
-TBD.
-
+We have presented \xxx, a fast, general state machine replication system 
+through building an RDMA-accelerated \paxos protocol to efficiently coordinate 
+replica inputs. On top of this protocol, \xxx introduces an automated, 
+efficient output checking protocol to detect and recover execution divergence 
+among replicas and improve the assurance of sync in replicas. Evaluation on 
+widely used, diverse server programs showt that \xxx supports these unmodified 
+programs with reasonable performance overhead, and can recover from replica 
+divergence caused by real-world software bugs. \xxx has the potential to 
+broadly applied to other areas.

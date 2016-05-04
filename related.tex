@@ -15,9 +15,41 @@ understandability~\cite{raft:usenix14}. Although \xxx's current implementation
 takes a popular engineering approach~\cite{paxos:practical} for practicality, 
 it can also leverage other consensus protocols and approaches.
 
-Three recent systems aim to provide SMR or similar services to server programs 
-and thus they are the most relevant to \xxx. They can be divided into two 
+Five systems aim to provide SMR or similar services to server programs and 
+thus they are the most relevant to \xxx. They can be divided into two 
 categories depending on whether they use RDMA to accelerate their services. 
+Tet first category includes Eve, Rex, Calvin, and Crane, which 
+leverage traditional \paxos protocols (or similar synchronized replication 
+protocols, \eg, Zookeeper in Calvin) running on TCP/IP as the coordination 
+service. The evaluation in these systems have shown that SMR services incur 
+modest overhead on server programs' throughput compared to their unreplicated 
+executions. However, for key-value stores that are extremely critical on 
+latency, their consensus latency one order of magnitude higher than that in 
+\xxx (\S\ref{sec:compare}). These systems can leverage \xxx's general, 
+RDMA-accelerated protocol to improve latency.
+
+Notably, Eve presents a execution state checking approach based on their 
+coordination service. Eve's completeness on detecting execution divergence 
+relies on whether developers have manually annotated all thread-shared states 
+in program code. \xxx's output checking approach is automated (no manuall code 
+annotation is needed), and its completeness depends on whether the diverged 
+execution states propogate to network outputs. These two approaches are 
+complementary and can be integrated.
+
+The second category includes DARE, a coordination protocol that also uses RDMA 
+to reduce latency. \xxx differs from DARE in two aspects. First, 
+the reliability model in DARE is different from that in \paxos: DARE assumes 
+that a replica's memory is still accessible to remote replicas even if CPU 
+fails, so that the leader still writes to remote backups. With this reliability 
+model, DARE requires four one-sided RDMA writes on a consensus round between the 
+leader and a backup. DARE's paper shows that the MTTF (mean time to failure) of 
+memory and CPU is similar. In contrast, \xxx's reliability model aligns with 
+\paxos's: memory and CPU may fail, thus consensus requests must be written to 
+stable storage. Thus, \xxx requires two one-sided RDMA writes and two SSD writes 
+on a consensus round between the leader and a backup. Our evaluation shows that 
+\xxx's latency is compatible with DARE's. The second difference between DARE 
+and \xxx is that \xxx aims to support general, diverse server programs, while 
+DARE's evaluation uses a XX-line key-value store.
 
 % Various paxos protocols. Ours is complementary. Can be plugged into our 
 % system.
