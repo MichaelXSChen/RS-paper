@@ -1,7 +1,23 @@
 \section{Related Work} \label{sec:related}
 
 
-\para{State machine replication.} TBD. General literature.
+\para{State machine replication.} \para{State machine replication (SMR).}  SMR 
+has been studied by the literature 
+for decades, and it is recognized by both industry and academia as a powerful 
+fault-tolerance technique in clouds and distributed 
+systems~\cite{lamportclock,smr:tutorial}. As a common practice, SMR uses 
+\paxos~\cite{paxos,paxos:simple,paxos:complex} and its popular engineering 
+approaches~\cite{paxos:live,paxos:practical} as the consensus protocol to 
+ensure that all replicas see the same input request sequence. Since consensus 
+protocols are the core of SMR, a variety of study improve different aspects of 
+consensus protocols, including performance~\cite{epaxos:sosp13,paxos:fast} and 
+understandability~\cite{raft:usenix14}. Although \xxx's current implementation 
+takes a popular engineering approach~\cite{paxos:practical} for practicality, 
+it can also leverage other consensus protocols and approaches.
+
+Three recent systems aim to provide SMR or similar services to server programs 
+and thus they are the most relevant to \xxx. They can be divided into two 
+categories depending on whether they use RDMA to accelerate their services. 
 
 % Various paxos protocols. Ours is complementary. Can be plugged into our 
 % system.
@@ -15,14 +31,52 @@
 % TCP, and needs annotation.
 
 
-\para{RDMA techniques.} Othre RDMA applications. KV. Transactions 
-(last SOSP).
+\para{RDMA techniques.} RDMA techniques have been leveraged in many online 
+storage systems to improve latency and throughput within datacenters. These 
+systems include key-value stores~\cite{jinyang,herd,farm}, transactional 
+processing systems~\cite{haibo,microsoft:sosp15}, and XXX. These systems mainly 
+aim to use RDMA to speedup specific communications, where both their storage 
+and client access have RDMA enabled. \xxx's deployment model is to provide 
+SMR fault-tolerance to general server programs deployed in datacenters, and the 
+client programs access these server programs in LAN or WAN. It 
+would be interesting to investigate whether \xxx can improve the availability 
+for both the client side and server side of these advanced systems within a 
+datacenter, and we leave it for future work.
 
-\para{DMT.} Increasing assurance of replicas on thread schedulings. Not general 
-as Falcon's checkpoint techniques. But complementary for example ClamAV.
+% We didn't evaluate these systems because they are not available on client sides.
 
-\para{Concurrency.} Pervasive in real-world applications. Threads. Processes. 
-Break SMR's state machine assumption. complementary.
 
+% Increasing assurance of replicas on thread schedulings. Not general 
+% as Falcon's checkpoint techniques. But complementary for example ClamAV.
+\para{Determinism techniques.} In order to make multi-threading easier to 
+understand, test, analyze, and replicate, researchers have built two types of 
+reliable multi-threading systems: (1) stable multi-threading systems (or 
+\smt)~\cite{grace:oopsla09, dthreads:sosp11, determinator:osdi10} that aim to 
+reduce the number of possible thread interleavings for program all inputs, and 
+(2) deterministic multi-threading systems (or \dmt)~\cite{dpj:oopsla09, 
+dmp:asplos09,kendo:asplos09,coredet:asplos10,dos:osdi10,ddos:asplos13,
+ics:oopsla13} that aim to reduce the number of possible thread interleavings on 
+each program input. Typically, these systems use deterministic logical clocks 
+instead of nondeterministic physical clocks to make sure inter-thread 
+communications (\eg, \mutexlock and accesses to global variables) can only 
+happen at some specific logical clocks. Therefore, given the same or similar 
+inputs, these systems can enforce the same thread interleavings and eventually 
+the same executions. These systems 
+have shown to greatly improve software reliability, including coverage of 
+testing inputs~\cite{ics:oopsla13} and speed of recording 
+executions\cite{dos:osdi10} for debugging.
+
+% \para{Concurrency.} Pervasive in real-world applications. Threads. Processes. 
+% Break SMR's state machine assumption. complementary.
+\para{Concurrency.} \xxx are mutually beneficial with much prior work on 
+concurrency error 
+detection~\cite{yu:racetrack:sosp,savage:eraser,racerx:sosp03,lu:muvi:sosp,
+avio:asplos06,conmem:asplos10},
+diagnosis~\cite{racefuzzer:pldi08,ctrigger:asplos09,atomfuzzer:fse08}, and
+correction~\cite{dimmunix:osdi08,gadara:osdi08,wu:loom:osdi10,cfix:osdi12}. 
+On one hand, these techniques can be deployed in \xxx's backups and help 
+\xxx detect data races. On the other hand, \xxx's asynchronous replication 
+architecture can mitigate the performance overhead of these powerful 
+analyses~\cite{repframe:apsys15}.
 
 
