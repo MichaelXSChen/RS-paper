@@ -30,10 +30,11 @@ set logscale x 2
 set key right center
 
 # plot A
-set yrange [0:2]
+set xrange [2:16]
+set yrange [0:0.1]
 set origin 0.0,2.15
 set size 1.0,0.85
-set ytics 0.2
+set ytics 0.01
 #set title "(a) Clamav"
 set label 11 center at graph 0.5,-0.25 "(a) Clamav" font ",35"
 
@@ -44,6 +45,7 @@ unset yrange
 unset ytics
 
 # plot B
+set xrange [1:16]
 set yrange [0:15000]
 set ytics 2500
 set origin 1.0,2.15
@@ -57,8 +59,8 @@ unset yrange
 unset ytics
 
 # plot C
-set yrange [3000:3500]
-set ytics 100
+set yrange [0:50000]
+set ytics 5000
 set origin 2.0,2.15
 set size 1.0,0.85
 #set title "(c) Memcached"
@@ -70,7 +72,7 @@ unset yrange
 unset ytics
 
 # plot D
-set yrange [0:4500]
+set yrange [0:5500]
 set ytics 500
 set origin 0.0,1.15
 set size 1.0,0.85
@@ -82,9 +84,9 @@ plot 'throughput.dat' using 1:8 with linespoints title "origin" ls 1,'throughput
 unset yrange
 unset ytics
 
-# plot E
-set yrange [2100:4500]
-set ytics 300
+# plot E 1-16
+set yrange [2000:3500]
+set ytics 250
 set origin 1.0,1.15
 set size 1.0,0.85
 #set title "(e) Mysql"
@@ -95,9 +97,10 @@ plot 'throughput.dat' using 1:10 with linespoints title "origin" ls 1,'throughpu
 unset yrange
 unset ytics
 
-# plot F
-set yrange [0:8000]
-set ytics 1000
+# plot F  1-4
+set xrange [1:4]
+set yrange [8000:24000]
+set ytics 2000
 set origin 2.0,1.15
 set size 1.0,0.85
 #set title "(f) Openldap"
@@ -108,6 +111,8 @@ plot 'throughput.dat' using 1:12 with linespoints title "origin" ls 1,'throughpu
 unset yrange
 unset ytics
 
+
+set xrange [1:16]
 # plot G
 set yrange [0:50000]
 set ytics 5000
@@ -122,7 +127,7 @@ unset yrange
 unset ytics
 
 # plot H
-set yrange [0:45000]
+set yrange [0:50000]
 set ytics 5000
 set origin 1.0,0.15
 set size 1.0,0.85
@@ -135,7 +140,7 @@ unset yrange
 unset ytics
 
 # plot I
-set yrange [0:8000]
+set yrange [0:6000]
 set ytics 500
 set origin 2.0,0.15
 set size 1.0,0.85

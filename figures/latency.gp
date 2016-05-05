@@ -30,7 +30,8 @@ set logscale x 2
 set key right center
 
 # plot A
-set yrange [0:105]
+set xrange [2:16]
+set yrange [0:120]
 set origin 0.0,2.15
 set size 1.0,0.85
 set ytics 10
@@ -44,8 +45,9 @@ unset yrange
 unset ytics
 
 # plot B
-set yrange [0:1.3]
-set ytics 0.1
+set xrange [1:16]
+set yrange [0:1.5]
+set ytics 0.15
 set origin 1.0,2.15
 set size 1.0,0.85
 #set title "(b) Mediatomb"
@@ -57,7 +59,7 @@ unset yrange
 unset ytics
 
 # plot C
-set yrange [290:330]
+set yrange [290:400]
 set ytics 10
 set origin 2.0,2.15
 set size 1.0,0.85
@@ -70,7 +72,7 @@ unset yrange
 unset ytics
 
 # plot D
-set yrange [1000:4000]
+set yrange [1000:3000]
 set ytics 500
 set origin 0.0,1.15
 set size 1.0,0.85
@@ -83,8 +85,8 @@ unset yrange
 unset ytics
 
 # plot E
-set yrange [240:560]
-set ytics 50
+set yrange [0:5000]
+set ytics 500
 set origin 1.0,1.15
 set size 1.0,0.85
 #set title "(e) Mysql"
@@ -96,8 +98,9 @@ unset yrange
 unset ytics
 
 # plot F
-set yrange [0:10000]
-set ytics 2000
+set xrange [1:4]
+set yrange [0:300]
+set ytics 30
 set origin 2.0,1.15
 set size 1.0,0.85
 #set title "(f) Openldap"
@@ -109,8 +112,9 @@ unset yrange
 unset ytics
 
 # plot G
-set yrange [300:450]
-set ytics 30
+set xrange [1:16]
+set yrange [340:440]
+set ytics 10
 set origin 0.0,0.15
 set size 1.0,0.85
 #set title "(g) Redis"
@@ -122,8 +126,8 @@ unset yrange
 unset ytics
 
 # plot H
-set yrange [0:550]
-set ytics 50
+set yrange [360:540]
+set ytics 20
 set origin 1.0,0.15
 set size 1.0,0.85
 #set title "(h) Ssdb"
@@ -135,7 +139,7 @@ unset yrange
 unset ytics
 
 # plot I
-set yrange [1.5:5]
+set yrange [1:4]
 set ytics 0.5
 set origin 2.0,0.15
 set size 1.0,0.85
