@@ -42,7 +42,7 @@ set xrange [2:16]
 set yrange [0:120]
 set origin 0.0,2.15
 set size 1.0,0.8
-set ytics 10
+set ytics 20
 #set title "(a) Clamav"
 set label 11 center at graph 0.5,-0.25 "(a) Clamav" font ",35"
 
@@ -56,8 +56,8 @@ unset ytics
 set ylabel "latency (microseconds)" offset 2,0
 set key left top
 set xrange [1:16]
-set yrange [0:1190]
-set ytics 100
+set yrange [250:1250]
+set ytics 250
 set origin 1.0,2.15
 set size 1.0,0.8
 #set title "(b) Mediatomb"
@@ -70,7 +70,7 @@ unset ytics
 
 # plot C
 set key right bottom
-set yrange [200:400]
+set yrange [260:360]
 set ytics 20
 set origin 2.0,2.15
 set size 1.0,0.8
@@ -84,7 +84,7 @@ unset ytics
 
 # plot D
 set key left top
-set yrange [1000:3000]
+set yrange [1000:2700]
 set ytics 500
 set origin 0.0,1.15
 set size 1.0,0.8
@@ -128,7 +128,7 @@ unset ytics
 # plot G
 set key left top
 set xrange [1:32]
-set yrange [200:800]
+set yrange [300:800]
 set ytics 60
 set origin 0.0,0.15
 set size 1.0,0.8
@@ -142,8 +142,8 @@ unset ytics
 
 # plot H
 set xrange [1:32]
-set key left bottom
-set yrange [0:1090]
+set key left top
+set yrange [400:1090]
 set ytics 100
 set origin 1.0,0.15
 set size 1.0,0.8
@@ -158,13 +158,13 @@ unset ytics
 # plot I
 set xrange [1:16]
 set ylabel "latency (seconds)" offset 2,0
-set key left top
-set yrange [0:5]
-set ytics 0.5
+set key right top
+set yrange [0:600]
+set ytics 100
 set origin 2.0,0.15
 set size 1.0,0.8
 #set title "(i) OpenTftp"
-set label 11 center at graph 0.5,-0.25 "(i) OpenTftp" font ",35"
+set label 11 center at graph 0.5,-0.25 "(i) Calvin" font ",35"
 
 plot 'latency.dat' using 1:18 with linespoints title "origin" ls 1,'latency.dat' using 1:19 with linespoints title "hook" ls 2
 #plot sin(x) ls 9

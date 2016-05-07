@@ -7,8 +7,8 @@ set terminal postscript eps enhanced "NimbusSanL-Regu, 20" fontfile "/usr/share/
 ##set xlabel "number of threads"
 ## font ",16"
 
-set style line 1 lt 1 lw 5 pt 2 ps 3 lc rgb "#d61818"
-set style line 2 lt 2 lw 5 pt 12 ps 3 lc rgb "#072c76"
+set style line 1 lt 1 lw 5 pt 2 ps 2 lc rgb "#d61818"
+set style line 2 lt 2 lw 5 pt 12 ps 2 lc rgb "#072c76"
 #set style line 3 lt 3 lw 15 pt 9 ps 1 lc rgb "#072c76"
 #set style line 4 lt 4 lw 15 pt 7 ps 1 lc rgb "#208418"
 #set style line 5 lt 5 lw 15 pt 11 ps 1 lc rgb "#d97c19"
@@ -35,7 +35,7 @@ set key right center
 # plot A
 set key left top 
 set xrange [2:16]
-set yrange [0:5000]
+set yrange [0:3400]
 set origin 0.0,2.15
 set size 1.0,0.85
 set ytics 500
@@ -49,8 +49,9 @@ unset yrange
 unset ytics
 
 # plot B
+set key right bottom
 set xrange [1:16]
-set yrange [0:20000]
+set yrange [2500:15000]
 set ytics 2500
 set origin 1.0,2.15
 set size 1.0,0.85
@@ -63,7 +64,8 @@ unset yrange
 unset ytics
 
 # plot C
-set yrange [0:5000]
+set key right bottom
+set yrange [2000:4000]
 set ytics 500
 set origin 2.0,2.15
 set size 1.0,0.85
@@ -76,7 +78,8 @@ unset yrange
 unset ytics
 
 # plot D
-set yrange [0:5500]
+set key right bottom
+set yrange [0:4100]
 set ytics 500
 set origin 0.0,1.15
 set size 1.0,0.85
@@ -89,7 +92,8 @@ unset yrange
 unset ytics
 
 # plot E 1-16
-set yrange [2000:3500]
+set key right bottom
+set yrange [2000:3100]
 set ytics 250
 set origin 1.0,1.15
 set size 1.0,0.85
@@ -102,6 +106,7 @@ unset yrange
 unset ytics
 
 # plot F  1-4
+set key left top
 set xrange [1:4]
 set yrange [8000:24000]
 set ytics 2000
@@ -118,7 +123,7 @@ unset ytics
 
 set xrange [1:32]
 # plot G
-set yrange [0:50000]
+set yrange [0:45000]
 set ytics 5000
 set origin 0.0,0.15
 set size 1.0,0.85
@@ -132,7 +137,7 @@ unset ytics
 
 set xrange [1:32]
 # plot H
-set yrange [0:50000]
+set yrange [0:36000]
 set ytics 5000
 set origin 1.0,0.15
 set size 1.0,0.85
@@ -145,13 +150,14 @@ unset yrange
 unset ytics
 
 # plot I
+set key right bottom
 set xrange [1:16]
-set yrange [0:6000]
-set ytics 500
+set yrange [15000:21000]
+set ytics 2000
 set origin 2.0,0.15
 set size 1.0,0.85
-#set title "(i) OpenTftp"
-set label 11 center at graph 0.5,-0.25 "(i) OpenTftp" font ",35"
+#set title "(i) Calvin"
+set label 11 center at graph 0.5,-0.25 "(i) Calvin" font ",35"
 
 plot 'throughput.dat' using 1:18 with linespoints title "origin" ls 1,'throughput.dat' using 1:19 with linespoints title "hook" ls 2
 #plot sin(x) ls 9
