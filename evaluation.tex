@@ -202,8 +202,9 @@ consensus latency. \calvin achieved 19.9K transactions/s with a 511.9 \us
 consensus latency. The throughput in \calvin was 13.1\% higher than that in
 \xxx because \calvin puts transactions in a batch with a 10 \ms timeout and 
 then it invokes \zookeeper for consensus on this batch. Batching helps \calvin 
-ahieves good throughput. \xxx currently has not used a batching techinque 
-because its latency is already reasonably fast (\S\ref{sec:overhead}).
+ahieves good throughput. \xxx currently has not incorporated a batching 
+techinque because its latency is already reasonably fast 
+(\S\ref{sec:overhead}).
 
 Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
 to \xxx's RDMA-accelerated consensus protocol. A prior SMR
@@ -212,13 +213,15 @@ consensus latency as we got. This \xxx-\calvin comparison suggests that \calvin
 will be better if clients prefer high throughput, and \xxx will be better if 
 clients demand short latency.
 
-% Run Calvin on Zookeeper, Crane, and Falcon. Because we can only make Calvin's 
-% database with Zookeeper. XX speedup.
+% Comparison with Crane. Run Crane. TBD
+
 
 \subsection{Scalability on Replica Group Size} \label{sec:scalability}
 
 TBD.
 % 3, 5.
+
+% Comparison with DARE. Three to five nodes.
 
 \subsection{Recovering from Output Divergence} \label{sec:robust}
 
