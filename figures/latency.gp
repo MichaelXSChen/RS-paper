@@ -28,7 +28,8 @@ set key font ",30"
 set key spacing 4
 
 set xrange [1:16]
-set logscale x 2
+#set logscale x 2
+set for [i=0:5] xtics (0,2**i)
 set key right center
 
 # plot A
@@ -55,8 +56,8 @@ unset ytics
 set ylabel "latency (microseconds)" offset 2,0
 set key left top
 set xrange [1:16]
-set yrange [0:1.5]
-set ytics 0.15
+set yrange [0:1190]
+set ytics 100
 set origin 1.0,2.15
 set size 1.0,0.8
 #set title "(b) Mediatomb"
@@ -69,8 +70,8 @@ unset ytics
 
 # plot C
 set key right bottom
-set yrange [290:400]
-set ytics 10
+set yrange [200:400]
+set ytics 20
 set origin 2.0,2.15
 set size 1.0,0.8
 #set title "(c) Memcached"
@@ -97,7 +98,7 @@ unset ytics
 
 # plot E
 set key left top
-set yrange [0:5000]
+set yrange [0:5500]
 set ytics 500
 set origin 1.0,1.15
 set size 1.0,0.8
@@ -126,9 +127,9 @@ unset ytics
 
 # plot G
 set key left top
-set xrange [1:16]
-set yrange [300:500]
-set ytics 20
+set xrange [1:32]
+set yrange [200:800]
+set ytics 60
 set origin 0.0,0.15
 set size 1.0,0.8
 #set title "(g) Redis"
@@ -140,9 +141,10 @@ unset yrange
 unset ytics
 
 # plot H
+set xrange [1:32]
 set key left bottom
-set yrange [360:540]
-set ytics 20
+set yrange [0:1090]
+set ytics 100
 set origin 1.0,0.15
 set size 1.0,0.8
 #set title "(h) Ssdb"
@@ -154,6 +156,7 @@ unset yrange
 unset ytics
 
 # plot I
+set xrange [1:16]
 set ylabel "latency (seconds)" offset 2,0
 set key left top
 set yrange [0:5]

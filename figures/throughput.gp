@@ -28,16 +28,17 @@ set key font ",30"
 set key spacing 4
 
 set xrange [1:16]
-set logscale x 2
+#set logscale x 2
+set for [i=0:5] xtics (0,2**i)
 set key right center
 
 # plot A
 set key left top 
 set xrange [2:16]
-set yrange [0:0.1]
+set yrange [0:5000]
 set origin 0.0,2.15
 set size 1.0,0.85
-set ytics 0.01
+set ytics 500
 #set title "(a) Clamav"
 set label 11 center at graph 0.5,-0.25 "(a) Clamav" font ",35"
 
@@ -49,7 +50,7 @@ unset ytics
 
 # plot B
 set xrange [1:16]
-set yrange [0:15000]
+set yrange [0:20000]
 set ytics 2500
 set origin 1.0,2.15
 set size 1.0,0.85
@@ -62,8 +63,8 @@ unset yrange
 unset ytics
 
 # plot C
-set yrange [0:50000]
-set ytics 5000
+set yrange [0:5000]
+set ytics 500
 set origin 2.0,2.15
 set size 1.0,0.85
 #set title "(c) Memcached"
@@ -115,7 +116,7 @@ unset yrange
 unset ytics
 
 
-set xrange [1:16]
+set xrange [1:32]
 # plot G
 set yrange [0:50000]
 set ytics 5000
@@ -129,6 +130,7 @@ plot 'throughput.dat' using 1:14 with linespoints title "origin" ls 1,'throughpu
 unset yrange
 unset ytics
 
+set xrange [1:32]
 # plot H
 set yrange [0:50000]
 set ytics 5000
@@ -143,6 +145,7 @@ unset yrange
 unset ytics
 
 # plot I
+set xrange [1:16]
 set yrange [0:6000]
 set ytics 500
 set origin 2.0,0.15
