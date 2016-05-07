@@ -27,19 +27,19 @@ is especially attractive to these programs.
 \begin{tabular}{lrr}
 {\bf Program} & {\bf Benchmark} & {\bf Benchmark workload description}\\
 \hline\\[-2.3ex]
-\clamav & clamdscan  & Scan files in \clamav source directory\\
+\clamav & Self  & Scan files in /usr/lib directory \\
 \mediatomb & ApacheBench  & Transcode video files in parallel\\
-% TBD: portion of read/write? half/half? 10% writes?
-\memcached & mcperf  & Concurrent set and put operations\\
+\memcached & mcperf  & Half set and half put\\
 \mongodb & YCSB  & Workload C\\
 \mysql & Sysbench  & Concurrent SQL transactions\\
-\openldap & slapd\-mtread  & \openldap's test program\\
-\redis & redis\-benchmark  & Concurrent set and put operations\\
-\ssdb & ssdb-bench  & Concurrent set and put operations\\
-\tftp & tftp  & Concurrent uploading files \\
+\openldap & Self  & \openldap's test program\\
+\redis & Self  & Half set and half put\\
+\ssdb & Self  & Half set and half put\\
+\calvin & Self  & Concurrent SQL transactions\\
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em Benchmarks and workloads.}} 
+\caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means 
+we used the server's own performance benchnmark.} 
 \label{tab:benchmarks}
 \end{table}
 
@@ -65,6 +65,48 @@ from the mean value of 10 repeated executions.
 
 
 \subsection{Performance Overhead} \label{sec:overhead}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/throughput}
+\vspace{-.20in}
+\caption{\small {\em \xxx throughput compared to the unreplicated 
+execution.}}
+\label{fig:tput}
+\end{figure*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/latency}
+\vspace{-.20in}
+\caption{\small {\em \xxx response time compared to the unreplicated 
+execution.}}
+\label{fig:latency}
+\end{figure}
+
+\begin{table}[b]
+\footnotesize
+\centering
+\vspace{-.05in}
+\begin{tabular}{lrrrrr}
+{\bf Program} & {\bf \# calls} & {\bf input} & {\bf SSD} 
+& {\bf quorum} & {\bf diff}\\
+\hline\\[-2.3ex]
+\clamav & 30  & 42.0 & 5.1 \us & 6.1 \us & TBD\\
+\mediatomb & 3,000  & 140.0 & 4.7 \us & 5.8 \us & TBD\\
+\memcached & 10,016  & 38 & 4.9 \us & 6.9 \us & TBD\\
+\mongodb & 25,665  & 492.4 & 19.1 \us & 20.4 \us & TBD\\
+\mysql & 13,111  & 26.0 & 5.0 \us & 15.7 \us & TBD\\
+\openldap & 8,040  & 27.3 & 5.7 \us & 7.1 \us & TBD\\
+\redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us & TBD\\
+\ssdb & 9,916  & 47.0 & 3.7 \us & 10.9 \us & TBD\\
+\calvin & TBD  & TBD & TBD  & TBD & TBD\\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Analysis on \xxx micro events.}} 
+\label{tab:consensus-latency}
+\end{table}
+
 
 TBD.
 % Overhead compared with unreplicated executions.
