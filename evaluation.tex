@@ -25,14 +25,15 @@ NIC. These NICs are connected using the Infiniband RDMA architecture through a
 Dell S6000 high-performance switch with 32 40Gpbs ports. The \v{ping} latency 
 between every two replicas are 84 \us. This latency is achieved through IPoIB 
 (IP over Infiniband), the optimal latency for a client to communicate with a 
-server through traditional TCP/IP.
+server through traditional TCP/IP between replica machines.
 
 To mitigate network latency of public network, all client benchmarks were ran 
-in a Dell R320 server, with Linux 3.16.0, 2.2GHz Intel Xeon with 12 
-hyper-threading cores, 32GB memory, and 160G SSD. This server connects with the 
-replica machines with 1Gbps bandwidth LAN, with a mean 301 \us \v{ping} 
-latency. A larger network latency (\eg, sending client requests from WAN) will 
-further mask \xxx's overhead.
+in a Dell R320 server (the client machine), with Linux 3.16.0, 2.2GHz Intel 
+Xeon with 12 hyper-threading cores, 32GB memory, and 160G SSD. This server 
+connects with the replica machines with 1Gbps bandwidth LAN. The average 
+\v{ping} latency between the client machine and a replica machine is 301 \us. A 
+larger network latency (\eg, sending client requests from WAN) will further 
+mask \xxx's overhead.
 
 We evaluated \xxx on \nprog widely used or studied server programs, including 
 \nkvprog key-value stores \redis, \memcached, \ssdb, \mongodb; \mysql, a SQL 
