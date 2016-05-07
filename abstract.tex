@@ -31,10 +31,10 @@ consensus protocol.
 % because consensus protocols can already tolerate various faults (\eg, crash in 
 % the OS layer). 
 
-Evaluation on \npopularprog diverse, widely used servers (\eg, \memcached, 
-\mysql, and \clamav) shows that \xxx is: (1) general, it ran these servers 
-without any modification; (2) fast, it incured merely \latencyoverhead mean 
-overhead in latency and \tputoverhead in throughtput on these programs on 
+Evaluation on \npopularprog widely used, diverse server programs (\eg, 
+\memcached, \mysql, and \clamav) shows that \xxx is: (1) general, it ran these 
+servers without any modification; (2) fast, it incured merely \latencyoverhead 
+mean overhead in latency and \tputoverhead in throughtput on these programs on 
 popular benchmarks, and it ran 6X$\sim$8X faster than three replication 
 systems; and (3) robust, it detected and recovered execution divergence caused 
 by a software bug in \redis, while \redis's own replication service missed the 
