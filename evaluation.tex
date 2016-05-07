@@ -92,18 +92,23 @@ execution.}}
 {\bf Program} & {\bf \# calls} & {\bf input} & {\bf SSD} 
 & {\bf quorum} & {\bf diff}\\
 \hline\\[-2.3ex]
-\clamav & 30  & 42.0 & 5.1 \us & 6.1 \us & TBD\\
-\mediatomb & 3,000  & 140.0 & 4.7 \us & 5.8 \us & TBD\\
-\memcached & 10,016  & 38 & 4.9 \us & 6.9 \us & TBD\\
-\mongodb & 25,665  & 492.4 & 19.1 \us & 20.4 \us & TBD\\
-\mysql & 13,111  & 26.0 & 5.0 \us & 15.7 \us & TBD\\
-\openldap & 8,040  & 27.3 & 5.7 \us & 7.1 \us & TBD\\
-\redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us & TBD\\
-\ssdb & 9,916  & 47.0 & 3.7 \us & 10.9 \us & TBD\\
+\clamav & 30  & 42.0 & 5.1 \us & 6.1 \us & F\\
+\mediatomb & 3,000  & 140.0 & 4.7 \us & 5.8 \us & F?\\
+\memcached & 10,016  & 38.0 & 4.9 \us & 6.9 \us & F?\\
+\mongodb & 25,665  & 492.4 & 19.1 \us & 20.4 \us & F?\\
+\mysql & 13,111  & 26.0 & 5.0 \us & 15.7 \us & W?\\
+\openldap & 8,040  & 27.3 & 5.7 \us & 7.1 \us & T\\
+\redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us & T\\
+\ssdb & 9,916  & 47.0 & 3.7 \us & 10.9 \us & F*\\
 \calvin & TBD  & TBD & TBD  & TBD & TBD\\
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em Analysis on \xxx micro events.}} 
+\caption{{\em \xxx micro events.} The ``\# Calls" column means the number of 
+socket calls that went through \xxx input concensus; ``input" means average 
+bytes of a server's inputs received in these calls; ``SSD" means the average 
+latency on storing these calls to stable storage; ``quorum" means the
+average latency on waiting quorum for these calls; ``diff" means whether the 
+output checker found output divergence.} 
 \label{tab:consensus-latency}
 \end{table}
 
