@@ -258,7 +258,14 @@ previous unkown concurrency bug in the QPUSH operations. This concurrency bug
 was triggered by concurrent client connections to push elements to a queue in 
 \ssdb. In our evaluation, this bug was first triggered in a backup machine and 
 caused a divergent output hash. the hashes of the other two replicas were 
-still the same. This minor divergence suggests that we hitted a bug, for two 
+still the same. \xxx's leader detected this divergence; it sent a 
+rollback request to the divergent replica's guard, which took 1.2 \ms; 
+the guard killed the \ssdb server and restored it from a prior 
+checkpoint with 0.913 \ms, and the recovered replica reconnected to the other 
+replicas and started to server requests in 0.09 \ms. Each process and file 
+system checkpoint operation for \ssdb took 954 \ms.
+
+This minor divergence suggests that we hitted a bug, for two 
 reasons. First, \xxx has enfored strongly consistent inputs across replicas, if 
 only replicas diverge, this divergence must be caused by the server program 
 itself, not different inputs. Second, only one replica diverged, this suggests 
