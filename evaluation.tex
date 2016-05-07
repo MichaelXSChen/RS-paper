@@ -50,9 +50,9 @@ thus the high fault-tolerance of SMR is especially attractive to these programs.
 \centering
 \vspace{-.05in}
 \begin{tabular}{lrr}
-{\bf Program} & {\bf Benchmark} & {\bf Benchmark workload description}\\
+{\bf Program} & {\bf Benchmark} & {\bf Workload/input description}\\
 \hline\\[-2.3ex]
-\clamav & Self  & Scan files in \v{/usr/lib} directory \\
+\clamav & clamscan  & Files in \v{/lib} from same replica \\
 \mediatomb & ApacheBench  & Transcode video files in parallel\\
 \memcached & mcperf  & 50\% set and 50\% put operations\\
 \mongodb & YCSB  & Workload C\\
@@ -64,7 +64,7 @@ thus the high fault-tolerance of SMR is especially attractive to these programs.
 \end{tabular}
 \vspace{-.05in}
 \caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means 
-we used a server program's own performance benchnmark.} 
+we used a server program's own performance benchmark program.} 
 \label{tab:benchmarks}
 \end{table}
 
@@ -179,17 +179,16 @@ write phase (the ``SSD" column in Table~\ref{tab:consensus-latency}) and a
 quorum waiting phase (the ``quorum" column). The quorum waiting phase implies 
 replicas' performance because each replica stores the proposed socket call 
 into SSD and then sends a consensus reply by doing an RDMA write to the leader. 
-By summing these two column, overall, a \xxx input consensus took only 9.9 \us 
-(\redis) to 39.6 \us (\mongodb).
 
-This consensus latency mainly depends on the number of bytes received in a 
-socket call (\mongodb has the largest received bytes), and it also depends on 
-the server program's own IO (\redis does little IO). \xxx's small consensus 
-latency makes \xxx achieve reasonable throughputs in Figure~\ref{fig:tput} 
-and response times Figure~\ref{fig:latency}. This small latency suggests that, 
-\xxx may still achieve reasonable performance overhead even if running client 
-programs within same datacenter network, although \xxx's default deployment 
-model is running server replicas in a datacenter and clients in LAN or WAN.
+By summing these two column, overall, a \xxx input consensus took only 9.9 \us 
+(\redis) to 39.6 \us (\mongodb). This consensus latency mainly depends on the 
+number of bytes received in a socket call (\mongodb has the largest received 
+bytes). \xxx's small consensus latency makes \xxx achieve reasonable throughputs 
+in Figure~\ref{fig:tput} and response times Figure~\ref{fig:latency}. This small 
+latency suggests that, \xxx may still achieve reasonable performance overhead 
+even if running client programs within same datacenter network, although \xxx's 
+default deployment model is running server replicas in a datacenter and clients 
+in LAN or WAN.
 
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
@@ -218,15 +217,63 @@ clients demand short latency.
 
 \subsection{Scalability on Replica Group Size} \label{sec:scalability}
 
-TBD.
-% 3, 5.
+% TBD: rerun \redis micro events; it is too small, so we can not use it here.
+
+Because we had only three RDMA-enable machines in the evaluation time, we 
+picked \redis as the testing program and ran five \xxx instances on three 
+machines: one machine held the leader instance, and each of the other two 
+machines held two backups.
+
+Given the same \redis workload, \xxx had a 17.9K throughput and 10.0 \us 
+consensus latency. Compared to the three-node setting, 18.0K throughput and 9.9 
+\us consensus latency, \xxx is quite scalable. For seven nodes XXX TBD. We plan 
+to buy more server machines for a larger scale of scalability evaluation.
+
+% It 
+% would be interesting to see whether \xxx's scalability on replica group size is 
+% bounded by the outbound RDMA writes of RDMA NICs.
+
+
 
 % Comparison with DARE. Three to five nodes.
 
 \subsection{Recovering from Output Divergence} \label{sec:robust}
 
-TBD.
-% Change 
+Once an output divergence is detected, \xxx will roll bacak the divergent 
+replica, including leader and backups. For all the \nprog programs, our output 
+checking protocol found these servers produced identical results except \clamav 
+and \ssdb.
+
+\clamav's divergent output is caused by its special threading model: 
+unlike the other evaluated programs which use one thread to server one client 
+connection, \clamav uses multiple worker threads to serve a client request 
+(\eg, scanning a directory path recursively). \xxx's worker threads 
+concurrently contend for a global mutex lock and then append the scanned 
+files into the output buffer for the client, causing a nondeterministic order 
+of scanned files among all replicas. We manually compared \clamav's output 
+across replicas, and we found the files were indeed the same except their order.
+
+We ran \ssdb on the same workload as in \S\ref{sec:overhead} and triggered a 
+previous unkown concurrency bug in the QPUSH operations. This concurrency bug 
+was triggered by concurrent client connections to push elements to a queue in 
+\ssdb. In our evaluation, this bug was first triggered in a backup machine and 
+caused a divergent output hash. the hashes of the other two replicas were 
+still the same. This minor divergence suggests that we hitted a bug, for two 
+reasons. First, \xxx has enfored strongly consistent inputs across replicas, if 
+only replicas diverge, this divergence must be caused by the server program 
+itself, not different inputs. Second, only one replica diverged, this suggests 
+that the output does not contain randome values (\eg, physical times, or the 
+\clamav case), otherwise all replicas should diverged.
+
+We then carefully looked into the \ssdb source code and identified the bug. It 
+was caused by incorrect synchronization to a global queue in \ssdb. We have 
+reported this bug to the \ssdb developers with a suggested bug fixing 
+patch~\cite{ssdb:bug}. Although \xxx does not intend to find bugs, this 
+promising finding reflects that \xxx could be extended as an advanced testing 
+tool: its fast, general SMR service lets it easily support general program, and 
+its consistently enforce inputs and efficient output checking makes the minor 
+replica output divergence a strong software bug indicator.
+% Confidence. strongly consistent inputs.
 
 % 
 % \subsection{Sensitivity of Parameters} \label{sec:sensitivity}
