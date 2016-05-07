@@ -39,7 +39,7 @@ is especially attractive to these programs.
 \end{tabular}
 \vspace{-.05in}
 \caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means 
-we used the server's own performance benchnmark.} 
+we used a server program's own performance benchnmark.} 
 \label{tab:benchmarks}
 \end{table}
 
@@ -99,7 +99,7 @@ execution.}}
 \mysql & 13,111  & 26.0 & 5.0 \us & 15.7 \us & W?\\
 \openldap & 8,040  & 27.3 & 5.7 \us & 7.1 \us & T\\
 \redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us & T\\
-\ssdb & 9,916  & 47.0 & 3.7 \us & 10.make cl9 \us & F*\\
+\ssdb & 9,916  & 47.0 & 3.7 \us & 10.9 \us & F*\\
 \calvin & TBD  & TBD & TBD  & TBD & TBD\\
 \end{tabular}
 \vspace{-.05in}
@@ -108,7 +108,8 @@ socket calls that went through \xxx input concensus; ``input" means average
 bytes of a server's inputs received in these calls; ``SSD" means the average 
 latency on storing these calls to stable storage; ``quorum" means the
 average latency on waiting quorum for these calls; and ``diff" means whether 
-the output checker found output divergence.} 
+the 
+output checker found output divergence.} 
 \label{tab:consensus-latency}
 \end{table}
 
