@@ -208,9 +208,9 @@ because its latency is already reasonably fast (\S\ref{sec:overhead}).
 Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
 to \xxx's RDMA-accelerated consensus protocol. A prior SMR
 evaluation~\cite{dare:hpdc15} also reports a similar 320 \us \zookeeper 
-consensus latency as ours. This \xxx-\calvin comparison suggests that \calvin 
-will be better if clients prefer high throughput, and \xxx will be a 
-much choice better if clients demand have a critical latency requirement.
+consensus latency as we got. This \xxx-\calvin comparison suggests that \calvin 
+will be better if clients prefer high throughput, and \xxx will be better if 
+clients demand short latency.
 
 % Run Calvin on Zookeeper, Crane, and Falcon. Because we can only make Calvin's 
 % database with Zookeeper. XX speedup.
