@@ -121,6 +121,25 @@ that \xxx can intercept client inputs, we wrote a \nlinescalvin patch for
 
 \subsection{Performance Overhead} \label{sec:overhead}
 
+Figure~\ref{fig:tput} shows \xxx's throughput. We varied the number of 
+concurrent client connections for each server program by from one to 16 threads 
+or until they reached peak performance. For \calvin, we only collected the 
+8-thread result because \calvin used this constant thread count to serve 
+client requests. Overall, compared to these server programs' unreplicated 
+executions, \xxx merely incurred an average througput degrade by \tputoverhead 
+(note that in Figure~\ref{fig:tput}, the Y-axises of most programs start from a 
+large number). As the number of threads increases, \xxx still scales almost as 
+well as the unreplicated executions. Figure~\ref{fig:tput} shows 
+\xxx's response time, a \latencyoverhead overhead compared to the unreplicated 
+executions.
+
+\xxx achieves such low overhead in both throughput and response time due to two 
+reasons. First, for each \recv call in a server program, \xxx's input 
+coordination protocol only contains two one-sided RDMA writes and two SSD writes 
+between each leader and backup. Second, \xxx's output checking protocol, which 
+is based on the input coordination protocol, invokes extremely occasionally, 
+once for every \thashcomp output hash generations (\S\ref{sec:output-workflow}).
+
 \begin{table}[b]
 \footnotesize
 \centering
@@ -149,29 +168,25 @@ the output checker found output divergence.}
 \label{tab:consensus-latency}
 \end{table}
 
-Figure~\ref{fig:tput} shows \xxx's throughput. We varied the number of 
-concurrent client connections for each server program by from one to 16 threads 
-or until they reached peak performance. For \calvin, we only collected the 
-8-thread result because \calvin used this constant thread count to serve 
-client requests. Overall, compared to these server programs' unreplicated 
-executions, \xxx merely incurred an average througput degrade by \tputoverhead 
-(note that in Figure~\ref{fig:tput}, the Y-axises of most programs start from a 
-large number). As the number of threads increases, \xxx still scales almost as 
-well as the unreplicated executions. Figure~\ref{fig:tput} shows 
-\xxx's response time, a \latencyoverhead overhead compared to the unreplicated 
-executions.
-
-\xxx achieves such low overhead in both throughput and response time due to two 
-reasons. First, for each \recv call in a server program, \xxx's input 
-coordination protocol only contains two one-sided RDMA writes and two SSD writes 
-between each leader and backup. Second, \xxx's output checking protocol involes 
-extremely occasionally, once for every \thashcomp output hash generations 
-(\S\ref{sec:output-workflow}).
-
 % Figure~\ref{fig:latency} shows \xxx's latency.
 % % Bare consensus latency, micro events.
 
-To deeply understand \xxx's performance.
+To deeply understand \xxx's performance overhread, we collected the number of 
+socket call events and consensus durations in the leader replica. 
+Table~\ref{tab:consensus-latency} shows these statistics for every 10K requests. 
+For each socket call, \xxx's leader invokes a consensus, which includes an SSD 
+write phase (the ``SSD" column in Table~\ref{tab:consensus-latency}) and a 
+quorum waiting phase (the ``quorum" column). The quorum waiting phase implies 
+replicas' performance because each replica stores the proposed socket call 
+into SSD and then sends a consensus reply by doing an RDMA write to the leader. 
+By summing these two column, overall, a \xxx input consensus took only 9.9 \us 
+(\redis) to 39.6 \us (\mongodb).
+
+This consensus latency mainly depends on the number of bytes received in a 
+socket call (\mongodb has the largest received bytes), and it also depends on 
+the server program's own IO (\redis does little IO). \xxx's small consensus 
+latency makes \xxx achieve reasonable throughputs in Figure~\ref{fig:tput} 
+and response times Figure~\ref{fig:latency}. 
 
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
