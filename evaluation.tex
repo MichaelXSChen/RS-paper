@@ -186,11 +186,32 @@ This consensus latency mainly depends on the number of bytes received in a
 socket call (\mongodb has the largest received bytes), and it also depends on 
 the server program's own IO (\redis does little IO). \xxx's small consensus 
 latency makes \xxx achieve reasonable throughputs in Figure~\ref{fig:tput} 
-and response times Figure~\ref{fig:latency}. 
+and response times Figure~\ref{fig:latency}. This small latency suggests that, 
+\xxx may still achieve reasonable performance overhead even if running client 
+programs within same datacenter network, although \xxx's default deployment 
+model is running server replicas in a datacenter and clients in LAN or WAN.
 
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
-TBD.
+We compared \xxx with \calvin's SMR system because \calvin uses \zookeeper, a 
+widely used coordination service built on TCP/IP, as its input coordinator. To 
+conduct a fair comparison, both \xxx and \calvin SMR, we ran \calvin's own 
+transactional database as the server program, and we compared throughputs and 
+the consensus latency. \xxx achieved 17.6K transactions/s with a 12.5 \us 
+consensus latency. \calvin achieved 19.9K transactions/s with a 511.9 \us 
+consensus latency. The throughput in \calvin was 13.1\% higher than that in
+\xxx because \calvin puts transactions in a batch with a 10 \ms timeout and 
+then it invokes \zookeeper for consensus on this batch. Batching helps \calvin 
+ahieves good throughput. \xxx currently has not used a batching techinque 
+because its latency is already reasonably fast (\S\ref{sec:overhead}).
+
+Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
+to \xxx's RDMA-accelerated consensus protocol. A prior SMR
+evaluation~\cite{dare:hpdc15} also reports a similar 320 \us \zookeeper 
+consensus latency as ours. This \xxx-\calvin comparison suggests that \calvin 
+will be better if clients prefer high throughput, and \xxx will be a 
+much choice better if clients demand have a critical latency requirement.
+
 % Run Calvin on Zookeeper, Crane, and Falcon. Because we can only make Calvin's 
 % database with Zookeeper. XX speedup.
 
