@@ -184,20 +184,21 @@ To deeply understand \xxx's performance overhread, we collected the number of
 socket call events and consensus durations in the leader replica. 
 Table~\ref{tab:consensus-latency} shows these statistics for every 10K requests. 
 For each socket call, \xxx's leader invokes a consensus, which includes an SSD 
-write phase (the ``SSD" column in Table~\ref{tab:consensus-latency}) and a 
-quorum waiting phase (the ``quorum" column). The quorum waiting phase implies 
-replicas' performance because each replica stores the proposed socket call 
-into SSD and then sends a consensus reply by doing an RDMA write to the leader. 
+write phase (the ``SSD time" column in Table~\ref{tab:consensus-latency}) and a 
+quorum waiting phase (the ``quorum time" column). The quorum waiting phase 
+implies replicas' performance because each replica stores the proposed socket 
+call into SSD and then sends a consensus reply by doing an RDMA write to the 
+leader. 
 
-By summing these two column, overall, a \xxx input consensus took only 9.9 \us 
-(\redis) to 39.6 \us (\mongodb). This consensus latency mainly depends on the 
-number of bytes received in a socket call (\mongodb has the largest received 
-bytes). \xxx's small consensus latency makes \xxx achieve reasonable throughputs 
-in Figure~\ref{fig:tput} and response times Figure~\ref{fig:latency}. This small 
-latency suggests that, \xxx may still achieve reasonable performance overhead 
-even if running client programs within same datacenter network, although \xxx's 
-default deployment model is running server replicas in a datacenter and clients 
-in LAN or WAN.
+By summing these two time columns, overall, a \xxx input consensus took only 
+9.9 \us (\redis) to 39.6 \us (\mongodb). This consensus latency mainly depends 
+on the ``Input" column: the number of bytes received in a socket call (\eg, 
+\mongodb has the largest received bytes). \xxx's small consensus latency makes 
+\xxx achieve reasonable throughputs in Figure~\ref{fig:tput} and response times 
+Figure~\ref{fig:latency}. This small latency suggests that, \xxx may still 
+achieve reasonable performance overhead even if running client programs within 
+same datacenter network, although \xxx's default deployment model is running 
+server replicas in a datacenter and clients in LAN or WAN.
 
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
