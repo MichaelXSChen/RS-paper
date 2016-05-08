@@ -1,42 +1,42 @@
 \section{Introduction} \label{sec:intro}
 
 %P1: SMR difinition; traditional network message passing; reliable; attractive 
-% for general servers. Emphasis persistent storage.
-% Define ``synchronized replication": store to stable storage, must reach 
-% consensus and then execute a request.
+% for general servers. Agree-execute: must reach consensus and then execute a 
+% request.
 State machine replicaion (SMR) runs the same program on a 
 number of replicas and uses a distributed consensus protocol (\eg, 
 \paxos~\cite{crane:sosp15}) to enforce the same inputs among 
-replicas. Consensus on a new input can be achieved if a majority of 
-replicas agree, thus SMR can tolerate various faults such as minor replica 
-failures. SMR's strong fault-tolerance mainly stems from its 
-\emph{synchronized replication}: before processing an input, each replica must 
-stores this input in local stage storage and receives a majority of replica 
-aggreements. Due to this strong fault-tolerance, recent SMR systems have shown 
-promising results on greatly improving the availability of various programs, 
-including systems that target both specific programs~\cite{chubby:osdi, 
-zookeeper} and general programs~\cite{crane:sosp15,eve:osdi12,rex:eurosys14}.
+replicas. Consensus on a new input can be achieved as long as a majority 
+of replicas agree, thus SMR can tolerate various faults such as minor replica 
+failures. Attracted this strong fault-tolerance, recent SMR 
+systems~\cite{chubby:osdi, zookeeper, crane:sosp15, eve:osdi12, rex:eurosys14} 
+have been built to greatly improve the availability of various server programs, 
+because these programs tend to serve client requests at all time.
 
-% P2: most servers lack such a service due to two challenges. First, two slow, 
-% TCP/IP. Example, Calvin. For this reason, many storage systems give in SMR 
-% (\eg, % Haibo's), although themselves really want SMR.
-Unfortunately, despite these promising advances, two practical challenges still 
-prevent SMR from being widely deployed for general programs, especially 
-server programs that naturally demand high availability. The first challenge is 
-performance. To reach consensus on input requests, traditional consensus 
-protocols invoke TCP/UDP messages, which go through software network layers 
-and OS kernels and often cause prohibitive latency. This network latency is 
-especially severe in modern server storage servers (\eg, key-value stores) that 
-tend to move computation and data into memory. To mitigate this challenge, Some 
+% P2: Performance too slow. Agree first and then execute. Even three nodes, one 
+% round-trip (~400 us). Not for performance critical servers such as key-value.
+% Batching: addressed throughput but not latency.
+Unfortunately, despite much effort, SMR is still difficult to be widely adopted 
+mainly due to its high consensus latency. To agree on a new input, traditional 
+consensus protocols invoke at least one message round-trip between two 
+replicas. Since a \v{ping} round-trip in Ethernet takes hundreds of \us, a 
+server program running in an SMR system has to wait at least this time before 
+processing an input request. This latency may be acceptable for maintain global 
+configuration~\cite{zookeeper} or processing heavy SQL transactions and videos, 
+but definitely prohibitive for modern in-memory storage servers (\eg, key-value 
+stores). To mitigate this challenge, Some recent
 SMR systems~\cite{calvin:sigmod12,rex:eusorys14} batch requests into one 
-consensus round, but this could only mitigate throught lost but not latency. As 
-a possible consequence, although many recent storage systems~\cite{drtm} 
-explicitly stated that they needed a replication system for high availability, 
-they finely didn't adopt the batching approach.
+consensus round, but batching could only mitigate the lost of throught, not 
+latency.
+% As a possible consequence, although many recent storage 
+% systems~\cite{drtm} 
+% explicitly stated that they needed a replication system for high availability, 
+% they finely didn't adopt the batching approach.
 
-% P3: no systematic mechanism to automatically enforce execution states for 
-% these servers. Current approach: (1) ping. (2) DMT, record replay. (3) 
-% verification. Lack confidence on SMR.
+% P3: Another problem: scalability. As more nodes are in replica group, it is 
+% getting much more slower to reach quorum. Event-driven to increase 
+% parallilism, but still slow: despite the large latency, context switches (400 
+% us).
 The second challenge is that an automated, fine-grained approach is needed to 
 avoid execution divergence of active (\ie, alive) replicas. Even in the absence 
 of replica failures or network partitions, the executions of different replicas 
