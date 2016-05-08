@@ -172,62 +172,62 @@ is no a second output hash comparisons between backups and leader until the
 leader invokes a new output checking consensus request next time.
 
 
-\subsection{Example}\label{sec:example}
-
-\begin{figure}[t]
-\centering
-\begin{minipage}{.5\textwidth}
-\lgrindfile{code/example.cpp.lineno}
-\end{minipage}
-\vspace{-.1in}
-\caption{{\em A server example.}} \label{fig:example}
-\vspace{-.20in}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\begin{minipage}{.5\textwidth}
-\lgrindfile{code/client.cpp.lineno}
-\end{minipage}
-\vspace{-.1in}
-\caption{{\em A client example.}} \label{fig:client}
-\vspace{-.05in}
-\end{figure}
+% \subsection{Example}\label{sec:example}
+% 
+% \begin{figure}[t]
+% \centering
+% \begin{minipage}{.5\textwidth}
+% \lgrindfile{code/example.cpp.lineno}
+% \end{minipage}
+% \vspace{-.1in}
+% \caption{{\em A server example.}} \label{fig:example}
+% \vspace{-.20in}
+% \end{figure}
+% 
+% \begin{figure}[t]
+% \centering
+% \begin{minipage}{.5\textwidth}
+% \lgrindfile{code/client.cpp.lineno}
+% \end{minipage}
+% \vspace{-.1in}
+% \caption{{\em A client example.}} \label{fig:client}
+% \vspace{-.05in}
+% \end{figure}
 
 % TBD. A simple server with recv(), accept(), and send(). Must have a 
 % concurrency bug in this toy program? Race on global var or heap?
 
 % Describe the example code.
 % Describe the example code. Describe a 'set' command from key-value store.
-Figure~\ref{fig:example} shows a simplified server code based on the \redis 
-key-value store, and Figure~\ref{fig:client} shows a client cocde. The server 
-accepts a new connection from a client, receives one input request, process the 
-request, and then sends a reply. Suppose the client sends a ``SET a b" request.
+% Figure~\ref{fig:example} shows a simplified server code based on the \redis 
+% key-value store, and Figure~\ref{fig:client} shows a client cocde. The server 
+% accepts a new connection from a client, receives one input request, process the 
+% request, and then sends a reply. Suppose the client sends a ``SET a b" request.
 
 % Input coordination protocol.
-Once the client calls its \connect, the leader's server program calls the 
-\accept call intercepted by \xxx. The leader's input coordinator then invokes 
-consensus on building a new connection by writing a struct for \accept to 
-remote backups with RDMA. Once a majority of backups agree, the leader machine 
-returns from the \accept call and continues to run.
+% Once the client calls its \connect, the leader's server program calls the 
+% \accept call intercepted by \xxx. The leader's input coordinator then invokes 
+% consensus on building a new connection by writing a struct for \accept to 
+% remote backups with RDMA. Once a majority of backups agree, the leader machine 
+% returns from the \accept call and continues to run.
 
-When a client program calls its \send, leader's server traps into \xxx's \recv 
-function call, which a invokes consensus on this new input ``SET a b". If 
-a consensus is made by a majority of replicas, the leader directly returns from 
-\recv and processes the request, and each replica's dedicated thread sets up 
-a new connection to the local server because the \recv consensus request 
-notifies the backups that the last call, \accept, has reached consensus.
+% When a client program calls its \send, leader's server traps into \xxx's \recv 
+% function call, which a invokes consensus on this new input ``SET a b". If 
+% a consensus is made by a majority of replicas, the leader directly returns from 
+% \recv and processes the request, and each replica's dedicated thread sets up 
+% a new connection to the local server because the \recv consensus request 
+% notifies the backups that the last call, \accept, has reached consensus.
 
 
 % Output checking protcol.
 % Challenge: what if leader does more sends and replicas do fewer sends?
-When a request is processed and the server is about to send reply to the 
-client, \xxx traps into the \send call, computes historical hash value on 
-inputs when 4K bytes (MTU size). Since this request is short, no output check 
-will be invoked at this time. All backups return consensus reply to the leader 
-with their own hash values if this value is available on their replica. 
-Similarly, backups do the earlier socket call: the backups' follower forwards 
-``SET a b" request to the local server program.
+% When a request is processed and the server is about to send reply to the 
+% client, \xxx traps into the \send call, computes historical hash value on 
+% inputs when 4K bytes (MTU size). Since this request is short, no output check 
+% will be invoked at this time. All backups return consensus reply to the leader 
+% with their own hash values if this value is available on their replica. 
+% Similarly, backups do the earlier socket call: the backups' follower forwards 
+% ``SET a b" request to the local server program.
 
 % TBD: explain why we do not need to intercept poll() function.
 
