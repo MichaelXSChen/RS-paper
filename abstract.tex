@@ -14,31 +14,37 @@
 
 State machine replication (SMR) runs replicas of the same program and 
 uses a distributed consensus protocol (\eg, \paxos) to enforce same program 
-inputs among replicas, even if minor replicas fail. This strong 
-fault-tolerance is particularly attractive for building a general SMR system 
-for server programs. Unfortunately, to agree on inputs, traditional consensus 
-protocols often incur prohibitive network latency. We present \xxx, a simple, 
-deployable SMR system for general server programs by leveraging Remote Direct 
-Memory Access (RDMA). \xxx intercepts inputs in a server's socket API, and it 
-runs a new \paxos consensus protocol that needs only two fast RDMA one-sided 
-write operations for each input in normal case. \xxx addresses a pervasive 
-challenge, avoiding a server' execution state divergence in active replicas, by 
-presenting a fast, application-agnostic output checking mechanism on top of our 
-consensus protocol.
+inputs among replicas through TCP/IP, tolerating various faults. Recent SMR 
+systems have shown to greatly improved the availablity of server programs. 
+Unfortunately, consensus latency is often too high to make SMR widely adopted. 
+This paper present \xxx, a fast SMR system for general server programs by 
+leveraging Remote Direct Memory Access (RDMA). \xxx intercepts a server 
+program's inbound socket calls and runs a new RDMA-accelerated \paxos protocol 
+that needs only two RDMA write operations for each input request. To address a 
+scalability challenge, this protocol tightly integrates RDMA operations with 
+\paxos's fault-tolerance nature, which enables replicas to reach consensus 
+rapidly in parallel. On top of this protocol, \xxx introduces a fast output 
+checking protocol to assure that replicas run in sync.
+
+% \xxx addresses 
+% a pervasive 
+% challenge, avoiding a server' execution state divergence in active replicas, by 
+% presenting a fast, application-agnostic output checking mechanism on top of our 
+% consensus protocol.
 % go through software network layers and 
 % to efficiently bypass these software layers
 % We argue that these network layers are \emph{not} inherent to SMR 
 % because consensus protocols can already tolerate various faults (\eg, crash in 
 % the OS layer). 
 
-Evaluation on \npopularprog widely used, diverse server programs (\eg, 
-\memcached, \mysql, and \clamav) shows that \xxx is: (1) general, it ran these 
-servers without any modification; (2) fast, it incured merely \latencyoverhead 
-mean overhead in latency and \tputoverhead in throughtput on these programs on 
-popular benchmarks, and it ran 6X$\sim$8X faster than three replication 
-systems; and (3) robust, it detected and recovered execution divergence caused 
-by a software bug in \redis, while \redis's own replication service missed the 
-bug.
+Evaluation on \nprog widely used, diverse server programs (\eg, \memcached and 
+\mysql) shows that \xxx is: (1) general, it ran these servers without any 
+modification except one; (2) fast, it incurred merely a \latencyoverhead mean 
+overhead in response time, and its consensus latency was \fasterthanzookeeper 
+faster than \calvin, an SMR system built on \zookeeper; (3) scalable to a 
+replica group size of five and seven; and (4) robust, its output protocol 
+detected a previously uknown software bug in \ssdb and recovered from the 
+execution divergence efficently.
 
 % Stat machine replication definition. Focus on networking part, 
 % message passing, 
