@@ -17,14 +17,14 @@ because these programs tend to serve client requests at all time.
 % round-trip (~400 us). Not for performance critical servers such as key-value.
 % Batching: addressed throughput but not latency.
 Unfortunately, despite these recent advances, SMR remains difficult to be 
-widely adopted due to its high consensus latency. To agree on a new 
-input, traditional consensus protocols invoke at least one message round-trip 
-between two replicas. Given that a \v{ping} round-trip in Ethernet takes 
-hundreds of \us, a server program running in an SMR system must wait at least 
-this time before processing an input. This latency may be acceptable for 
-maintaining global configuration~\cite{chubby:osdi,zookeeper} or processing SQL 
-transactions and videos~\cite{crane:sosp15,eve:osdi12}, but prohibitive for 
-key-value stores. To mitigate this challenge, some recent SMR 
+widely adopted due to its high consensus latency. To agree on an input, 
+traditional consensus protocols invoke at least one message round-trip between 
+two replicas. Given that a \v{ping} in Ethernet takes hundreds of \us, a server 
+program running in an SMR system must wait at least this time before processing 
+an input. This latency may be acceptable for maintaining global 
+configuration~\cite{chubby:osdi,zookeeper} or processing SQL transactions and 
+videos~\cite{crane:sosp15,eve:osdi12}, but prohibitive for key-value stores. To 
+mitigate this challenge, some recent SMR 
 systems~\cite{calvin:sigmod12,rex:eusorys14} batch requests into one 
 consensus round. However, batching can only mitigate a server's throught lost; 
 it may aggravate response time.
