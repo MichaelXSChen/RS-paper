@@ -6,8 +6,10 @@
 State machine replicaion (SMR) runs the same program on a 
 number of replicas and uses a distributed consensus protocol (\eg, 
 \paxos~\cite{crane:sosp15}) to enforce the same inputs among 
-replicas. Consensus on a new input can be achieved as long as a majority 
-of replicas agree, thus SMR can tolerate various faults such as minor replica 
+replicas. Typically, \paxos assigns a replica as the leader to propose 
+consensus requests, while the other replicas agree or reject requests. 
+Consensus on a new input can be achieved as long as a majority of replicas 
+agree, thus SMR can tolerate various faults such as minor replica 
 failures. Attracted by this strong fault-tolerance, recently, several SMR 
 systems~\cite{chubby:osdi, zookeeper, crane:sosp15, eve:osdi12, rex:eurosys14} 
 have been built to greatly improve the availability of various server programs, 
@@ -17,11 +19,11 @@ because these programs tend to serve client requests at all time.
 % round-trip (~400 us). Not for performance critical servers such as key-value.
 % Batching: addressed throughput but not latency.
 Unfortunately, despite these recent advances, SMR remains difficult to be 
-widely adopted due to its high consensus latency. To agree on an input, 
-traditional consensus protocols invoke at least one message round-trip between 
-two replicas. Given that a \v{ping} in Ethernet takes hundreds of \us, a server 
-program running in an SMR system with only three replicas must wait at least 
-this time before processing an input. This latency may be acceptable for 
+widely adopted due to the high consensus latency in \paxos. To agree on an 
+input, traditional consensus protocols invoke at least one message round-trip 
+between two replicas. Given that a \v{ping} in Ethernet takes hundreds of \us, a 
+server program running in an SMR system with only three replicas must wait at 
+least this time before processing an input. This latency may be acceptable for 
 maintaining global configuration~\cite{chubby:osdi,zookeeper} or processing SQL 
 transactions~\cite{crane:sosp15,eve:osdi12}, but prohibitive for 
 key-value stores. To mitigate this challenge, some recent SMR 
@@ -38,12 +40,12 @@ it may aggravate response time.
 % parallilism, but still slow: despite the large latency, context switches (400 
 % us).
 
-As an SMR replica group grows, consensus protocols are even more difficult to 
-scale, because a majority involves more replicas with more round-trips. One 
-scalling approach (\eg, ~\cite{crane:sosp15}) may be using an event-driven 
-model (\eg, Libevent~\cite{libevent}) to improve the parallilism of replicas' 
-consensus round-trips. However, the high latency of a single round-trip still 
-exists.
+% As an SMR replica group grows, consensus protocols are even more difficult to 
+% scale, because a majority involves more replicas with more round-trips. One 
+% scalling approach (\eg, ~\cite{crane:sosp15}) may be using an event-driven 
+% model (\eg, Libevent~\cite{libevent}) to improve the parallilism of replicas' 
+% consensus round-trips. However, the high latency of a single round-trip still 
+% exists.
 % and synchronization context switches (often takes hundreds of \us) in 
 % the event loop of this model also adds latency.
 
@@ -59,17 +61,44 @@ exists.
 % \memcached, and \mysql) that seek for fault-tolerance in some degree.
 
 % P4.0: opportunity, RDMA. We argue that, network layers are not inherent.
-Remote Direct Access Memory (RDMA) is promising on mititaging consensus latency 
-because it becomes increasingly cheaper and pervasive in datacenters. RDMA 
-allows a host machine to directly write to the memory of a remote host without 
-involving the OS kernel or CPU at either host. For instance, a recent 
-evaluation~\cite{pilaf:atc14} reports about 3 \us mean round-trip latency on 
-RDMA write operations. However, despite much effort, it is still quite 
-challenging to fully exploit the speed of RDMA in consensus protocols due to 
-the unrichness of RDMA features. We present this challenge in detail by 
-elaborating two existing approaches below.
+Remote Direct Access Memory (RDMA) is a promising technique to mititage 
+consensus latency because it becomes cheaper and increasingly pervasive in 
+datacenters. RDMA allows a host machine to directly write to the 
+memory of a remote host; once this write completes successfully, local NIC 
+receives an ACK sent from the remote NIC. This whole round-trip 
+does not invole the OS kernel or CPU at the remote host (\ie, a one-sided 
+write). An evaluation~\cite{pilaf:atc14} reports a $\sim$3 \us round-trip 
+latency on such one-sided RDMA write operations in the Infiniband 
+architecture~\cite{infiniband}.
 
-One straight forward approach XXX.
+However, despite much effort, it is still quite challenging to fully exploit 
+RDMA speed in \paxos protocols due to the unrichness of RDMA features. We 
+present this challenge in detail by elaborating two existing approaches 
+below. One straight forward approach is IP over Infiniband (IPoIB). This 
+approach emulates TCP/IP on RDMA hardware so that traditional \paxos 
+implementations can enjoy RDMA speedup without modifications. However, this 
+loose combination of RDMA and \paxos is still one order of magnitude slower 
+than fastest RDMA operations because IPoIB goes through the OS kernel and 
+copies network data between kernel and user space.
+
+% DARE: simply use RDMA writes to do consensus on the leader side.
+To further improve consensus speed, DARE~\cite{dare:hpdc15} proposes a second 
+approach by simply replacing message passing in \paxos with one-sided RDMA 
+operations. For efficiency, DARE lets the leader handle all consensus requests 
+with three steps. The leader first appends a consensus request to a consensus 
+log in the other replicas with RDMA writes. For the the writes with ACKs, it 
+then updates the log's tail pointer in these successful remote replicas' and 
+wait ACKs of these updates. Finally, the leader knows that the minimum tail 
+pointer among at least a majority of replcias reach consensus.
+
+At a first peak, this approach runs fast because all communications between 
+the leader and the other replicas are the fatest one-sided RDMA writes. 
+However, this approach faces a scalability challenge: each step has to wait 
+ACKs from the previous step before it starts, and each RDMA write has to wait 
+for its own ACK before it completes. As the replica group grows, the leader 
+has to do RDMA writes to the other replicas one by one.
+
+Our key observation is that XXX TBD.
 
 % P4: Falcon; key features. Hook sockets in servers.
 This paper present \xxx, an SMR systems that replicates general server programs 
