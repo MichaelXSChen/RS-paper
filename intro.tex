@@ -20,11 +20,11 @@ Unfortunately, despite these recent advances, SMR remains difficult to be
 widely adopted due to its high consensus latency. To agree on an input, 
 traditional consensus protocols invoke at least one message round-trip between 
 two replicas. Given that a \v{ping} in Ethernet takes hundreds of \us, a server 
-program running in an SMR system must wait at least this time before processing 
-an input. This latency may be acceptable for maintaining global 
-configuration~\cite{chubby:osdi,zookeeper} or processing SQL transactions and 
-videos~\cite{crane:sosp15,eve:osdi12}, but prohibitive for key-value stores. To 
-mitigate this challenge, some recent SMR 
+program running in an SMR system with only three replicas must wait at least 
+this time before processing an input. This latency may be acceptable for 
+maintaining global configuration~\cite{chubby:osdi,zookeeper} or processing SQL 
+transactions~\cite{crane:sosp15,eve:osdi12}, but prohibitive for 
+key-value stores. To mitigate this challenge, some recent SMR 
 systems~\cite{calvin:sigmod12,rex:eusorys14} batch requests into one 
 consensus round. However, batching can only mitigate a server's throught lost; 
 it may aggravate response time.
@@ -37,15 +37,26 @@ it may aggravate response time.
 % getting much more slower to reach quorum. Event-driven to increase 
 % parallilism, but still slow: despite the large latency, context switches (400 
 % us).
-The second challenge is that an automated, fine-grained approach is needed to 
-avoid execution divergence of active (\ie, alive) replicas. Even in the absence 
-of replica failures or network partitions, the executions of different replicas 
-can still diverge due to contention of 
-inter-thread resources~\cite{coredet:asplos10} (\eg, shared memory) and systems 
-resources~\cite{racepro:sosp11} (\eg, files and network ports). This challenge 
-not only lies in standard SMR systems which require deterministic executions, 
-but it is also pervasive in commodity replication systems (\eg, \redis, 
-\memcached, and \mysql) that seek for fault-tolerance in some degree.
+
+As an SMR replica group grows, consensus protocols are even more difficult to 
+scale, because a majority involves more replicas with more round-trips. One 
+scalling approach (\eg, ~\cite{crane:sosp15}) may be using an event-driven 
+model (\eg, Libevent~\cite{libevent}) to improve the parallilism of replicas' 
+consensus round-trips. However, the high latency of a single round-trip still 
+exists.
+% and synchronization context switches (often takes hundreds of \us) in 
+% the event loop of this model also adds latency.
+
+
+% The second challenge is that an automated, fine-grained approach is needed to 
+% avoid execution divergence of active (\ie, alive) replicas. Even in the absence 
+% of replica failures or network partitions, the executions of different replicas 
+% can still diverge due to contention of 
+% inter-thread resources~\cite{coredet:asplos10} (\eg, shared memory) and systems 
+% resources~\cite{racepro:sosp11} (\eg, files and network ports). This challenge 
+% not only lies in standard SMR systems which require deterministic executions, 
+% but it is also pervasive in commodity replication systems (\eg, \redis, 
+% \memcached, and \mysql) that seek for fault-tolerance in some degree.
 
 % P4.0: opportunity, RDMA. We argue that, network layers are not inherent.
 Recently, Remote Direct Access Memory (RDMA) has become increasingly 
