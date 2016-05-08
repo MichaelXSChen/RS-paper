@@ -121,17 +121,21 @@ that \xxx can intercept client inputs, we wrote a \nlinescalvin patch for
 
 \subsection{Performance Overhead} \label{sec:overhead}
 
-Figure~\ref{fig:tput} shows \xxx's throughput. We varied the number of 
-concurrent client connections for each server program by from one to 16 threads 
-or until they reached peak performance. For \calvin, we only collected the 
-8-thread result because \calvin used this constant thread count to serve 
-client requests. Overall, compared to these server programs' unreplicated 
-executions, \xxx merely incurred an average througput degrade by \tputoverhead 
-(note that in Figure~\ref{fig:tput}, the Y-axises of most programs start from a 
-large number). As the number of threads increases, \xxx still scales almost as 
-well as the unreplicated executions. Figure~\ref{fig:tput} shows 
-\xxx's response time, a \latencyoverhead overhead compared to the unreplicated 
-executions.
+Figure~\ref{fig:tput} shows \xxx's throughput and Figure~\ref{fig:latency} 
+response time. We varied the number of concurrent client connections for each 
+server program by from one to 16 threads or until they reached peak performance. 
+For \calvin, we only collected the 8-thread result because \calvin used this 
+constant thread count to serve client requests. Overall, compared to these 
+server programs' unreplicated executions, \xxx merely incurred an average 
+througput degrade by \tputoverhead (note that in Figure~\ref{fig:tput}, the 
+Y-axises of most programs start from a large number).
+
+As the number of threads increases, \xxx still scales almost as well as the 
+unreplicated executions. \memcached itself does not scale well with the number 
+of threads, and a prior evaluation~\cite{rex:eurosys14} also observed a similar 
+\memcached low scalability.
+% a \latencyoverhead overhead compared to the unreplicated 
+% executions.
 
 \xxx achieves such low overhead in both throughput and response time due to two 
 reasons. First, for each \recv call in a server program, \xxx's input 
