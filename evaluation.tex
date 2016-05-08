@@ -168,12 +168,12 @@ once for every \thashcomp output hash generations (\S\ref{sec:output-workflow}).
 \calvin & 10,002  & 93.0 & 2.5 \us  & 9.9 \us\\
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em \xxx input consensus events on the leader replica, normalized to 
-10K requests.} The ``\# Calls" column means the number of socket calls that 
-went through \xxx input concensus; ``Input" means average bytes of a server's 
-inputs received in these calls; ``SSD time" means the average time spent on 
-storing these calls to stable storage; and ``Quorum time" means the average 
-time spent on waiting quorum for these calls.} 
+\caption{{\em Leader's input consensus events per 10K requests.} 
+The ``\# Calls" column means the number of socket calls that went through \xxx 
+input concensus; ``Input" means average bytes of a server's inputs received in 
+these calls; ``SSD time" means the average time spent on storing these calls to 
+stable storage; and ``Quorum time" means the average time spent on waiting 
+quorum for these calls.} 
 \label{tab:consensus-latency}
 \end{table}
 
