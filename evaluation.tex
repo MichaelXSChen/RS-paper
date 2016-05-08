@@ -192,11 +192,11 @@ leader.
 
 By summing these two time columns, overall, a \xxx input consensus took only 
 9.9 \us (\redis) to 39.6 \us (\mongodb). This consensus latency mainly depends 
-on the ``Input" column: the number of bytes received in a socket call (\eg, 
-\mongodb has the largest received bytes). \xxx's small consensus latency makes 
-\xxx achieve reasonable throughputs in Figure~\ref{fig:tput} and response times 
-Figure~\ref{fig:latency}. This small latency suggests that, \xxx may still 
-achieve reasonable performance overhead even if running client programs within 
+on the ``Input" column: the average number of data bytes received in socket 
+calls (\eg, \mongodb has the largest received bytes). \xxx's small consensus 
+latency makes \xxx achieve reasonable throughputs in Figure~\ref{fig:tput} and 
+response times Figure~\ref{fig:latency}. This small latency suggests that \xxx 
+may still achieve reasonable overhead even if clients are deployed within the 
 same datacenter network, although \xxx's default deployment model is running 
 server replicas in a datacenter and clients in LAN or WAN.
 
