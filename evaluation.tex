@@ -145,26 +145,30 @@ once for every \thashcomp output hash generations (\S\ref{sec:output-workflow}).
 \centering
 \vspace{-.05in}
 \begin{tabular}{lrrrr}
-{\bf Program} & {\bf \# calls} & {\bf input} & {\bf SSD} 
-& {\bf quorum}\\
+{\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time} 
+& {\bf Quorum time}\\
 \hline\\[-2.3ex]
-\clamav & 30  & 42.0 & 5.1 \us & 6.1 \us\\
+% Heming: normalized clamav to 10K req.
+\clamav & 30,000  & 42.0 & 5.1 \us & 6.1 \us\\
+% TBD: normalize mediatomb to 10K req.
 \mediatomb & 3,000  & 140.0 & 4.7 \us & 5.8 \us\\
 \memcached & 10,016  & 38.0 & 4.9 \us & 6.9 \us\\
 \mongodb & 25,665  & 492.4 & 19.1 \us & 20.4 \us\\
 \mysql & 13,111  & 26.0 & 5.0 \us & 15.7 \us\\
+% TBD: normalize ldap to 10K req.
 \openldap & 8,040  & 27.3 & 5.7 \us & 7.1 \us\\
 \redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us\\
+% TBD: normalize ssdb to 10K req.
 \ssdb & 9,916  & 47.0 & 3.7 \us & 10.9 \us\\
 \calvin & 10,002  & 93.0 & 2.5 \us  & 9.9 \us\\
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em \xxx micro events on input consensus.} The ``\# Calls" column 
-means the number of socket calls that went through \xxx input concensus; 
-``input" means average bytes of a server's inputs received in these calls; 
-``SSD" means the average latency on storing these calls to stable storage; 
-``quorum" means the average latency on waiting quorum for these calls; and 
-``diff" means whether the output checker found output divergence.} 
+\caption{{\em \xxx input consensus events on the leader replica, normalized to 
+10K requests.} The ``\# Calls" column means the number of socket calls that 
+went through \xxx input concensus; ``Input" means average bytes of a server's 
+inputs received in these calls; ``SSD time" means the average time spent on 
+storing these calls to stable storage; and ``Quorum time" means the average 
+time spent on waiting quorum for these calls.} 
 \label{tab:consensus-latency}
 \end{table}
 
