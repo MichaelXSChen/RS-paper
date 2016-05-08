@@ -14,17 +14,17 @@
 
 State machine replication (SMR) runs replicas of the same program and 
 uses a distributed consensus protocol (\eg, \paxos) to enforce same program 
-inputs among replicas through TCP/IP, tolerating various faults. Recent SMR 
-systems have shown to greatly improved the availablity of server programs. 
-Unfortunately, consensus latency is often too high to make SMR widely adopted. 
-This paper present \xxx, a fast SMR system for general server programs by 
-leveraging Remote Direct Memory Access (RDMA). \xxx intercepts a server 
-program's inbound socket calls and runs a new RDMA-accelerated \paxos protocol 
-that needs only two RDMA write operations for each input request. To address a 
-scalability challenge, this protocol tightly integrates RDMA operations with 
-\paxos's fault-tolerance nature, which enables replicas to reach consensus 
-rapidly in parallel. On top of this protocol, \xxx introduces a fast output 
-checking protocol to assure that replicas run in sync.
+inputs among replicas, tolerating various faults. Recent SMR systems have shown 
+to greatly improved the availablity of server programs. Unfortunately, consensus 
+latency is often too high to make SMR widely adopted. This paper present \xxx, a 
+fast SMR system for general server programs by leveraging Remote Direct Memory 
+Access (RDMA). \xxx intercepts a server program's inbound socket calls and runs 
+a new RDMA-accelerated \paxos protocol that needs only two RDMA write operations 
+for each input request. \xxx addresses a scalability challenge by tightly 
+integrating RDMA operations with the fault-tolerance nature of \paxos, making 
+replicas reach consensus rapidly in parallel. On top of this protocol, \xxx 
+presents a fast output checking protocol to improve assurance on whether 
+replicas run in sync.
 
 % \xxx addresses 
 % a pervasive 
@@ -37,14 +37,14 @@ checking protocol to assure that replicas run in sync.
 % because consensus protocols can already tolerate various faults (\eg, crash in 
 % the OS layer). 
 
-Evaluation on \nprog widely used, diverse server programs (\eg, \memcached and 
-\mysql) shows that \xxx is: (1) general, it ran these servers without any 
-modification except one; (2) fast, it incurred merely a \latencyoverhead mean 
-overhead in response time, and its consensus latency was \fasterthanzookeeper 
-faster than \calvin, an SMR system built on \zookeeper; (3) scalable to a 
-replica group size of five and seven; and (4) robust, its output protocol 
-detected a previously uknown software bug in \ssdb and recovered from the 
-execution divergence efficently.
+Evaluation on \nprog widely used server programs (\eg, \memcached, \mysql, and 
+\clamav) shows that \xxx is: (1) general, it ran these servers without 
+modifications except one program; (2) fast, it incurred merely a 
+\latencyoverhead mean overhead in response time and \tputoverhead in 
+throughput, and its consensus latency was \fasterthanzookeeper faster than 
+a prior SMR system built on \zookeeper; (3) scalable, it achieved similar 
+consensus latency from three to seven replicas; and (4) robust, its output 
+protocol detected and recovered a previously uknown software bug in \ssdb.
 
 % Stat machine replication definition. Focus on networking part, 
 % message passing, 
