@@ -8,7 +8,7 @@ number of replicas and uses a distributed consensus protocol (\eg,
 \paxos~\cite{crane:sosp15}) to enforce the same inputs among 
 replicas. Consensus on a new input can be achieved as long as a majority 
 of replicas agree, thus SMR can tolerate various faults such as minor replica 
-failures. Attracted this strong fault-tolerance, recent SMR 
+failures. Attracted by this strong fault-tolerance, recently, several SMR 
 systems~\cite{chubby:osdi, zookeeper, crane:sosp15, eve:osdi12, rex:eurosys14} 
 have been built to greatly improve the availability of various server programs, 
 because these programs tend to serve client requests at all time.
@@ -16,18 +16,18 @@ because these programs tend to serve client requests at all time.
 % P2: Performance too slow. Agree first and then execute. Even three nodes, one 
 % round-trip (~400 us). Not for performance critical servers such as key-value.
 % Batching: addressed throughput but not latency.
-Unfortunately, despite much effort, SMR is still difficult to be widely adopted 
-mainly due to its high consensus latency. To agree on a new input, traditional 
-consensus protocols invoke at least one message round-trip between two 
-replicas. Since a \v{ping} round-trip in Ethernet takes hundreds of \us, a 
-server program running in an SMR system has to wait at least this time before 
-processing an input request. This latency may be acceptable for maintain global 
-configuration~\cite{zookeeper} or processing heavy SQL transactions and videos, 
-but definitely prohibitive for modern in-memory storage servers (\eg, key-value 
-stores). To mitigate this challenge, Some recent
-SMR systems~\cite{calvin:sigmod12,rex:eusorys14} batch requests into one 
-consensus round, but batching could only mitigate the lost of throught, not 
-latency.
+Unfortunately, despite these recent advances, SMR remains difficult to be 
+widely adopted due to its high consensus latency. To agree on a new 
+input, traditional consensus protocols invoke at least one message round-trip 
+between two replicas. Given that a \v{ping} round-trip in Ethernet takes 
+hundreds of \us, a server program running in an SMR system must wait at least 
+this time before processing an input. This latency may be acceptable for 
+maintaining global configuration~\cite{chubby:osdi,zookeeper} or processing SQL 
+transactions and videos~\cite{crane:sosp15,eve:osdi12}, but prohibitive for 
+key-value stores. To mitigate this challenge, some recent SMR 
+systems~\cite{calvin:sigmod12,rex:eusorys14} batch requests into one 
+consensus round. However, batching can only mitigate a server's throught lost; 
+it may aggravate response time.
 % As a possible consequence, although many recent storage 
 % systems~\cite{drtm} 
 % explicitly stated that they needed a replication system for high availability, 
