@@ -61,10 +61,10 @@ is necessary when one-sided operations are used.
 
 \section{\xxx Overview}\label{sec:overview}
 
-This section presents an overview of \xxx's architecture with its deployment 
-model and key components (\S\ref{sec:arch}), and it gives an example to show 
-how it works (\S\ref{sec:example}).
-
+This section first gives an overview of \xxx's architecture with its 
+deployment model and key components (\S\ref{sec:arch}), and then presents 
+\xxx's applications in three areas (\S\ref{sec:apps}).
+ 
 \subsection{Architecture}\label{sec:arch}
 
 \begin{figure}[t]
@@ -171,6 +171,60 @@ coordinator to re-forward the requests in stable storage to the server. There
 is no a second output hash comparisons between backups and leader until the 
 leader invokes a new output checking consensus request next time.
 
+
+\subsection{\xxx Has Broad Applications}\label{sec:apps}
+
+We envision that \xxx's a fast, general SMR service can be applied in broad 
+areas, and here we elaborate three. First, \xxx's RDMA-accelerated \paxos 
+protocol and its implementation could be an effective template for many other 
+distributed protocols in datacenters. For instance, an immediate extension of 
+\xxx is to make it tolerate byzantine faults. Another promising direction is 
+three-phase commit (3PC): 3PC is often blamed by its intolerance on network 
+partitions and asynchronour communications, and its high latency caused by the 
+three round-trips. Fortunately, within the RDMA-enabled datacenter context, 
+people may leverage \xxx's techniques and experience to build a significantly 
+faster and more reliable 3PC protocols.
+
+% Other replication topics.
+
+% Parallel program analysis. Such a short coordination time can make replicas 
+% run almost as fast as each other, support many time-critical analyses 
+% such as race detection and security defenses.
+Second, by efficiently constructing multiple, equivalent executions for the 
+same program, \xxx can benefit distributed program analysis techniques. Bounded 
+by the limited computing resources on single machine, recent advanced 
+reliability and security analaysis frameworks are moving towards distributed in 
+order to offload analyses on multiple machines. \xxx can be leveraged in these 
+frameworks so that developers of analysis tools can just focus on their own 
+analysis logic, while \xxx's general replication architecture efficiently 
+handles the rest. Moreover, analyses developers can tightly integrate their 
+tools with \xxx (\eg, they can proactively diversify the orders of socket 
+calls in \xxx's consensus logs among replicas to improve replicas' tolerance on
+security attacks).
+
+% TBD: use \xxx to detect software bugs by checking outputs, even in 
+% real-world deployments. XXX make program % inputs strongly consistent across 
+% replicas, so output divergence are likely % from software bugs. XXX promising 
+% 
+% results in our evaluation. Find a bug in % ssdb?
+
+% One idea: can leverage the checkpoint and rollback protocok, and the 
+% consensus part, to build a system that can automatically bypass concurrency 
+% bugs without fixing them. The way to bypass: proactively reordering socket 
+% calls. Self-healing system.
+
+% A core building block in future operating systems. Maintain a consistent view 
+% of computing resources and data. Used in scheduling framework (Mesos) because 
+% its latency is almost compatible with context switches of processes (sub 
+% milli seconds).
+Third, \xxx can be a core building block in the emerging datacenter operating 
+systems~\cite{hotos15, mesos, web-article}. As a datacenter continuously 
+emerges a computer, an OS may be increasingly needed for thus a giant 
+computer. \xxx's fast, general coordination service is espeicially suitable 
+for such an OS's scheduler to maintain a consistent, reliable view on both 
+computing resources and data in a datacenter. For instance,, \xxx's latency is 
+largely between 15 to 20 \us, much smaller than a typical context swtich of a 
+process (typically, a few hundreds \us).
 
 % \subsection{Example}\label{sec:example}
 % 
