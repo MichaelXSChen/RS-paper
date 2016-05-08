@@ -196,24 +196,23 @@ on the ``Input" column: the average number of data bytes received in socket
 calls (\eg, \mongodb has the largest received bytes). \xxx's small consensus 
 latency makes \xxx achieve reasonable throughputs in Figure~\ref{fig:tput} and 
 response times Figure~\ref{fig:latency}. This small latency suggests that \xxx 
-may still achieve reasonable overhead even if clients are deployed within the 
-same datacenter network, although \xxx's default deployment model is running 
-server replicas in a datacenter and clients in LAN or WAN.
+may still achieve acceptable overhead on some programs even if clients are 
+deployed within the same datacenter network, although \xxx's default deployment 
+model is running server replicas in a datacenter and clients in LAN or WAN.
 
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
-We compared \xxx with \calvin's SMR system because \calvin uses \zookeeper, a 
-widely used coordination service built on TCP/IP, as its input coordinator. To 
-conduct a fair comparison, both \xxx and \calvin SMR, we ran \calvin's own 
-transactional database as the server program, and we compared throughputs and 
-the consensus latency. \xxx achieved 17.6K transactions/s with a 12.5 \us 
-consensus latency. \calvin achieved 19.9K transactions/s with a 511.9 \us 
-consensus latency. The throughput in \calvin was 13.1\% higher than that in
-\xxx because \calvin puts transactions in a batch with a 10 \ms timeout and 
-then it invokes \zookeeper for consensus on this batch. Batching helps \calvin 
+We compared \xxx with \calvin's SMR system because \calvin's inpur consensus 
+uses \zookeeper, one of the most widely used coordination service built on 
+TCP/IP. To conduct a fair comparison, both \xxx and \calvin SMR, we ran 
+\calvin's own transactional database as the server program, and we compared 
+throughputs and the consensus latency. \xxx achieved 17.6K transactions/s with a 
+12.5 \us consensus latency. \calvin achieved 19.9K transactions/s with a 511.9 
+\us consensus latency. The throughput in \calvin was 13.1\% higher than that in 
+\xxx because \calvin puts transactions in a batch with a 10 \ms timeout and then 
+it invokes \zookeeper for consensus on this batch. Batching helps \calvin 
 ahieves good throughput. \xxx currently has not incorporated a batching 
-techinque because its latency is already reasonably fast 
-(\S\ref{sec:overhead}).
+techinque because its latency is already reasonably fast (\S\ref{sec:overhead}).
 
 Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
 to \xxx's RDMA-accelerated consensus protocol. A prior SMR
