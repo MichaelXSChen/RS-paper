@@ -223,7 +223,7 @@ socket descriptors.
 
 % TBD. Four steps. Four entries?
 
-\subsection{Reliability and Performance} \label{sec:guarantees}
+\subsection{Reliability} \label{sec:guarantees}
 
 % Follow PMP, ease to understand, absorbe good exeprience.
 % \paxos is notoriously difficult to 
@@ -241,12 +241,10 @@ in parallel). We made this choice
 because \paxos is \paxos is notoriously difficult to 
 understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 implement~\cite{paxos:live,paxos:practical} 
-verify~\cite{modist:nsdi09,demeter:sosp11}. Aligning with a practical 
-\paxos implementation~\cite{paxos:practical} involve two messages and 
-same senders and receivers (although we use WRITE helps us incorporate these 
-readily mature understanding, 
-engineering experience, and the theoretically verified safety and liveness 
-rules into our protocol design and implementation.
+verify~\cite{modist:nsdi09,demeter:sosp11}. Aligning with a practical
+\paxos implementation~\cite{paxos:practical} helps us incorporate these 
+readily mature understanding, engineering experience, and the theoretically 
+verified safety rules into our protocol design and implementation.
 
 % Define safety: TBD.
 % A \paxos protocol must ensure safety: the agreed operation must be an actually 
