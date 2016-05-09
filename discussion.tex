@@ -10,39 +10,45 @@ applications in other research areas (\S\ref{sec:apps}).
 % Have not hooked time and rand(). Can use PMP approach. Not a problem for 
 % evaluated apps. 
 \xxx currently does not hook random functions such as \v{gettimeofday()} and 
-\v{rand()} because our output checkers have not detected network output 
-divergence comming from these functions. Existing 
-approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can be 
+\v{rand()} because these random results are often explicit in network outputs 
+(\eg, a timestamp in an HTTP reply header). Developers can easily disable them 
+from outputs if they want. Existing 
+approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can also be 
 leveraged to intercept these functions and make them produce same results among 
 replicas.
+% because our output checkers have not detected network output 
+% divergence comming from these functions
 
 % Output checking protocol.
 
 % Clamav style.
 \xxx's output checking protocol may have false positives or false negatives, 
-because it just makes an effort to practically indicate that replicas are 
-running the same execution states. A server program running in \xxx may have 
-false positive when it uses multiple threads to serve the same client 
-connection and uses these threads to concurrently produce outputs 
-(\eg, \clamav). Running a DMT scheduler in \xxx can address this problem. In 
-our evaluation, all programs except \clamav uses only one thread to process one 
-client connection and they don't have such false positives.
+because it is just designed to try to improve assurance on whether replicas run 
+in sync. A server program running in \xxx may have false positive when it uses 
+multiple threads to serve the same client connection and uses these threads to 
+concurrently append outputs to networks (\eg, \clamav in our evaluation). 
+Running a deterministic multithreading 
+scheduler~\cite{coredet:asplos10,parrot:sosp13} with the server program 
+addresses this problem.
+% In our evaluation, all programs except \clamav uses only 
+% one thread to process one client connection and they don't have such false 
+% positives.
 
 A server program may also have false negative when it triggers a software bug 
 but the bug does not propogate to network outputs. On client programs' point of 
-view, such bugs do not matter; \xxx already checkpoints file system state to 
-mitigate this issue.
+view, such bugs do not matter. Moreover, \xxx already checkpoints file system 
+state to mitigate this issue.
 
-When execution divergence is detected in a replica, \xxx's rollback mechanism 
-is not designed to guarantee that the re-executions of this replica will 
-definitely avoids this divergence. We made this design choice because both 
-our evaluation and a previous work Eve~\cite{eve:osdi12} found that divergence 
-happens extremely rarely in evaluation. In our evaluation, we found that simply 
-re-executing the log can practically make \xxx's replicas converge to 
-same execution states. A similar finding is that although Eve provided a 
-sequential re-execution approach to with divergence avoidance guarantee, which 
-\xxx can leverage, but even Eve's evaluation didn't experience any divergence 
-and thus this approach was not invoked.
+% When execution divergence is detected in a replica, \xxx's rollback mechanism 
+% is not designed to guarantee that the re-executions of this replica will 
+% definitely avoids this divergence. We made this design choice because both 
+% our evaluation and a previous work Eve~\cite{eve:osdi12} found that divergence 
+% happens extremely rarely in evaluation. In our evaluation, we found that simply 
+% re-executing the log can practically make \xxx's replicas converge to 
+% same execution states. A similar finding is that although Eve provided a 
+% sequential re-execution approach to with divergence avoidance guarantee, which 
+% \xxx can leverage, but even Eve's evaluation didn't experience any divergence 
+% and thus this approach was not invoked.
 
 % Read only opt?
 
