@@ -28,6 +28,16 @@ latency, their consensus latency one order of magnitude higher than that in
 \xxx (\S\ref{sec:compare}). These systems can leverage \xxx's general, 
 RDMA-accelerated protocol to improve latency.
 
+% % DARE: simply use RDMA writes to do consensus on the leader side.
+% To further improve consensus speed, DARE~\cite{dare:hpdc15} proposes a second 
+% approach by simply replacing message passing in \paxos with one-sided RDMA 
+% operations. For speed, DARE lets the leader handle a whole consensus round
+% with three steps. The leader first appends a consensus request to a consensus 
+% log in all remote replicas with RDMA writes. For the the successful writes with 
+% ACKs, it then updates the tail pointers in remote logs and wait ACKs of these 
+% updates. Finally, the leader knows that the minimum tail pointer among at 
+% least a majority of replcias reach consensus.
+
 % Two systems Rex and Eve did not provide latency evaluation; not open source.
 % Two systems Calvin and Crane, we ran them with Calvin's database; we are XX 
 % times faster.
