@@ -86,14 +86,17 @@ fault-tolerance).
 Second, by efficiently constructing multiple, equivalent executions for the 
 same program, \xxx can benefit distributed program analysis techniques. Bounded 
 by the limited computing resources on single machine, recent advanced 
-reliability and security analaysis frameworks are moving towards distributed in 
-order to offload analyses on multiple machines. \xxx can be leveraged in these 
+program analaysis frameworks become 
+distributed~\cite{speck:asplos08,repframe:apsys15} in order to offload analyses 
+on multiple machines. \xxx can be leveraged in these 
 frameworks so that developers of analysis tools can just focus on their own 
 analysis logic, while \xxx's general replication architecture efficiently 
-handles the rest. Moreover, analyses developers can tightly integrate their 
-tools with \xxx (\eg, they can proactively diversify the orders of socket 
-calls in \xxx's consensus logs among replicas to improve replicas' tolerance on
-security attacks).
+handles the rest.
+
+Moreover, program analyses developers can tightly integrate their tools with 
+\xxx. For instance, they can proactively diversify the orders of socket calls 
+in \xxx's consensus logs among replicas to improve replicas' tolerance on 
+security attacks~\cite{con:hotpar12}.
 
 % TBD: use \xxx to detect software bugs by checking outputs, even in 
 % real-world deployments. XXX make program % inputs strongly consistent across 
@@ -111,10 +114,10 @@ security attacks).
 % its latency is almost compatible with context switches of processes (sub 
 % milli seconds).
 Third, \xxx can be a core building block in the emerging datacenter operating 
-systems~\cite{hotos15, mesos, web-article}. As a datacenter continuously 
-emerges a computer, an OS may be increasingly needed for thus a giant 
-computer. \xxx's fast, general coordination service is espeicially suitable 
-for such an OS's scheduler to maintain a consistent, reliable view on both 
-computing resources and data in a datacenter. For instance,, \xxx's latency is 
-largely between 15 to 20 \us, much smaller than a typical context swtich of a 
-process (typically, a few hundreds \us).
+systems~\cite{hotos15, mesos, datacenteros:artical}. As a datacenter 
+continuously emerges a computer, an OS may be increasingly needed for thus a 
+giant computer. \xxx's fast, general coordination service is espeicially 
+suitable for such an OS's scheduler to maintain a consistent, reliable view on 
+both computing resources and data in a datacenter. For instance, \xxx's 
+latency is largely between less than 30 \us, much smaller than a typical 
+context swtich of a process (typically, a few hundreds \us).
