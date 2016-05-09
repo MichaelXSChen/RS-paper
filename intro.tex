@@ -133,11 +133,39 @@ automatically deploys this program on replicas of machines. \xxx intercepts
 inputs from the inbound socket calls (\eg, \recv) of a server program and 
 invokes our new consensus algorithm to enforce same inputs across replicas.
 
-If \xxx finds that 
-a replica produces an different output from what other replicas agree on, \xxx 
-recovers this replica to a previous program checkpoint and re-executes inputs 
-that have been agreed on from the checkpoint. 
+% If \xxx finds that 
+% a replica produces an different output from what other replicas agree on, \xxx 
+% recovers this replica to a previous program checkpoint and re-executes inputs 
+% that have been agreed on from the checkpoint. 
 
+% P6: Falcon: output checker.
+However, to practically replicate general server programs, only enforcing same 
+inputs is not enough. An automated, efficient output checking mechanism that 
+can improve the assurance on ``replicas run in sync" is still missing in 
+existing SMR 
+systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. Nowadays 
+most server programs already use multithreading to harness the power of 
+multi-core hardware. 
+Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
+cui:tern:osdi10, kendo:asplos09,
+dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} caused by 
+contentions in inter-thread resources (\eg, global memory and locks) and systems 
+resources (\eg, network ports) can easily cause program execution states to 
+diverge across replicas and compute wrong outputs to clients. Existing 
+approaches either use only \v{ping} to check the liveness of replicas (\eg, 
+\redis) or rely on manually annotating share states in program code to detect 
+divergence~\cite{eve:osdi12}.
+
+% A practical 
+% output checking mechanism is missing in widely deployed replication 
+% systems (\eg, \redis and \mysql) either, although these replication sytems 
+% provide weaker fault-tolerance or consistency guarantees than SMR for better 
+% performance. 
+% 
+% Two approaches for checking whether replicas run in sync exists. Existing 
+% widely deployed systems typically use \v{ping} to check whether replicas run in 
+% sync, but this coarse-grained checking will miss output divergence caused by 
+% tricky concurrency bugs~\cite{lu:concurrency-bugs}. Eve 
 
 % First, introduce naive approach. IPoverIB.
 
@@ -154,14 +182,7 @@ that have been agreed on from the checkpoint.
 
 % P5.1: Support read-only optimization.
 
-% P6: Falcon: output checker.
-However, input coordination is not sufficient to practically enforce same 
-execution states for the same program across replicas. Nowadays most server 
-programs already adopt multi-threading or multi-process models to harness the 
-power of multi-core and improve performance. Contentions on inter-thread 
-resources (\eg, global memory and \pthread mutex locks) and systems resources 
-(\eg, network ports and files) can easily cause program execution states among 
-replicas to diverge an can never converge again. 
+
 
 % To address this challenge, recent SMR systems leverage either deterministic 
 % multithreading techniques~\cite{rex:eurosys14,crane:sosp15} or detecting 
