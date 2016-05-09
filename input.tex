@@ -1,12 +1,12 @@
 \section{Input Consensus Protocol} \label{sec:input}
 
-This section introduces the basic workflow of \xxx's \paxos-based input 
-coordination protocol in normal case (\S\ref{sec:normal}), describes how it 
-handles concurrent connections (\S\ref{sec:concurrent}), presents the leader 
-election protocol (\S\ref{sec:election}), and then discusses the reliability 
-of our protocol (\S\ref{sec:guarantees}).
+This section first presents \xxx's RDMA-accelerated \paxos consensus protocol, 
+including the fast,scalable algorithm in normal case (\S\ref{sec:normal}), 
+handling concurrent connections (\S\ref{sec:concurrent}), and the leader 
+election protocol (\S\ref{sec:election}). It then analyzes the reliability of 
+our protocol (\S\ref{sec:guarantees}).
 
-\subsection{Normal Case Operations} \label{sec:normal}
+\subsection{Normal Case Algorithm} \label{sec:normal}
 
 \begin{figure}[t]
 \centering
@@ -38,102 +38,138 @@ of our protocol (\S\ref{sec:guarantees}).
   %% On close().
 
 % First, basic roles. log format details.
-\xxx' input coordination protocol contains three roles. The first role is a 
-\paxos consensus log (for short, \emph{log}) which resides in each replica and 
-contains the same  sequence of socket calls called by a server program. The 
-second role is a leader thread which invokes consensus request and writes to its 
-local log as well as remote replicas' logs. In \xxx, leader threads are just 
-a server program's worker threads that processes client requests. A leader 
-replica can have multiple leader threads depending on how many threads  Third, 
-a follower thread which (dis)agrees consensus requests on a backup replica.
+Recall that \xxx' input consensus protocol contains three roles. First, the 
+\paxos consensus log (\S\ref{sec:overview}). Second, a leader replica's server 
+program thread (in short, a leader thread) which invokes consensus request. For 
+efficiency, \xxx lets a server program's threads directly handle consensus 
+requests whenever they call inbound socket calls (\eg, \recv). Third, a backup 
+replica's \xxx internal follower thread (\S\ref{sec:overview}) which agrees on 
+or rejects consensus requests.
 
-Figure~\ref{fig:logentry} shows the data structure of a log entry in \xxx's 
-consensus log. Most fields are regular as those in a typical \paxos protocol 
-except three ones: the \v{ack} array, the client connection ID \v{conn\_vs}, 
-and the type ID of a socket call \v{call\_type}. The \v{ack} array is for 
-replicas to write back their consensus replies to the leader via a RDMA one-side 
-write. The \v{conn\_vs} is for identifying which connection this socket call 
-belongs to (see \ref{sec:conclusion}). The \v{call\_type} identifies four types 
-of socket calls in \xxx: the \accept type (\eg, \accept), the \recv type 
-(\eg, \recv and \myread), the \send type (\eg, \send and \mywrite), and the 
-\close type (\eg, \close).
+Figure~\ref{fig:logentry} shows the format of a log entry in \xxx's consensus 
+log. Most fields are regular as those in a typical \paxos 
+protocol~\cite{paxos:practical} except three ones: the \v{ack} array, the 
+client connection ID \v{conn\_vs}, and the type ID of a socket call 
+\v{call\_type}. The \v{ack} array is for backups to WRITE their consensus 
+replies to the leader. The \v{conn\_vs} is for identifying which connection this 
+socket call belongs to (see \ref{sec:concurrent}). The \v{call\_type} 
+identifies four types of socket calls in \xxx: the \accept type (\eg, \accept), 
+the \recv type (\eg, \recv and \myread), the \send type (\eg, \send and 
+\mywrite), and the \close type (\eg, \close).
 
 % Second, leader thread behavior on \recv(). Return from orig recv, grab 
 % spin % lock and get view stamp, store the log, and post send to all replicas. 
 % Non blocking. Wait % for over half agree, and then execute the operation.
-A leader thread invokes a consensus request when it calls a socet call with 
-the \recv type. A consensus request includes four steps. The first step is 
-executing the actual socket call, because \xxx needs to get the actual received 
-data bytes and then replicates them in remote replicas' logs.
+Figure~\ref{fig:logentry} shows the input consensus algorithm. Suppose a leader 
+thread invokes a consensus request when it calls a socet call with the \recv 
+type. A consensus request includes four steps. The first step (\textbf{L1}) is 
+executing the actual Libc socket call, because \xxx needs to get the actual 
+return values or received data bytes of this call and then replicates them in 
+remote replicas' logs.
 
-The second step is local preparation, including assigning a global, 
-monotonically increashing viewstamp to locate this entry in the consensus log, 
-building a log entry struct for this call, and writing this entry to its local 
-SSD.
+The second step (\textbf{L2}) is local preparation, including assigning a 
+global, monotonically increashing viewstamp to locate this entry in the 
+consensus log, building a log entry struct for this call, and writing this 
+entry to its local SSD.
 
-The third step is sending consensus requests to replicas by using RDMA 
-one-sided write to write this struct to remote replicas' logs. Note that these 
-RDMA write operations do not need to wait for the struct actually be written to 
-remote logs. Instead, \xxx's leader thread just return immediately after 
-putting the structs to the RDMA QP (Queue Pair) between a backup replica, 
-because \paxos protocol \xxx implements has already considered packet losses 
-(\eg, due to remote replica failures).
+The third step (\textbf{L3}) is to WRITE a log entry to remote backups 
+in parallel. Unlike a previous RDMA-based consensus 
+algorithm~\cite{dare:hpdc15} which has to wait for ACKs from remote NICs, our 
+WRITE immediately returns after pushing the entry to its local QP between the 
+leader and each backup, because \paxos has handled the reliability issues (\eg, 
+packet losses) for our WRITEs. In our evaluation, pushing a log entry to local 
+QP took no more than 0.1 \us. Therefore, the WRITEs to all backups are done in 
+parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
 
-The fourth step is waiting for replicas' consensus replies. The leader does a
-busy loop to check the \v{ack} array until it sees that a majority of replicas, 
-including itself, have aggreed on this log entry. In normal case, both the 
-third and fourth steps will return immediately because no synchronization 
-context switch is involved.
+% Instead, \xxx's leader thread just return 
+% immediately after 
+% putting the structs to the RDMA QP (Queue Pair) between a backup replica, 
+% because \paxos protocol \xxx implements has already considered packet losses 
+% (\eg, due to remote replica failures).
+
+The fourth step (\textbf{L4}) is the leader thread polling on its \v{ack} 
+field (notably, different from an RDMA ACK) in its local log entry for backups' 
+consensus replies. Once consensus is reached, the leader thread finishes 
+intercepting this \recv socket call and continues with its server application 
+logic.
+% 
+% The leader does a
+% busy loop to check the \v{ack} array until it sees that a majority of replicas, 
+% including itself, have aggreed on this log entry. In normal case, both the 
+% third and fourth steps will return immediately because no synchronization 
+% context switch is involved.
 
 % Post send carry the last committed (consensus reached) operation.
 
 % One key issue, check integrity. Strawmen approach, check viewstamp first.
-On a replica side, one tricky issue on replying consensus request is that, 
-unlike traditional TCP/UDP messages, RDMA on-sided write operations do not 
-guarantee atomicy. For instance, a leader thread can be doing a remote RDMA 
-write on the viewstamp \v{vs}, while a follower thread can be reading this 
-variable concurrently without knowing when the leader's write can finish, 
-causing the replica to read a partial (wrong) value. Thus, in a 
-RDMA-accelerated protocol, an extra mechanism is needed to gurantee that a 
-leader's write has finished and then replicas can agree or disagree.
+On a backup side, one tricky issue on replying consensus request is that 
+there is no efficient way to make RDMA WRITEs atomic. For instance, while a 
+leader thread is doing a WRITE on \v{vs} to a remote backup, this backup's 
+follower thread may be reading this variable concurrently, causing a partial 
+(wrong) read.
 
-\xxx's follower thread tackles this issue by adding a canary value after the 
-actual \v{data} array. Leveraging a RDMA feature that its writes are lossless 
-in normal case, the follower thread always checks the canary value according to 
-\v{data\_size} and then starts the consensus reply decision. This check 
-guarantees that a log entry is completely written in a local backup.
+Existing approaches~\cite{farm:nsdi14,herd:sigcomm14} address this issue by 
+leverage the left-to-right ordering of WRITEs and putting a special non-zero 
+variable at then end of a fix-sized log entry because they handle key-value 
+stores with fixed value length. However, because \xxx aims to support general 
+applications with variable received data length, this trick does not apply to 
+\xxx.
+% Thus, in a RDMA-accelerated protocol, an extra mechanism 
+% is needed to gurantee that a 
+% leader's write has finished and then replicas can agree or disagree.
 
-To ahchieve small consensus latency, \xxx's follower thread does a busy loop 
-on a dedicated CPU core to agree on consensus requests from the leader. Each 
-backup only needs one follower thread. This thread always busy reading the 
-latest un-agreed log entry in its local log, and it it sees a log entry has 
-completely written, it runs three steps. First, it does a regular \paxos view 
-ID checking to see whether the leader is up to date, and if so, it stores the 
-log entry in its local SSD. Second, it does a RDMA write to send back a Yes/No 
-ack to the leader's \v{ack} array element with its own node ID.
+\xxx tackles this issue by adding a canary value after the actual \v{data} 
+array. Leveraging a QP with the type of RC (reliable connection) 
+(\S\ref{sec:background}), the follower reads a complete entry by: it
+always first checks the canary value according to \v{data\_size} and then 
+starts the consensus reply decision.
+% This check guarantees that a log entry is 
+% completely written in a local backup.
+% 
+% To ahchieve small consensus latency, \xxx's follower thread does a busy loop 
+% on a dedicated CPU core to agree on consensus requests from the leader. Each 
+% backup only needs one follower thread. This thread always busy reading the 
+% latest un-agreed log entry in its local log, and it it sees a log entry has 
+% completely written, it runs three steps. 
 
-Third, the follower thread does a regular \paxos check on \v{last\_committed} 
-and executes all socket calls that it has not executed before this viewstamp. 
-It ``executes" each log entry by sending the data in each entry to the local 
-server program. On replicas, server programs run as is without being 
-intercepted. In short, this follower thread runs a high performance loop to 
-respond consensus requests and forward data to the local server program. Since 
-each backup machine only has one follower thread and nowadays machines often 
-have spare cores, we didn't find that the spin loop of this thread brought 
-bring negative performance impact in our evaluation.
+A follower thread in a backup replica polls from the latest un-agreed log 
+entry and does three steps to agree on consensus requests, shown in 
+Figure~\ref{fig:consensus}. First (\textbf{B1}), it does a regular \paxos view 
+ID checking to see whether the leader is up-to-date, it then stores the log 
+entry in its local SSD. Second (\textbf{B2}), it does a WRITE to send back 
+a consensus reply to the leader's \v{ack} array element according to its 
+own node ID. Backups perform these two steps in parallel 
+(see Figure~\ref{fig:logentry}).
+
+Third (\textbf{B3}, not shown in Figure~\ref{fig:consensus}), the follower 
+does a regular \paxos check on \v{last\_committed} and executes all socket 
+calls that it has not executed before this viewstamp. It then ``executes" each 
+log entry by forwarding the socket calls to the local server program. This 
+forwarding faithly builds and closes concurrent connections between the follower 
+and the local server program according to the socket calls in the consensus log.
+% thus \xxx can 
+% maintain consistent concurrent client connection mappings between the leader and 
+% backups.
+
+% On replicas, server programs run as is without being 
+% intercepted. In short, this follower thread runs a high performance loop to 
+% respond consensus requests and forward data to the local server program. Since 
+% each backup machine only has one follower thread and nowadays machines often 
+% have spare cores, we didn't find that the spin loop of this thread brought 
+% bring negative performance impact in our evaluation.
 
 % Performance: two RDMA writes and two SSD stores. No context switches.
-This protocol is highly optimized for minimizing consensus latency in normal 
-case. In total, a consensus between the leader and one backup only requires 
-two one-sided RDMA write operations (one from the leader to the backup and the 
-other from the backup to the leader) and two SSD write operations (each in 
-leader and backup). Although each RDMA one-sided operation takes about 3 \us, 
-\xxx's protocol just puts the log entry to the RDMA Queue Pair without needing 
-to wait until the write succeeds on the remote backup, because the leader will 
-have \paxos's consensus reply (the RDMA write from the backup to leader). In 
-addition, neither a leader thread or a follower thread does a synchronization 
-context switch during this consensus (a synchronization context switch 
-typically takes sub milli seconds, pretty slow).
+% This protocol is highly optimized for minimizing consensus latency in normal 
+% case. In total, a consensus between the leader and one backup only requires 
+% two one-sided RDMA write operations (one from the leader to the backup and the 
+% other from the backup to the leader) and two SSD write operations (each in 
+% leader and backup). Although each RDMA one-sided operation takes about 3 \us, 
+% \xxx's protocol just puts the log entry to the RDMA Queue Pair without needing 
+% to wait until the write succeeds on the remote backup, because the leader will 
+% have \paxos's consensus reply (the RDMA write from the backup to leader). In 
+% addition, neither a leader thread or a follower thread does a synchronization 
+% context switch during this consensus (a synchronization context switch 
+% typically takes sub milli seconds, pretty slow).
 
 % Question: one key question, can RDMA lose packets in between? I mean, both 
 % data_size and canary value are correct, but packets in the middle are lost. 
@@ -146,26 +182,29 @@ typically takes sub milli seconds, pretty slow).
 \subsection{Handling Concurrent Connections} \label{sec:concurrent}
 
 Unlike traditional \paxos protocols which mainly handle single-threaded 
-programs due to their deterministic state machine assumption, \xxx aims to 
+programs due to SMR's deterministic state machine assumption, \xxx aims to 
 support both single-threaded as well as multithreaded server programs running 
 on multi-core machines. Therefore, a strongly consistent mechanism is needed to 
-match every concurrent client connection on the leader and to its matching 
-connection on replica machines. A naive approach could be matching a leader's 
-socket descriptor to the same one on a backup replica, but note that backups' 
-servers may return different descriptors because such systems resources could 
-be contended by other threads in the server's process and nondeterministic.
+map every concurrent client connection on the leader and to its corresponding 
+connection on backups. A naive approach could be matching a leader connection's 
+socket descriptor to the same one on a backup, but backups' servers may return 
+nondeterministic descriptors due contentions on systems resources.
 
 Fortunately, \paxos have already made viewstamps of socket calls strongly 
 consistent across replicas. For TCP connections, \xxx addes the 
 \v{conn\_vs} field, the viewstamp of the the first socket call in each 
-connection (aka, \accept) to as the connection ID for socket calls in the 
-log. On a local replica, \xxx maintains a hash map between this connection ID 
-to the actual local socket descriptor for each connection, then \xxx ensures 
-that data bytes are forwarded from a leader's connection to the right matching 
-connection on backups. \xxx also intercepts socket calls with the \close type 
-to clean up this map. For servers that use UDP to serve requests, \xxx maps the 
-viewstamp of a \recvfrom call to the socket descriptor returned from this call, 
-and it cleans up the map on a corresponding \sendto call. 
+connection (\ie, \accept) as the connection ID for log entries. Then, \xxx 
+maintains a hashmap on each local replica to map this connection ID to local 
+socket descriptors.
+
+% On a local 
+% replica, \xxx maintains a hash map between this connection ID 
+% to the actual local socket descriptor for each connection, then \xxx ensures 
+% that data bytes are forwarded from a leader's connection to the right matching 
+% connection on backups. \xxx also intercepts socket calls with the \close type 
+% to clean up this map. For servers that use UDP to serve requests, \xxx maps the 
+% viewstamp of a \recvfrom call to the socket descriptor returned from this call, 
+% and it cleans up the map on a corresponding \sendto call. 
 
 % TBD. Strawmen approach, use fds on leader machines.
 
@@ -184,41 +223,39 @@ and it cleans up the map on a corresponding \sendto call.
 
 % TBD. Four steps. Four entries?
 
-\subsection{Reliability and Safety} \label{sec:guarantees}
-
-\begin{figure}[t]
-\centering
-\vspace{-.20in}
-\includegraphics[width=.48\textwidth]{figures/dare}
-\vspace{-.20in}
-\caption{{\em DARE consensus algorithm in normal case.}} \label{fig:dare}
-\vspace{-.05in}
-\end{figure}
+\subsection{Reliability and Performance} \label{sec:guarantees}
 
 % Follow PMP, ease to understand, absorbe good exeprience.
-To minimize protocol-level software bugs, \xxx's input coordination protocol 
-design chooses the same replica behavior as a popular, traditional 
-\paxos protocol protocol~\cite{paxos:practical}, although \xxx uses RDMA 
-operations to deliver consensus requests and replies and added some extra data 
-structure fields. For instance, both \xxx and the 
-protocol~\cite{paxos:practical} involve two messages between a leader replica 
-and a backup replica in normal case, and they both have the same four steps 
-involved by same replica roles on leader election. We made this design choice 
-because \paxos is notoriously difficult to understand, test, and verify; 
-sticking with a traditional replica behavior helps us incorporate the readily 
-mature understanding, engineering experience, and the theoretically verified 
-reliability rules~\cite{nsdi07} into our new RDMA-accelerated \paxos protocol.
+% \paxos is notoriously difficult to 
+% understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
+% implement~\cite{paxos:live,paxos:practical}. 
+% 
+To minimize protocol-level bugs, 
+\xxx's \paxos protocol mostly sticks with a popular, 
+practical implementation~\cite{paxos:practical}, espeically the behaviors of 
+senders and receivers (\S\ref{sec:normal} and \S\ref{sec:election}). For 
+instance, both \xxx's normal case algorithm and 
+the popular implementation~\cite{paxos:practical} involve two messages and 
+same senders and receivers (although we use WRITEs and carefully make them run 
+in parallel). We made this choice 
+because \paxos is \paxos is notoriously difficult to 
+understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
+implement~\cite{paxos:live,paxos:practical} 
+verify~\cite{modist:nsdi09,demeter:sosp11}; sticking with a traditional 
+replica behavior helps us incorporate these readily mature understanding, 
+engineering experience, and the theoretically verified safety and liveness 
+rules into our protocol design and implementation.
 
 % Define safety: TBD.
-A \paxos protocol must ensure safety: the agreed operation must be an actually 
-proposed one; if agreed, all active replicas must consistently enforce this 
-operation. Safety is another important sweet spot that \xxx's input 
-coordination protocol inherites from traditional \paxos protocol by sticking 
-with same replica behavior in traditional ones. As a traditional protocol, 
-our input coordination protocol also uses view IDs and viewstamps to enforce a 
-consistent, up-to-date leadership across replicas. To address the atomicy issue 
-between remote RDMA writes and local memory reads, our protocol addes an 
-completion check on log entries (\S\ref{sec:normal}).
+% A \paxos protocol must ensure safety: the agreed operation must be an actually 
+% proposed one; if agreed, all active replicas must consistently enforce this 
+% operation. Safety is another important sweet spot that \xxx's input 
+% coordination protocol inherites from traditional \paxos protocol by sticking 
+% with same replica behavior in traditional ones. As a traditional protocol, 
+% our input coordination protocol also uses view IDs and viewstamps to enforce a 
+% consistent, up-to-date leadership across replicas. To address the atomicy issue 
+% between remote RDMA writes and local memory reads, our protocol addes an 
+% completion check on log entries (\S\ref{sec:normal}).
 % In short, our 
 % design choice makes our input coordination protocol enforce the same level of 
 % safety as traditional \paxos protocols~\cite{paxos, paxos:simple, 
@@ -230,3 +267,31 @@ completion check on log entries (\S\ref{sec:normal}).
 
 % Any unique changes that prevent us from providing guarantees? The delta 
 % changes? Packets. Logs?
+
+\begin{figure}[t]
+\centering
+\vspace{-.20in}
+\includegraphics[width=.48\textwidth]{figures/dare}
+\vspace{-.20in}
+\caption{{\em DARE consensus algorithm in normal case.}} \label{fig:dare}
+\vspace{-.05in}
+\end{figure}
+
+We compare the performance and scalability between \xxx and DARE, the fastest 
+RDMA-based consensus algorithm we know so far. As shown on 
+Figure~\ref{fig:consensus}, a complete \xxx consensus round consists of three 
+parts: a leader's local SSD store operation (L2), a backup's local SSD store 
+operation (B1), and a WRITE round-trip (L3 and B2). Given the same inputs, 
+the latency of these three parts are constant, thus \xxx's consensus latency is 
+not approximately constant to replica group size. \xxx's scalability is mainly 
+bounded by the max number of outbound RDMA writes in the RDMA NIC hardware 
+(currently, 16~\cite{herd:sigcomm}).
+
+We carefully examined DARE's code base and depict its consensus algorithm in 
+Figure~\ref{fig:dare}, which consists of three parts: log entry WRITEs to all 
+remote logs' with ACKs, log tail pointer WRITEs to all remote logs with ACKs, 
+and a quorum notification by WRITEs to agreed remote replicas without ACKs. In 
+DARE's pure leader-based consensus, ACKs are necessary for every next step to 
+start. Therefore, DARE's consensus latency is linear to replica group size. We 
+show concrete consensus latency comparisons of \xxx and DARE in evaluation 
+(\S\ref{sec:scalability}).

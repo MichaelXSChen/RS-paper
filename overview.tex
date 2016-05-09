@@ -19,15 +19,15 @@ these requests. If the leader fails, \paxos elects a new leader from the
 backups.
 
 When a new input comes, \paxos starts a new consensus round, which invokes a 
-consensus request on this input to backups. \paxos guarantees that all replicas 
-consistently agree to process this input as long as a majority of replicas 
-agree. This quorum based consensus makes \paxos tolerate various faults such as 
-machine failures and network crashes. Before a replica agrees on an input, 
-\paxos logs this input in the replica's stable storage for durability. As 
-consensus rounds move on, \paxos consistently enforce the same sequence of 
-inputs and execution states across replicas without divergence, if a program 
-behaves as a deterministic state machine (a program always produces the 
-same output given the same input).
+consensus request on this input to backups. As long as a majority of replicas 
+agree on this input (\ie, this input is \emph{committed}), \paxos guarantees 
+that all replicas consistently agree to process this input  This quorum based 
+consensus makes \paxos tolerate various faults such as machine failures and 
+network crashes. Before a replica agrees on an input, \paxos logs this input in 
+the replica's stable storage for durability. As consensus rounds move on, 
+\paxos consistently enforce the same sequence of inputs and execution states 
+across replicas without divergence, if a program behaves as a deterministic 
+state machine (\ie, always produces the same output on the same input).
 
 % Normal case, round trip.
 Netork latency of consensus messages is one key problem to make general server 
@@ -130,13 +130,13 @@ file system state (the \emph{guard}).
 
 
 % Coordinator: leader side. 
-The coordinator is invoked when a server thread calls an inbound socket call to 
-manage a client socket connection (\eg, \accept and \close) or to receive 
-inputs from the connection (\eg, \recv). On the leader side, \xxx executes 
-the actual Libc socket call, extracts the returned value or inputs of this 
-call, stores it in local SSD, appends a log entry to its local consensus log, 
-and then invokes the coordinator for a new consensus request on ``executing 
-this socket call".
+The coordinator is invoked when a server program thread calls an inbound socket 
+call to manage a client socket connection (\eg, \accept and \close) or to 
+receive inputs from the connection (\eg, \recv). On the leader side, \xxx 
+executes the actual Libc socket call, extracts the returned value or inputs of 
+this call, stores it in local SSD, appends a log entry to its local consensus 
+log, and then invokes the coordinator for a new consensus request on 
+``executing this socket call".
 
 The coordinator runs a consensus algorithm (\S\ref{sec:input}), which WRITEs 
 the local entry to backups' remote logs in parallel and polls the local log 
@@ -157,13 +157,13 @@ consensus log and thus the same socket call sequence across replicas.
 % struct to all remote backup replicas' log.
 
 % Coordinator: backup side.
-On each backup side, the coordinator uses a \xxx internal thread to poll its 
-consensus log for new consensus requests. If the coordinator agrees the 
-request, this thread stores the log entry in local SSD and then WRITEs a 
-consensus reply to the remote leader's corresponding log entry. A backup does 
-not need to intercept a server's socket calls because its coordinator will just 
-follow the leader's consensus requests on executing what socket calls and then 
-forward these calls to the local server program.
+On each backup side, the coordinator uses a \xxx internal thread called 
+\emph{follower} to poll its consensus log for new consensus requests. If the 
+coordinator agrees the request, the follower stores the log entry in local SSD 
+and then WRITEs a consensus reply to the remote leader's corresponding log 
+entry. A backup does not need to intercept a server's socket calls because the 
+follower will just follow the leader's consensus requests on executing what 
+socket calls and then forward these calls to its local server program.
 
 % To respond consensus requests rapidly, each 
 % backup coordinator spawns a dedicated thread. This thread runs a busy loop to 
