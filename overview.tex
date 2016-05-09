@@ -10,53 +10,75 @@ This section introduces the background of two key techniques in \xxx, the
 % Persistent storage. 
 % Network round trips in normal case. Latency.
 An SMR system runs the same program and its data on a set of machines 
-(replicas), and it uses a distributed consensus protocol (typically, \paxos) 
-to coordinates inputs across replicas. For efficiency, in normal case, \paxos 
-often let one replica work as the leader which invoke consensus requests, and 
-the other replicas work as backups to agree on or reject these requests. If 
-the leader fails, \paxos elects a new leader.
+(replicas), and it uses a distributed consensus protocol (typically, 
+\paxos~\cite{paxos:complex,paxos,paxos:simple,paxos:live,paxos:fast,
+paxos:practical}) to coordinates inputs across replicas. For efficiency, in 
+normal case, \paxos often lets one replica work as the leader which invoke 
+consensus requests, and the other replicas work as backups to agree on or reject 
+these requests. If the leader fails, \paxos elects a new leader from the 
+backups.
 
 When a new input comes, \paxos starts a new consensus round, which invokes a 
-consensus request on this input to the other replicas. \paxos guarantees that 
-all replicas consistently agree to process this input as long as a majority of 
-replicas' agreement. This quorum based consensus makes \paxos tolerate various 
-faults such as machine failures and network crashes. Before a replica agrees on 
-a input, \paxos logs this input in the replica's persistent storage for 
-durability. As rounds move on, \paxos consistently enforce the same sequence of 
-inputs among replicas. If a program runs as a deterministic state machine (\ie, 
-given the same input, the program always produces the same output), \paxos 
-guarantees that programs on active replicas never diverge.
+consensus request on this input to backups. \paxos guarantees that all replicas 
+consistently agree to process this input as long as a majority of replicas 
+agree. This quorum based consensus makes \paxos tolerate various faults such as 
+machine failures and network crashes. Before a replica agrees on an input, 
+\paxos logs this input in the replica's stable storage for durability. As 
+consensus rounds move on, \paxos consistently enforce the same sequence of 
+inputs and execution states across replicas without divergence, if a program 
+behaves as a deterministic state machine (a program always produces the 
+same output given the same input).
 
 % Normal case, round trip.
-Netork latency of consensus messages is one key challenge to make SMR support 
-general server programs which demand high perforrmance, espeically in-memory 
-storage servers. Because each input input is processed by a server program, 
-existing consensus protocols involve consensus messages on TCP or UDP, which go 
-through software network layers and the OS kernel, causing hundreds of \us 
-latency in LAN. For instance, even in an efficient \paxos protocol, each input 
-in normal case takes two consensus messages between every two replicas (one a 
-request from leader to backup and the other a reply from backup to leader).
+Netork latency of consensus messages is one key problem to make general server 
+programs adopt SMR. For instance, in an efficient, practical 
+\paxos implementation~\cite{paxos:practical}, each input in normal case takes 
+one consensus round-trip between every two replicas (one request from the leader 
+and one reply from a backup).
 
 
 \subsection{RDMA}\label{sec:rdma}
-% RDMA background.
-% Cheap, pervasive.
-% One-sided write operations. Faster than IPoIB.
-RDMA recently has become commonplace in Datacenter networking due to its high 
-performance and its decreashing price. For instance, a machine with 40Gbps RDMA 
-NIC and 24-cores costs 3.8K US \$, and a RDMA switch with 40Gbps costs about 
-16K US \$. RDMA provides three types of communication primitives, including 
-IPoIB, message verbs, and one-sided read/write operations, from slow to fast. To 
-perform RDMA operations, the process and the remote process establishes a 
-communication end point called Queue Pairs (QP). The remote memory access is 
-fully operated by hardware without involing software network layers, OS kernel, 
-or CPU of the remote machine. QP are lossless in normal case, but packet losses 
-may happen during machine or software (\eg, the server program) restarts.
+% Queue Pair. Completion Queue.
+% Fastest: RDMA one-sided write. % Define one-side RDMA write as WRITE.
+% UC and RC.
+% RC Need an ACK. But can also do selective signaling.
+RDMA hardware recently becomes commonplace in datacenters due to its extreme 
+low latency, high throughput, and its decreashing prices. RDMA communications 
+between a local network inteface card (NIC) and remote NIC requires setting up a 
+Queue Pair (QP), including a send queue and a receive queue. Each QP associates 
+with a Completion Queue (CQ) to store ACKs. A QP belongs to a type of 
+XY: X can be R (reliable) or U (unreliable), and Y can be C (connected) or U 
+(unconnected). \xxx and DARE's implementations mainly use RC QPs, because such a 
+reliable, connected QP guarantees in-order, non-corrupted delivery in normal 
+case. However, RC QPs may still lose packets in typical \paxos exceptional cases 
+(\eg, hardware failures, OS crashes, or server program restarts).
 
-One-side RDMA operations can totally write from one machine's memory to a 
-remote machine's memory directly. However, for one-sided operations, the remote 
-machine's memory is not aware of the write either, so a careful protocol design 
-is necessary when one-sided operations are used.
+RDMA provides three types of communication primitives, from slowest to 
+fastest: IPoIB, message verbs, and one-sided read/write operations. A one-sided 
+RDMA read/write operation can directly write from one replica's memory to a 
+remote replica's memory, completely bypassing OS kernel and CPU of the remote 
+replica. For brevity, the rest of this paper denotes a one-sided RDMA write 
+operation as a ``WRITE".
+
+To ensure a remote replica is alive and a WRITE succeeds, a common RDMA 
+practice is that after a WRITE is pushed to a QP, the local replica polls
+for an ACK from the associated CQ before it continues (the so called 
+\emph{signaling}). However, depending on local algorithm logic, the local 
+replica sometimes can do \emph{selected signaling}~\cite{herd:sigcomm14}: it 
+only checks for an ACK after pushing a number of WRITEs (previous WRITEs can 
+already succeed before this ACK-checking starts).
+
+% To 
+% perform RDMA operations, the process and the remote process establishes a 
+% communication end point called Queue Pairs (QP). The remote memory access is 
+% fully operated by hardware without involing software network layers, OS kernel, 
+% or CPU of the remote machine. QP are lossless in normal case, but packet losses 
+% may happen during machine or software (\eg, the server program) restarts.
+
+% One-side RDMA operations can totally write from one machine's memory to a 
+% remote machine's memory directly. However, for one-sided operations, the remote 
+% machine's memory is not aware of the write either, so a careful protocol design 
+% is necessary when one-sided operations are used.
 
 
 \section{\xxx Overview}\label{sec:overview}
