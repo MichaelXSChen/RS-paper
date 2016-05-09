@@ -97,9 +97,11 @@ with the fatest RDMA writes (although we argue that a stable storage for
 consensus requests should be added to ensure \paxos durability). However, this 
 approach faces a scalability challenge: to ensure a remote replica is alive, 
 each step has to wait ACKs from the previous step before it starts, and each 
-RDMA write has to wait for its own ACK. As the size of a replica group grows, 
-the leader has to do RDMA writes to remote replicas one by one, making its 
-consensus latency grow linearly (confirmed in our evaluation).
+RDMA write has to wait for its own ACK. In this pure leader-based algorithm, 
+ACKs are necessary for every next step to start. As the size of a replica 
+group grows, the leader has to do RDMA writes to remote replicas one by one, 
+making its consensus latency grows linearly to the majority size (confirmed 
+in our evaluation).
 
 Our key observation to address this scalability challenge is that simply 
 replacing RDMA writes with \paxos communications is not sufficient, and we can 
@@ -124,7 +126,7 @@ In the second step of this algorithm, both the leader and remote replicas work
 in parallel, so a whole consensus latency aproximately consists of 
 three operations: a leader's write to stable storage, a remote replica's write 
 to local storage, and a single RDMA write round-trip. This consensus latency is 
-no longer linear to replica group size (confirmed in our evaluation); its 
+no longer linear to majority size (confirmed in our evaluation); its 
 scalability is now mainly bounded by the max number of outbound RDMA 
 writes (currently, 16~\cite{herd:sigcomm}) in RDMA NIC hardware.
 
