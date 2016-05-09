@@ -100,7 +100,7 @@ each step has to wait ACKs from the previous step before it starts, and each
 RDMA write has to wait for its own ACK. In this pure leader-based algorithm, 
 ACKs are necessary for every next step to start. As the size of a replica 
 group grows, the leader has to do RDMA writes to remote replicas one by one, 
-making its consensus latency grows linearly to the majority size (confirmed 
+making its consensus latency grows linearly to majority size (confirmed 
 in our evaluation).
 
 Our key observation to address this scalability challenge is that simply 
