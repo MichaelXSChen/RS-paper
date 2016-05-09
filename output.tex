@@ -14,11 +14,11 @@ mechanism to deal with divergence (\S\ref{sec:checkpoint}).
 One main issue on checking network outputs is the physical timing when a 
 server program produces an network output is usually miscellaneous. For 
 example, when we ran \redis simply on pure SET workloads, we found that 
-different replicas reply the numbers of ``OK" results randomly: one replica may 
-send four of them in one \send call, while another replica may only send one of 
-them in each \send call. Therefore, comparing outputs on each \send call among 
-replicas may not only yield wrong results, but may unnecesssarily slow down 
-server programs among replicas.
+different replicas reply the numbers of ``OK" replies for SET operations 
+randomly: one replica may send four of them in one \send call, while another 
+replica may only send one of them in each \send call. Therefore, comparing 
+outputs on each \send call among replicas may not only yield wrong results, but 
+may unnecesssarily slow down server programs among replicas.
 
 % Two variables. Tckpt (checkpoint periods) and Tcmp (comparison periods).
 To overcome this timing issue, \xxx presents a bucket-based hash computation 
@@ -37,21 +37,23 @@ sequence.
 % lossses and consistency, thanks to paxos), fast, already have ACK mechanisms.
 
 % Leverage the input protocol to carry the hash of outputs. Occasionally.
-To compare a hash across replicas, \xxx's output checking protocol is the same 
-as the input coordination protocol (\S\ref{sec:normal}) except that the 
+To compare a hash across replicas, \xxx's output checking protocol runs the 
+same as the input coordination protocol (\S\ref{sec:normal}) except that the 
 follower thread on each backup replica carries this hash value in the \v{ack} 
-written back into the leader's log entry.
+written back into the leader's corresponding log entry. To make an effort to 
+collect more remote hash values, \xxx waits for \twait (by default, 20 \us) 
+and then starts to detect divergence on hash values.
 
-This output protocol starts by letting a leader thread invoke a consensue 
-request on this hash comparison for its own client connection. The leader also 
-writes its own hash value in the \v{ack} array with its own replica ID. Then, 
-follower threads on backup replicas carry their local hash values in the \v{ack} 
-array according to the connection ID \v{conn\_vs}. Once a quorum of \v{ack} 
-is ready, the leader simply detects divergence with the hash values in its 
-local \v{ack} array. Note that at this moment, some replicas may not send back 
-their reply yet because only a quorum is reached. To make an effort to collect 
-a complete hash values, \xxx waits for \twait (by default, 20 \us) and then 
-starts to detect divergence on hash values.
+% This output protocol starts by letting a leader thread invoke a consensue 
+% request on this hash comparison for its own client connection. The leader also 
+% writes its own hash value in the \v{ack} array with its own replica ID. Then, 
+% follower threads on backup replicas carry their local hash values in the \v{ack} 
+% array according to the connection ID \v{conn\_vs}. Once a quorum of \v{ack} 
+% is ready, the leader simply detects divergence with the hash values in its 
+% local \v{ack} array. Note that at this moment, some replicas may not send back 
+% their reply yet because only a quorum is reached. To make an effort to collect 
+% a complete hash values, \xxx waits for \twait (by default, 20 \us) and then 
+% starts to detect divergence on hash values.
 
 Figure~\ref{fig:divergence} shows the workflow on how the leader checks 
 present replies and handles divergence, which include four possible cases: 
@@ -59,25 +61,34 @@ present replies and handles divergence, which include four possible cases:
 but minor replicas' hashes diverge; (3) leader's hash diverges from a majority 
 of replicas'; and (4) no majority has the same hash value. The first three 
 cases should be the normal case unless a program tends to frequently compute 
-outputs on random functions (\eg, a scientific similator). Even so, we can 
-leverage prior approaches to hook these 
-random functions~\cite{paxos:practical,eve:osdi12} and make them generate same 
-return values among replicas.
+outputs on random functions (\eg, a scientific similator).
 
-Once the leader decides to roll back a diverged replica (including itself), it 
-invokes a local guard process (\S\ref{sec:overview}) that handles 
-checkpointing and rolling back the local server program. If a remote replica 
-needs to be rolled back, the local guard forwards the roll back request to the 
-guard in that remote replica.
+Note that \xxx does has incorporated an input re-planing approach (\eg, 
+Eve~\cite{eve:osdi12} sequentially re-execute requests after a rollback) because 
+we found that simply re-execution can already avoid the divergence. Previous 
+work~\cite{lu:concurrency-bugs,pres:sosp09} also confirmed that it was 
+extremely unlikely to trigger a concurrency bug in both of two consencutive 
+executions.
 
-We explicitly design this output checking protocol to be fast with two 
-considrations: (1) because the hash comparison consensus happens occasionally 
-(every \thashcomp hash generations), the performance penalty on this output 
-consensus is negligible; and (2) all or most replicas' hash values are 
-the same in normal case. Two parameters, \thashcomp and \twait, may be 
-sensitive to \xxx's performance. We did an evaluation on diverse server 
-programs and found that these default values are reasonable, general settings to 
-these programs (\S\ref{sec:sensitivity}).
+% Even so, we can 
+% leverage prior approaches to hook these 
+% random functions~\cite{paxos:practical,eve:osdi12} and make them generate same 
+% return values among replicas.
+
+% Once the leader decides to roll back a diverged replica (including itself), it 
+% invokes a local guard process (\S\ref{sec:overview}) that handles 
+% checkpointing and rolling back the local server program. If a remote replica 
+% needs to be rolled back, the local guard forwards the roll back request to the 
+% guard in that remote replica.
+% 
+% We explicitly design this output checking protocol to be fast with two 
+% considrations: (1) because the hash comparison consensus happens occasionally 
+% (every \thashcomp hash generations), the performance penalty on this output 
+% consensus is negligible; and (2) all or most replicas' hash values are 
+% the same in normal case. Two parameters, \thashcomp and \twait, may be 
+% sensitive to \xxx's performance. We did an evaluation on diverse server 
+% programs and found that these default values are reasonable, general settings to 
+% these programs (\S\ref{sec:sensitivity}).
 
 % When divergence is detected, spawn the mechanism, show workflow.
 
@@ -99,41 +110,50 @@ these programs (\S\ref{sec:sensitivity}).
 A guard process is running on each replica to checkpoint and restore the local 
 server program. The guard does two tasks. First, \xxx assigns one backup 
 replica's guard to checkpoint the local server program's process state and file 
-system state within a physical duration \tcheckpoint (by default, one hour in 
-\xxx). Such a checkpoint operation and its duration are not sensitive to \xxx's 
-performance because the leader and the other backups can still reach a 
-consensus quorum rapidly. Each checkpoint is associate with a last committed 
-socket call viewstamp of the server program. After each periodical checkpoint, 
-the backup distributes the checkpoint tar bar to the other replicas to cope 
-with replica failovers.
+system state of current working directory within a physical duration 
+\tcheckpoint (by default, one hour in \xxx).
+
+Such a checkpoint operation and its duration are not sensitive to \xxx's 
+performance because the other backups can still reach quorum rapidly. Each 
+checkpoint is associate with a last committed socket call viewstamp of the 
+server program. After each periodical checkpoint, the backup distributes the 
+checkpoint zip file to the other replicas.
 
 Specifically, \xxx leverages CRIU, a popular, open source process checkpoint 
 tool, to checkpoint a server program's process state (\eg, CPU registers and 
 memory). Since CRIU does not support checkpointing RDMA connections, \xxx's 
-guard first sends a ``close RDMA Queue Pair" request to an \xxx internal thread 
-spawned in \xxx's LD\_PRELOAD library, let this thread closes all RDMA Queue 
-Pairs of this server's process with the other replicas' server processes, and 
-then invokes CRIU to do the checkpoint.
+guard first sends a ``close RDMA QP" request to an \xxx internal thread, lets 
+this thread closes all remote RDMA QPs, and then invokes CRIU to do the 
+checkpoint.
 
-After checkpointing process state, \xxx uses CRIU to stop this process and then 
-checkpoints files in the process's current working directory recursively, 
-including the socket call stable storage (\S\ref{sec:input}). To avoid a server 
-to modify files missed by \xxx, we only assign a server process write 
-permissions to its current working directory and the ``/tmp" directory (files in 
-``/tmp" directory often do not matter). \xxx's file system checkpoint avoids the 
-need of comparing program outputs to the file system.
+The second task for guards is that all guards in all alive replicas handle 
+rollback requests once divergence is detected (\S\ref{sec:output-workflow}). 
+According to the rollback workflow, a backup guard which receives a rollback 
+request from the leader guard will kill the local server process and roll back 
+to a previous checkpoint before the last successfuly hash check.
+% Suppose the 
+% viewstamp associated with the 
+% % previous checkpoint is $vs_{ckpt}$, and the viewstamp of the last matching 
+% hash 
+% % comparison log entry is $vs_{match}$, \xxx ensures that $vs_{ckpt}$ 
+% % is smaller than $vs_{match}$ so that this checkpoint is not diverged.
+
+% After checkpointing process state, \xxx uses CRIU to stop this process and then 
+% zip files in the process's current working directory recursively, including the 
+% socket call stable storage (\S\ref{sec:input}). In our evaluation, 
+% zipping current working directory was sufficient to carry all files used 
+% by the evaluated programs.
+
+% To avoid a server 
+% to modify files missed by \xxx, we only assign a server process write 
+% permissions to its current working directory and the ``/tmp" directory (files in 
+% ``/tmp" directory often do not matter). \xxx's file system checkpoint avoids the 
+% need of comparing program outputs to the file system.
 
 % Closing RDMA sockets before checkpoint because CRIU does not support such 
 % special memory.
 
-The second task for guards is that all guards in all alive replicas handle 
-rollback requests once divergence is detected (\S\ref{sec:output-workflow}). 
-According to the rollback workflow, a guard which receives a rollback request 
-kill the local server process and roll back to a previous checkpoint before the 
-last matching hash comparison. Suppose the viewstamp associated with the 
-previous checkpoint is $vs_{ckpt}$, and the viewstamp of the last matching hash 
-comparison log entry is $vs_{match}$, \xxx ensures that $vs_{ckpt}$ 
-is smaller than $vs_{match}$ so that this checkpoint is not diverged.
+
 
 % Orthogonal to the \paxos protocol, just feel like some replicas restart 
 % themselves. Paxos can handle this.
