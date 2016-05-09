@@ -114,17 +114,19 @@ This tight integration of \paxos and RDMA writes looks simple, but it leads to
 a new fast, scalable \paxos consensus algorithm with three steps in normal 
 case. First, the leader stores a consensus request in local stable storage 
 (SSD). Second, it does parallel RDMA writes to write this request to the remote 
-memory of the other replicas without waiting any RDMA ACKs. Remote replicas poll 
-from their local memory, store this request in local storage, and send 
-consensus replies to the leader rapidly with RDMA writes, without waiting any 
-RDMA ACKs either. Third, once the leader sees a majority of replies in its local 
-memory, a consensus is reached.
+memory of the other replicas without waiting any RDMA ACKs. Remote replicas 
+also work in parallel: they poll from their local memory, store this request in 
+local storage, and send consensus replies to the leader rapidly with RDMA 
+writes, without waiting any RDMA ACKs either. Third, once the leader sees a 
+majority of replies in its local memory, a consensus is reached.
 
-Because the second step in this algorithm is parallel, the consensus latency is 
-aproximately a write to stable storage plus a single RDMA write round-trip, 
-regardless of replica group size (confirmed in our evaluation). The scalability 
-of this algorithm is now mainly bounded by the capacity of outbound RDMA writes 
-in the NIC hardware.
+In the second step of this algorithm, both the leader and remote replicas work 
+in parallel, so a whole consensus latency aproximately consists of 
+three operations: a leader's write to stable storage, a remote replica's write 
+to local storage, and a single RDMA write round-trip. This consensus latency is 
+no longer linear to replica group size (confirmed in our evaluation); its 
+scalability is now mainly bounded by the max number of outbound RDMA 
+writes (currently, 16~\cite{herd:sigcomm}) in RDMA NIC hardware.
 
 % P4: Falcon; key features. Hook sockets in servers.
 This paper present \xxx, an SMR system that replicates general server programs 
