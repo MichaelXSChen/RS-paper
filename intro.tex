@@ -61,20 +61,20 @@ it may aggravate response time.
 % \memcached, and \mysql) that seek for fault-tolerance in some degree.
 
 % P4.0: opportunity, RDMA. We argue that, network layers are not inherent.
-Remote Direct Access Memory (RDMA) is a promising technique to mititage 
-consensus latency because it becomes cheaper and increasingly pervasive in 
-datacenters. RDMA allows a host machine to directly write to the 
-memory of a remote host; once this write completes successfully, local NIC 
-receives an ACK sent from the remote NIC. This whole round-trip 
-does not invole the OS kernel or CPU at the remote host (\ie, a one-sided 
-write). An evaluation~\cite{pilaf:atc14} reports a $\sim$3 \us round-trip 
-latency on such one-sided RDMA write operations in the Infiniband 
-architecture~\cite{infiniband}.
+Remote Direct Access Memory (RDMA) is a promising technique to mitigate 
+consensus latency because recently it becomes cheaper and increasingly 
+pervasive in datacenters. RDMA allows a host machine to directly write to the 
+memory of a remote host. As a common RDMA practice to ensure this write resides 
+in remote memory, the local host waits until its NIC receives an ACK sent from 
+the remote NIC. This whole round-trip does not invole the OS kernel or CPU at 
+the remote host (\ie, it is a one-sided write). An 
+evaluation~\cite{pilaf:atc14} shows that such a round-trip takes only $\sim$3 
+\us in the Infiniband architecture~\cite{infiniband}.
 
 However, despite much effort, it is still quite challenging to fully exploit 
 RDMA speed in \paxos protocols due to the unrichness of RDMA features. We 
 present this challenge in detail by elaborating two existing approaches 
-below. One straight forward approach is IP over Infiniband (IPoIB). This 
+below. One straightforward approach is IP over Infiniband (IPoIB). This 
 approach emulates TCP/IP on RDMA hardware so that traditional \paxos 
 implementations can enjoy RDMA speedup without modifications. However, this 
 loose combination of RDMA and \paxos is still one order of magnitude slower 
@@ -84,45 +84,73 @@ copies network data between kernel and user space.
 % DARE: simply use RDMA writes to do consensus on the leader side.
 To further improve consensus speed, DARE~\cite{dare:hpdc15} proposes a second 
 approach by simply replacing message passing in \paxos with one-sided RDMA 
-operations. For efficiency, DARE lets the leader handle all consensus requests 
+operations. For speed, DARE lets the leader handle a whole consensus round
 with three steps. The leader first appends a consensus request to a consensus 
-log in the other replicas with RDMA writes. For the the writes with ACKs, it 
-then updates the log's tail pointer in these successful remote replicas' and 
-wait ACKs of these updates. Finally, the leader knows that the minimum tail 
-pointer among at least a majority of replcias reach consensus.
+log in all remote replicas with RDMA writes. For the the successful writes with 
+ACKs, it then updates the tail pointers in remote logs and wait ACKs of these 
+updates. Finally, the leader knows that the minimum tail pointer among at 
+least a majority of replcias reach consensus.
 
-At a first peak, this approach runs fast because all communications between 
-the leader and the other replicas are the fatest one-sided RDMA writes. 
-However, this approach faces a scalability challenge: each step has to wait 
-ACKs from the previous step before it starts, and each RDMA write has to wait 
-for its own ACK before it completes. As the replica group grows, the leader 
-has to do RDMA writes to the other replicas one by one.
+To the best of our knowledege, DARE's approach achieves the fastest consensus 
+speed in existing approaches because all communications are simply replaced 
+with the fatest RDMA writes (although we argue that a stable storage for 
+consensus requests should be added to ensure \paxos durability). However, this 
+approach faces a scalability challenge: to ensure a remote replica is alive, 
+each step has to wait ACKs from the previous step before it starts, and each 
+RDMA write has to wait for its own ACK. As the size of a replica group grows, 
+the leader has to do RDMA writes to remote replicas one by one, making its 
+consensus latency grow linearly (confirmed in our evaluation).
 
-Our key observation is that XXX TBD.
+Our key observation to address this scalability challenge is that simply 
+replacing RDMA writes with \paxos communications is not sufficient, and we can 
+integrate RDMA writes even \emph{more tightly} with the fault-tolerant nature 
+of \paxos. In essense, \paxos has already tolerated various faults, including 
+machine failures and packet losses (even reliable connections in RDMA may lose 
+packets during hardware and program failovers). Therefore, we can safely ignore 
+the ACKs in RDMA writes and rely on \paxos to handle the reliability issues of 
+these writes.
+
+This tight integration of \paxos and RDMA writes looks simple, but it leads to 
+a new fast, scalable \paxos consensus algorithm with three steps in normal 
+case. First, the leader stores a consensus request in local stable storage 
+(SSD). Second, it does parallel RDMA writes to write this request to the remote 
+memory of the other replicas without waiting any RDMA ACKs. Remote replicas poll 
+from their local memory, store this request in local storage, and send 
+consensus replies to the leader rapidly with RDMA writes, without waiting any 
+RDMA ACKs either. Third, once the leader sees a majority of replies in its local 
+memory, a consensus is reached.
+
+Because the second step in this algorithm is parallel, the consensus latency is 
+aproximately a write to stable storage plus a single RDMA write round-trip, 
+regardless of replica group size (confirmed in our evaluation). The scalability 
+of this algorithm is now mainly bounded by the capacity of outbound RDMA writes 
+in the NIC hardware.
 
 % P4: Falcon; key features. Hook sockets in servers.
-This paper present \xxx, an SMR systems that replicates general server programs 
-efficiently by exploiting the fastest RDMA operations. With \xxx, 
-a server program just runs as if it is the single copy, and \xxx automatically 
-deploys this program on replicas of machines. \xxx enforces same network 
-inputs and verifies network outputs for replicas. If \xxx finds that a replica 
-produces an different output from what other replicas agree on, \xxx recovers 
-this replica to a previous program checkpoint and re-executes inputs that have 
-been agreed on from the checkpoint. 
+This paper present \xxx, an SMR system that replicates general server programs 
+efficiently. With \xxx, a server program just runs as is, and \xxx 
+automatically deploys this program on replicas of machines. \xxx intercepts 
+inputs from the inbound socket calls (\eg, \recv) of a server program and 
+invokes our new consensus algorithm to enforce same inputs across replicas.
+
+If \xxx finds that 
+a replica produces an different output from what other replicas agree on, \xxx 
+recovers this replica to a previous program checkpoint and re-executes inputs 
+that have been agreed on from the checkpoint. 
 
 
 % First, introduce naive approach. IPoverIB.
 
 % P5: Falcon: RDMA input coordination. Persistent stores; two RDMA writes 
 % between two machines; no context switch.
-To coordinate inputs among replicas, \xxx intercepts a server program's socket 
-APIs (\eg, \recv) to caputure inputs and introduces a new RDMA-accelerated 
-\paxos protocol to let replicas agree on these inputs. To ease understanding 
-and checking tooks. this protocol complies with common style of popular paxos 
-protocal~\cite{paxos:practical}. In the normal case of this protocol, contrast 
-to existing implementations which require one network round-trip (\ie, two 
-messages for every two replicas), our protocal only requires two most efficient 
-one-sided write operations.
+% To coordinate inputs among replicas, \xxx intercepts a server program's socket 
+% APIs (\eg, \recv) to caputure inputs and introduces a new RDMA-accelerated 
+% \paxos protocol to let replicas agree on these inputs. To ease understanding 
+% and checking tooks. this protocol complies with common style of popular paxos 
+% protocal~\cite{paxos:practical}. In the normal case of this protocol, contrast 
+% to existing implementations which require one network round-trip (\ie, two 
+% messages for every two replicas), our protocal only requires two most efficient 
+% one-sided write operations.
 
 % P5.1: Support read-only optimization.
 
@@ -135,10 +163,10 @@ resources (\eg, global memory and \pthread mutex locks) and systems resources
 (\eg, network ports and files) can easily cause program execution states among 
 replicas to diverge an can never converge again. 
 
-To address this challenge, recent SMR systems leverage either deterministic 
-multithreading techniques~\cite{rex:eurosys14,crane:sosp15} or detecting 
-divergence of execution by manually annotating program states by threads, 
-artificially trading off performance or automatacity.
+% To address this challenge, recent SMR systems leverage either deterministic 
+% multithreading techniques~\cite{rex:eurosys14,crane:sosp15} or detecting 
+% divergence of execution by manually annotating program states by threads, 
+% artificially trading off performance or automatacity.
 
 % Typical commodity 
 % replication systems ignore this challenge and use `ping" to check whether 
@@ -146,14 +174,14 @@ artificially trading off performance or automatacity.
 % detect execution divergence of resource contentions because a program can just 
 % compute wrong outputs without crashing. 
 
-Our key idea is that we don't need to a program's every (or every batch) 
-network outputs because they most replicas's outputs indicate that this output 
-is most likely the produced one. Either necessary or sufficient. Not necessary 
-because most executions already produce same program behaviors (including 
-outputs) even with concurrency bugs. Not sufficient because it could be all 
-replicas producing the same buggy output and bypass consensus protocols. All we 
-need is just lazily compare outputs and if a divergence is detected, we roll 
-back programs and re-execute them.
+% Our key idea is that we don't need to a program's every (or every batch) 
+% network outputs because they most replicas's outputs indicate that this output 
+% is most likely the produced one. Either necessary or sufficient. Not necessary 
+% because most executions already produce same program behaviors (including 
+% outputs) even with concurrency bugs. Not sufficient because it could be all 
+% replicas producing the same buggy output and bypass consensus protocols. All we 
+% need is just lazily compare outputs and if a divergence is detected, we roll 
+% back programs and re-execute them.
 
 To implement this idea, \xxx's output verification protocol first . network 
 outputs on each individual replica, computes  hash values incremental:
@@ -166,18 +194,18 @@ the XXX (leader?). Evaluation confirmed that XX.XX\% cases.
 
 
 % P7: conceptual level: complete architecture. agree-execute-enforcement.
-In a conceptual level, to provide pratical SMR service for general programs, 
-\xxx presents a new agree-execute-verify execution model, which contrasts from 
-previous agree-execute models and execute-verify models. We argue that agree is 
-essential to SMR due to its strong fault-tolerance on machine failures and 
-packet losses (even RDMA networks have packet loss when machines fail or 
-programs crash). Having a general input coordination protocol also mitigates 
-the need of writing application-specific input mixer and manually code 
-annotation. Moreover, a automatic, fast output verification protocol is 
-essential to SMR because we aim to replicate general, diverse server programs 
-that may diverge due to resource contentions. In sum, by coordinating inputs 
-and verifying outputs among replicas, \xxx practically enforces same execution 
-states and outputs among replicas.
+% In a conceptual level, to provide pratical SMR service for general programs, 
+% \xxx presents a new agree-execute-verify execution model, which contrasts from 
+% previous agree-execute models and execute-verify models. We argue that agree is 
+% essential to SMR due to its strong fault-tolerance on machine failures and 
+% packet losses (even RDMA networks have packet loss when machines fail or 
+% programs crash). Having a general input coordination protocol also mitigates 
+% the need of writing application-specific input mixer and manually code 
+% annotation. Moreover, a automatic, fast output verification protocol is 
+% essential to SMR because we aim to replicate general, diverse server programs 
+% that may diverge due to resource contentions. In sum, by coordinating inputs 
+% and verifying outputs among replicas, \xxx practically enforces same execution 
+% states and outputs among replicas.
 
 % P8: implementation. POSIX. support checkpoint.
 We implemented \xxx in Linux. \xxx intercepts common POSIX incoming socket 

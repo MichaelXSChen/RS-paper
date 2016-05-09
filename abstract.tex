@@ -21,7 +21,7 @@ a fast SMR system for general server programs by leveraging Remote Direct
 Memory Access (RDMA). \xxx intercepts a server program's inbound socket calls 
 and runs a new RDMA-accelerated \paxos protocol that needs only two RDMA write 
 operations per input. This protocol addresses a scalability challenge by 
-tightly integrating RDMA operations with the fault-tolerance nature of \paxos, 
+tightly integrating RDMA operations with the fault-tolerant nature of \paxos, 
 making replicas reach consensus rapidly in parallel. On top of this protocol, 
 \xxx presents a fast output checking protocol to improve assurance on whether 
 replicas run in sync.
