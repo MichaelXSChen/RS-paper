@@ -241,8 +241,10 @@ in parallel). We made this choice
 because \paxos is \paxos is notoriously difficult to 
 understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 implement~\cite{paxos:live,paxos:practical} 
-verify~\cite{modist:nsdi09,demeter:sosp11}; sticking with a traditional 
-replica behavior helps us incorporate these readily mature understanding, 
+verify~\cite{modist:nsdi09,demeter:sosp11}. Aligning with a practical 
+\paxos implementation~\cite{paxos:practical} involve two messages and 
+same senders and receivers (although we use WRITE helps us incorporate these 
+readily mature understanding, 
 engineering experience, and the theoretically verified safety and liveness 
 rules into our protocol design and implementation.
 
@@ -268,30 +270,30 @@ rules into our protocol design and implementation.
 % Any unique changes that prevent us from providing guarantees? The delta 
 % changes? Packets. Logs?
 
-\begin{figure}[t]
-\centering
-\vspace{-.20in}
-\includegraphics[width=.48\textwidth]{figures/dare}
-\vspace{-.20in}
-\caption{{\em DARE consensus algorithm in normal case.}} \label{fig:dare}
-\vspace{-.05in}
-\end{figure}
-
-We compare the performance and scalability between \xxx and DARE, the fastest 
-RDMA-based consensus algorithm we know so far. As shown on 
-Figure~\ref{fig:consensus}, a complete \xxx consensus round consists of three 
-parts: a leader's local SSD store operation (L2), a backup's local SSD store 
-operation (B1), and a WRITE round-trip (L3 and B2). Given the same inputs, 
-the latency of these three parts are constant, thus \xxx's consensus latency is 
-not approximately constant to replica group size. \xxx's scalability is mainly 
-bounded by the max number of outbound RDMA writes in the RDMA NIC hardware 
-(currently, 16~\cite{herd:sigcomm}).
-
-We carefully examined DARE's code base and depict its consensus algorithm in 
-Figure~\ref{fig:dare}, which consists of three parts: log entry WRITEs to all 
-remote logs' with ACKs, log tail pointer WRITEs to all remote logs with ACKs, 
-and a quorum notification by WRITEs to agreed remote replicas without ACKs. In 
-DARE's pure leader-based consensus, ACKs are necessary for every next step to 
-start. Therefore, DARE's consensus latency is linear to replica group size. We 
-show concrete consensus latency comparisons of \xxx and DARE in evaluation 
-(\S\ref{sec:scalability}).
+% \begin{figure}[t]
+% \centering
+% \vspace{-.20in}
+% \includegraphics[width=.48\textwidth]{figures/dare}
+% \vspace{-.20in}
+% \caption{{\em DARE consensus algorithm in normal case.}} \label{fig:dare}
+% \vspace{-.05in}
+% \end{figure}
+% 
+% We compare the performance and scalability between \xxx and DARE, the fastest 
+% RDMA-based consensus algorithm we know so far. As shown on 
+% Figure~\ref{fig:consensus}, a complete \xxx consensus round consists of three 
+% parts: a leader's local SSD store operation (L2), a backup's local SSD store 
+% operation (B1), and a WRITE round-trip (L3 and B2). Given the same inputs, 
+% the latency of these three parts are constant, thus \xxx's consensus latency is 
+% not approximately constant to replica group size. \xxx's scalability is mainly 
+% bounded by the max number of outbound RDMA writes in the RDMA NIC hardware 
+% (currently, 16~\cite{herd:sigcomm}).
+% 
+% We carefully examined DARE's code base and depict its consensus algorithm in 
+% Figure~\ref{fig:dare}, which consists of three parts: log entry WRITEs to all 
+% remote logs' with ACKs, log tail pointer WRITEs to all remote logs with ACKs, 
+% and a quorum notification by WRITEs to agreed remote replicas without ACKs. In 
+% DARE's pure leader-based consensus, ACKs are necessary for every next step to 
+% start. Therefore, DARE's consensus latency is linear to replica group size. We 
+% show concrete consensus latency comparisons of \xxx and DARE in evaluation 
+% (\S\ref{sec:scalability}).
