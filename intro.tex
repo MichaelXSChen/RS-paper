@@ -127,8 +127,10 @@ in parallel, so a whole consensus latency aproximately consists of
 three operations: a leader's write to stable storage, a remote replica's write 
 to local storage, and a single RDMA write round-trip. This consensus latency is 
 no longer linear to replica group size (confirmed in our evaluation); its 
-scalability is now mainly bounded by the max number of outbound RDMA 
-writes (currently, 16~\cite{herd:sigcomm}) in RDMA NIC hardware.
+scalability is now mainly bounded by the max number of outbound RDMA writes in 
+the RDMA NIC hardware.
+%  (currently, 16~\cite{herd:sigcomm})
+
 
 % P4: Falcon; key features. Hook sockets in servers.
 This paper present \xxx, an SMR system that replicates general server programs 
@@ -317,9 +319,9 @@ future datacenter operating systems (\S\ref{sec:apps}).
 % P11: Remaining of paper.
 The remaining of this paper is organized as follows. \S\ref{sec:background} 
 introduces background on \paxos and RDMA features. \S\ref{sec:overview} gives 
-an overview of our \xxx system with key components and envisions its 
-applications in other areas. \S\ref{sec:input} presents our input consensus 
-protocol. \S\ref{sec:output} output checking protocol. \S\ref{sec:limits} 
-\xxx's discusses current limitations. \S\ref{sec:evaluation} presents 
-evaluation results, \S\ref{sec:related} discusses related work, and 
-\S\ref{sec:conclusion} concludes.   
+an overview of our \xxx system. \S\ref{sec:input} presents our input consensus 
+protocol. \S\ref{sec:output} describes the output checking protocol. 
+\S\ref{sec:discuss} \xxx's discusses current limitations and its broad 
+applications in other areas. \S\ref{sec:evaluation} presents evaluation 
+results, \S\ref{sec:related} discusses related work, and \S\ref{sec:conclusion} 
+concludes.   

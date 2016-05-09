@@ -1,8 +1,0 @@
-1: void main(argc, char *argv) {
-2:   ...; // Get server IP:port from argv[].
-3:   int sock = socket(...);
-4:   connect(sock, ...); // Connect to IP:port.
-5:   send(sock, ...); // Send a http request.
-6:   recv(sock, ...); // Wait for server's response.
-7:   close(sock);
-8: }

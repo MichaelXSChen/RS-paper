@@ -83,16 +83,15 @@ already succeed before this ACK-checking starts).
 
 \section{\xxx Overview}\label{sec:overview}
 
-This section first gives an overview of \xxx's architecture with its 
-deployment model and key components (\S\ref{sec:arch}), and then presents 
-\xxx's applications in three areas (\S\ref{sec:apps}).
+% This section first presents \xxx's architecture, including its 
+% deployment model and key components (\S\ref{sec:arch}).
  
-\subsection{Architecture}\label{sec:arch}
+% \subsection{Architecture}\label{sec:arch}
 
 \begin{figure}[t]
 \centering
 \vspace{-.25in}
-\includegraphics[width=.5\textwidth]{figures/arch}
+\includegraphics[width=.48\textwidth]{figures/arch}
 \vspace{-.50in}
 \caption{{\em The \xxx Architecture.} \xxx components are shaded (and in
   green).} \label{fig:arch}
@@ -110,38 +109,46 @@ deployment model and key components (\S\ref{sec:arch}), and then presents
 % TBD. Input coordinator and output checker. Components.
 
 % System model. Replicas. RDMA. LAN. Clients.
-To replicate a server program, \xxx is deployed in a datacenter, with a set of 
-three or five replicas connecting with RDMA architecture, InfiniBand. Client 
-programs located in LAN or WAN network and send client requests to the leader 
-machine as if only one server program is running. If clients send requests to 
-the wrong machines, \xxx's backup machines deny the requests and reply the 
-leader's IP.
+\xxx runs replicas of a server program in a datacenter. Replicas connect with 
+each other using RDMA QPs. Client programs located in LAN or WAN networks. The 
+leader handles client requests and runs our RDMA-accelerated \paxos protocol to 
+coordinate inputs among replicas.
+% If a backup receives client 
+% requests, it deny the requests and reply the leader's IP.
 
 % \xxx intercepts four types of 
 % socket operations: the \accept type, the \recv type, the \send type, and the 
 % \close type. 
-Figure~\ref{fig:arch} shows \xxx's architecture within one replica machine. To 
-run a server's x86 binary in a replica, \xxx simply runs this command: 
-``LD\_PRELOAD=falcon.so ./server". \xxx invokes a server program's socket calls 
-(\eg, \recv) and involve four key components: the input coordination 
-protocol (for short, \emph{coordinator}), the output checking protocol (the 
-\emph{checker}), the in-memory consensus log (the \emph{log}), the guard process 
-that handles checkpointing and recovering the process state and file system 
-state of the server program (the \emph{guard}).
+Figure~\ref{fig:arch} shows \xxx's architecture. \xxx intercepts a server 
+program's socket calls (\eg, \recv) using a Linux technique called LD\_PRELOAD. 
+\xxx involves four key components: the \paxos consensus protocol for input 
+coordination (in short, the \emph{coordinator}), the output checking protocol 
+(the \emph{checker}), the in-memory consensus log (the \emph{log}), the guard 
+process that handles checkpointing and recovering a server's process state and 
+file system state (the \emph{guard}).
 
 
 
 % Coordinator: leader side. 
-The coordinator is invoke when a server's thread calls a socket call to 
-accept/close a client socket connection or to receive input bytes from the 
-connection. On the leader replica, \xxx executes the actual Libc socket 
-call, extracts the returned contents of this call (\eg, the returned buffer 
-from \recv), and invokes the coordinator for a new consensus request on this 
-socket call with the contents. Sending consensus request is fast because the 
-leader coordinator directly writes a socket call request to remote backup 
-replicas' log with RDMA. In this request, in order tell the backups what socket 
-calls they should execute, this request also carries the latest request 
-viewstamp that has reached consensus (\ie, the latest committed request).
+The coordinator is invoked when a server thread calls an inbound socket call to 
+manage a client socket connection (\eg, \accept and \close) or to receive 
+inputs from the connection (\eg, \recv). On the leader side, \xxx executes 
+the actual Libc socket call, extracts the returned value or inputs of this 
+call, stores it in local SSD, appends a log entry to its local consensus log, 
+and then invokes the coordinator for a new consensus request on ``executing 
+this socket call".
+
+The coordinator runs a consensus algorithm (\S\ref{sec:input}), which WRITEs 
+the local entry to backups' remote logs in parallel and polls the local log 
+entry to wait quorum. When a quorum is reached, the leader thread simply 
+finishes intercepting this call and continues with its server execution. As 
+the leader's server threads execute more calls, \xxx enforces the same 
+consensus log and thus the same socket call sequence across replicas.
+
+% In this request, in order tell the 
+% backups what socket 
+% calls they should execute, this request also carries the latest request 
+% viewstamp that has reached consensus (\ie, the latest committed request).
 
 % This coordinator invokes a consensus request by: (1) assigns this call a 
 % monotonically increasing index (\ie, a viewstamp) in the log, (2) builds a 
@@ -150,103 +157,72 @@ viewstamp that has reached consensus (\ie, the latest committed request).
 % struct to all remote backup replicas' log.
 
 % Coordinator: backup side.
-On a backup replica, \xxx's coordinator check its own log to receive new 
-consensus requests, and it directly sends an Yes or No ACK by writing the 
-remote leader's same struct for this socket call with RDMA. The backup 
-coordinator then forwards all the requests up to the latest committed socket 
-call to its local server process. \xxx does not need to intercept a 
-server's socket calls in backups because these servers just follow the 
-leader's consensus requests. To respond consensus requests rapidly, each 
-backup coordinator spawns a dedicated thread. This thread runs a busy loop to 
-pull consensus requests from the consensus log. This high-perfomance thread 
-runs in a spare dedicated CPU core and elinimates context switches, unlike 
-traditional TCP/IP that block threads socket calls to wait for requests.
+On each backup side, the coordinator uses a \xxx internal thread to poll its 
+consensus log for new consensus requests. If the coordinator agrees the 
+request, this thread stores the log entry in local SSD and then WRITEs a 
+consensus reply to the remote leader's corresponding log entry. A backup does 
+not need to intercept a server's socket calls because its coordinator will just 
+follow the leader's consensus requests on executing what socket calls and then 
+forward these calls to the local server program.
+
+% To respond consensus requests rapidly, each 
+% backup coordinator spawns a dedicated thread. This thread runs a busy loop to 
+% pull consensus requests from the consensus log. This high-perfomance thread 
+% runs in a spare dedicated CPU core and elinimates context switches, unlike 
+% traditional TCP/IP that block threads socket calls to wait for requests.
+
+% The backup 
+% coordinator then forwards all the requests up to the latest committed socket 
+% call to its local server process. 
 
 % Consensus log. Same in both leader and backups.
-A consensus log appending operation is invoked whenever a leader's server 
-executes a socket call (except \send calls, handled by output checker). The 
-leader coordinator just appends socket calls to the log and backups follow 
-socket calls in this log.
+% A consensus log appending operation is invoked whenever a leader's server 
+% executes a socket call (except \send calls, handled by output checker). The 
+% leader coordinator just appends socket calls to the log and backups follow 
+% socket calls in this log.
 
 % Output checker: leader side. % Output checker: backup side.
-Output checker is occasionally invoked as the leader's server program executes 
-\send operations. For every 4K bytes (MTU size) of output in each connection, 
-the checker unions the current hash with these bytes and computes a new hash. 
-Then, for every \emph{Tcheck} hash generations, the checker invokes a consensus 
-request on this hash value. This output consensus is the same as the 
-coordinator's input consensus except that backups' output checkers send ACKs 
-with their own hash values with the same index, whenever the hash values are 
-ready (some backups may run slowly). When a majority of hashes are back, the 
-leader's output checker compares these values and then makes an effort to roll 
-back divergent replicas to a previous checkpoint before the last matching hash. 
-The leader's checker rolls back other replicas by sending roll-back requests to 
-the local guard.
+The output checker is occasionally invoked as the leader's server program 
+executes outbound socket calls (\eg, \send). For every 1.5K bytes (MTU size) of 
+accumulated outputs per connection, the checker unions the previous hash with 
+current outputs and computes a new CRC64 hash. After a fixed number of hashes 
+are generated, the checker then invokes consensus across replicas, which 
+compares the hash at its global hash index on the leader side.
+
+This output consensus is based on the input consensus algorithm 
+(\S\ref{sec:input}) except that backups carry their hash at the same hash index 
+back to the leader. For this particular output consensus, the leader first 
+waits quorum. It then waits for a few \us in order to collect more remote 
+hashes. It then compares remote hashes it has.
+
+If a hash divergence is detected, the leader optionally invokes the local guard 
+to forward a ``rollback" command to the diverged replica's guard. The diverged 
+replica's guard then rolls back and restores the server program to a latest 
+checkpoint before the last successful output check (\S\ref{sec:output}). The 
+replica then restores and re-executes socket calls to catch up. Because output 
+hash generations are fast and an output consensus is invoked occasionally, our 
+evaluation didn't observe performance impact on this checker.
+
+% Then, for every \emph{Tcheck} hash generations, the checker invokes a consensus 
+% request on this hash value. This output consensus is the same as the 
+% coordinator's input consensus except that backups' output checkers send ACKs 
+% with their own hash values with the same index, whenever the hash values are 
+% ready (some backups may run slowly). When a majority of hashes are back, the 
+% leader's output checker compares these values and then makes an effort to roll 
+% back divergent replicas to a previous checkpoint before the last matching hash. 
+
 
 % Guard: leader side. % Guard: backup sides.
 % Question: how does the backup replicas know the last matching hash? Through 
 % committed viewstamp for the \send.
-The leader's guard accepts roll-back requests from the output checker and 
-forwards the requests to the corresponding guard on another, divergent repilca. 
-The divergent replca's guard then rolls back the server program to a previous 
-checkpoint before the last matching one, and then invokes the local input 
-coordinator to re-forward the requests in stable storage to the server. There 
-is no a second output hash comparisons between backups and leader until the 
-leader invokes a new output checking consensus request next time.
+% The leader's guard accepts roll-back requests from the output checker and 
+% forwards the requests to the corresponding guard on another, divergent repilca. 
+% The divergent replca's guard then rolls back the server program to a previous 
+% checkpoint before the last matching one, and then invokes the local input 
+% coordinator to re-forward the requests in stable storage to the server. There 
+% is no a second output hash comparisons between backups and leader until the 
+% leader invokes a new output checking consensus request next time.
 
-
-\subsection{\xxx Has Broad Applications}\label{sec:apps}
-
-In addition to greatly improving the availability of general programs, we 
-envision that \xxx can be applied in broad areas, and here we elaborate three. 
-First, \xxx's RDMA-accelerated \paxos protocol and its implementation could be 
-an effective template for many other distributed protocols in datacenters. For 
-instance, an immediate extension of \xxx is to make it tolerate byzantine 
-faults. Another promising direction is three-phase commit (3PC): 3PC is often 
-blamed by its intolerance on network partitions and asynchronour communications, 
-and its high latency caused by the three round-trips. Fortunately, within the 
-RDMA-enabled datacenter context, people may leverage \xxx's techniques and 
-experience to build a significantly faster and more reliable 3PC protocols.
-
-% Other replication topics.
-
-% Parallel program analysis. Such a short coordination time can make replicas 
-% run almost as fast as each other, support many time-critical analyses 
-% such as race detection and security defenses.
-Second, by efficiently constructing multiple, equivalent executions for the 
-same program, \xxx can benefit distributed program analysis techniques. Bounded 
-by the limited computing resources on single machine, recent advanced 
-reliability and security analaysis frameworks are moving towards distributed in 
-order to offload analyses on multiple machines. \xxx can be leveraged in these 
-frameworks so that developers of analysis tools can just focus on their own 
-analysis logic, while \xxx's general replication architecture efficiently 
-handles the rest. Moreover, analyses developers can tightly integrate their 
-tools with \xxx (\eg, they can proactively diversify the orders of socket 
-calls in \xxx's consensus logs among replicas to improve replicas' tolerance on
-security attacks).
-
-% TBD: use \xxx to detect software bugs by checking outputs, even in 
-% real-world deployments. XXX make program % inputs strongly consistent across 
-% replicas, so output divergence are likely % from software bugs. XXX promising 
-% 
-% results in our evaluation. Find a bug in % ssdb?
-
-% One idea: can leverage the checkpoint and rollback protocok, and the 
-% consensus part, to build a system that can automatically bypass concurrency 
-% bugs without fixing them. The way to bypass: proactively reordering socket 
-% calls. Self-healing system.
-
-% A core building block in future operating systems. Maintain a consistent view 
-% of computing resources and data. Used in scheduling framework (Mesos) because 
-% its latency is almost compatible with context switches of processes (sub 
-% milli seconds).
-Third, \xxx can be a core building block in the emerging datacenter operating 
-systems~\cite{hotos15, mesos, web-article}. As a datacenter continuously 
-emerges a computer, an OS may be increasingly needed for thus a giant 
-computer. \xxx's fast, general coordination service is espeicially suitable 
-for such an OS's scheduler to maintain a consistent, reliable view on both 
-computing resources and data in a datacenter. For instance,, \xxx's latency is 
-largely between 15 to 20 \us, much smaller than a typical context swtich of a 
-process (typically, a few hundreds \us).
 
 % \subsection{Example}\label{sec:example}
 % 
