@@ -140,21 +140,32 @@ invokes our new consensus algorithm to enforce same inputs across replicas.
 
 % P6: Falcon: output checker.
 However, to practically replicate general server programs, only enforcing same 
-inputs is not enough. An automated, efficient output checking mechanism that 
-can improve the assurance on ``replicas run in sync" is still missing in 
+inputs is often not enough. An automated, efficient output checking mechanism 
+that can improve the assurance on ``replicas run in sync" is still missing in 
 existing SMR 
-systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. Nowadays 
-most server programs already use multithreading to harness the power of 
-multi-core hardware. 
-Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
+systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. Server 
+programs now already use multithreading to harness the power of multi-core 
+hardware. Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
 cui:tern:osdi10, kendo:asplos09,
 dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} caused by 
 contentions in inter-thread resources (\eg, global memory and locks) and systems 
 resources (\eg, network ports) can easily cause program execution states to 
 diverge across replicas and compute wrong outputs to clients. Existing 
-approaches either use only \v{ping} to check the liveness of replicas (\eg, 
-\redis) or rely on manually annotating share states in program code to detect 
-divergence~\cite{eve:osdi12}.
+replication approaches either use only \v{ping} to check the liveness of 
+replicas (\eg, \redis~\cite{redis}) or rely on manually annotating share states 
+in program code to detect execution divergence~\cite{eve:osdi12}.
+
+On top of the input consensus protocol, \xxx builds an efficient output 
+checking protocol that occasionally checks output divergence across replicas. 
+This checking protocol works by first computing a accumulated hash for outbound 
+socke calls (\eg, \send) in a server program, it then occasionally invokes an 
+output consensus by collecting the hashes in replicas' consensus replies for 
+the leader. \xxx then provides an optional rollback and restore mechanism for 
+program deployers to make an effort to restore the diverged replicas.
+
+% This 
+% protocol automatically, efficiently checks the fine-grained network outputs 
+% and improves assurance on whether replicas run in sync.
 
 % A practical 
 % output checking mechanism is missing in widely deployed replication 
@@ -204,14 +215,14 @@ divergence~\cite{eve:osdi12}.
 % need is just lazily compare outputs and if a divergence is detected, we roll 
 % back programs and re-execute them.
 
-To implement this idea, \xxx's output verification protocol first . network 
-outputs on each individual replica, computes  hash values incremental:
-compute the hash value of a union of last hash value and the output  and 
-periodically invoke our \paxos consensus protocol to exchange the hash value. 
-Then, if minor replicas' outputs diverge from the majority ones, we just roll 
-back and re-execute these minor replicas without perturbing the others to agree 
-on and process new inputs. If a majority can not reach, \xxx simply rolls back 
-the XXX (leader?). Evaluation confirmed that XX.XX\% cases.
+% To implement this idea, \xxx's output verification protocol first . network 
+% outputs on each individual replica, computes  hash values incremental:
+% compute the hash value of a union of last hash value and the output  and 
+% periodically invoke our \paxos consensus protocol to exchange the hash value. 
+% Then, if minor replicas' outputs diverge from the majority ones, we just roll 
+% back and re-execute these minor replicas without perturbing the others to agree 
+% on and process new inputs. If a majority can not reach, \xxx simply rolls back 
+% the XXX (leader?). Evaluation confirmed that XX.XX\% cases.
 
 
 % P7: conceptual level: complete architecture. agree-execute-enforcement.
@@ -229,13 +240,13 @@ the XXX (leader?). Evaluation confirmed that XX.XX\% cases.
 % states and outputs among replicas.
 
 % P8: implementation. POSIX. support checkpoint.
-We implemented \xxx in Linux. \xxx intercepts common POSIX incoming socket 
-operations (\eg, \accept and \recv) to coordinate inputs using the Infiniband 
-RDMA architecture. \xxx also intercepts outcoming socket operations (\eg, 
+We implemented \xxx in Linux. \xxx intercepts POSIX inbound socket calls 
+(\eg, \accept and \recv) to coordinate inputs using the Infiniband 
+RDMA architecture. \xxx intercepts POSIX outbound socket operations (\eg, 
 \send) to invoke the output checking protocol. This simple, deployable 
 interface design makes \xxx support general server programs without modifying 
-them. To support practical checkpoint and restore on server 
-programs, \xxx leverages \criu.
+them. To recover or add new replicas, \xxx leverages \criu~\cite{criu} to 
+perform checkpoint and restore on general server programs.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
 We evaluated \xxx on \nprog widely used or studied server programs, including 
@@ -247,21 +258,25 @@ server \mysql, one anti-virus server \clamav, one multimedia storage server
 \begin{tightenum}
 \item \xxx is general. For all evaluated programs, \xxx ran them without any 
 modification except \calvin (we added a \nlinescalvin patch to make its client 
-and server programs support sockets).
+and server programs communicate with sockets).
 
 \item \xxx is fast. Compared to the \nprog servers' unreplicated executions, 
 \xxx incurred merely \tputoverhead overhead on throughtput and \latencyoverhead 
-on response time in average. \xxx is \fasterthanzookeeper faster than \calvin's 
-zookeeper-based SMR service on response time.
+on response time in average. \xxx's consensus latency is \fasterthanzookeeper 
+faster than \calvin's \zookeeper-based SMR service running on IPoIB.
+
+\item \xxx is scalable to replica group size. \xxx achieved a scalable 
+consensus latency of 9.9$\sim$11.0 \us from 3 to 7 replicas, while that 
+of DARE is 7.0$\sim$28.2 \us from 3 to 5 replicas.
 
 \item \xxx is robust. Among XXX repeated executions, \xxx detected and 
 recovered execution divergence caused by a software bug in \redis, while 
 \redis's own replication service missed the bug.
 
-\item \xxx is extensible. To extend optimization on read-only requests, XX 
-lines of code in our two provided APIs, \xxx is able to avoid the read-only 
-requests in \redis to do consensus and XX times faster than \redis's own 
-replication system. 
+% \item \xxx is extensible. To extend optimization on read-only requests, XX 
+% lines of code in our two provided APIs, \xxx is able to avoid the read-only 
+% requests in \redis to do consensus and XX times faster than \redis's own 
+% replication system. 
 
 \end{tightenum}  
 % % tighten items, highlighted.
@@ -271,35 +286,36 @@ replication system.
 % makes % system calls go beyond single machine).
 % New design space. comprehensive model. many applications: other replications, 
 % parallel analysis, datacenter OS.
-Our major conceptual contribution is leveraging RDMA to make synchronized, 
-\paxos-based replication adoptable. This new protocol incorporates fasted RDMA 
-hardware features, while it still pertains same fault-tolerance guarantees as 
-traditional \paxos protocols. \xxx has the potential to serve as an effective 
-research template for other replication areas (\eg, byzantine fault-tolerance). 
-In addition, a fast, general SMR service has been long persued as a fundamental 
-building block for the emerging datacenter operation system.
+Our major conceptual contribution is a fast, scalable \paxos consensus 
+algorithm by tightly integrating RDMA write operations with the fault-tolerant 
+nature of \paxos. \xxx and its implementation have the potential to largely 
+increase the adoption of SMR. \xxx can also be applied to broad areas, 
+including other distributed protocols, distributed program analyses, and 
+future datacenter operating systems (\S\ref{sec:apps}). 
+% In addition, a fast, general SMR service has been long persued as a fundamental 
+% building block for the emerging datacenter operation system.
 
 % P10: Engineering contribution. Potential to substitue customized replication 
 % in commodity systems and use a general ones. Easy to verify, easy to get 
 % right, easy to use.
-Our major engineering contribution includes the \xxx implemention and its 
-evaluation on \nprog diverse, widely used server programs. Due to the lack of a 
-general SMR system, industrial developers have spent tremondous efforts on 
-building specific replication systems for their own programs and ``invent the 
-wheels again and again". Note that understanding, building, and maintaining a 
-usable SMR systems requires extreme expert knowledege, burdens, and are 
-extremely challenging (so many \paxos papers). For example, the \redis or 
-\memcached lag bug. Our \xxx system and evaluation has shown promising results 
-on building a fast, general, and extendible SMR system and help developers 
-greatly release these burdens. We have released all \xxx's source code, 
-benchmarks, and raw evaluation results at \github.
+% Our major engineering contribution includes the \xxx implemention and its 
+% evaluation on \nprog diverse, widely used server programs. Due to the lack of a 
+% general SMR system, industrial developers have spent tremondous efforts on 
+% building specific replication systems for their own programs and ``invent the 
+% wheels again and again". Note that understanding, building, and maintaining a 
+% usable SMR systems requires extreme expert knowledege, burdens, and are 
+% extremely challenging (so many \paxos papers). For example, the \redis or 
+% \memcached lag bug. Our \xxx system and evaluation has shown promising results 
+% on building a fast, general, and extendible SMR system and help developers 
+% greatly release these burdens. We have released all \xxx's source code, 
+% benchmarks, and raw evaluation results at \github.
 
 % P11: Remaining of paper.
 The remaining of this paper is organized as follows. \S\ref{sec:background} 
 introduces background on \paxos and RDMA features. \S\ref{sec:overview} gives 
-an overview of our \xxx system with key components and its applications in 
-other areas. \S\ref{sec:input} presents our input coordination protocol. 
-\S\ref{sec:output} output checking protocol. \S\ref{sec:limits} \xxx's 
-discusses limitations. \S\ref{sec:evaluation} presents evaluation results, 
-\S\ref{sec:related} discusses related work, and \S\ref{sec:conclusion} 
-concludes.   
+an overview of our \xxx system with key components and envisions its 
+applications in other areas. \S\ref{sec:input} presents our input consensus 
+protocol. \S\ref{sec:output} output checking protocol. \S\ref{sec:limits} 
+\xxx's discusses current limitations. \S\ref{sec:evaluation} presents 
+evaluation results, \S\ref{sec:related} discusses related work, and 
+\S\ref{sec:conclusion} concludes.   
