@@ -63,7 +63,7 @@ We evaluated \xxx on \nprog widely used or studied server programs, including
 \nkvprog key-value stores \redis, \memcached, \ssdb, \mongodb; \mysql, a SQL 
 server; \clamav, a anti-virus server that scans files and delete malicious ones; 
 \mediatomb, a multimedia storage server that stores and transcodes video and 
-audeo files; \openldap, an LDAP server; \calvin, a widely studied transactional 
+audio files; \openldap, an LDAP server; \calvin, a widely studied transactional 
 database system that leverages \zookeeper as its SMR service. All these programs 
 are multithreaded except \redis (but it can serve concurrent requests via 
 Libevent). These servers all update or store important data and files, thus the 
@@ -134,7 +134,7 @@ SMR systems?
 \vspace{-.05in}
 \caption{{\em Leader's input consensus events per 10K requests.} 
 The ``\# Calls" column means the number of socket calls that went through \xxx 
-input concensus; ``Input" means average bytes of a server's inputs received in 
+input consensus; ``Input" means average bytes of a server's inputs received in 
 these calls; ``SSD time" means the average time spent on storing these calls to 
 stable storage; and ``Quorum time" means the average time spent on waiting 
 quorum for these calls.} 
@@ -157,13 +157,13 @@ response time. We varied the number of concurrent client connections for each
 server program by from one to 16 threads. For \calvin, we only collected the 
 8-thread result because \calvin uses this constant thread count in their code 
 to serve client requests. Overall, compared to these server programs' 
-unreplicated executions, \xxx merely incurred a mean througput degrade by 
+unreplicated executions, \xxx merely incurred a mean throughput degrade by 
 \tputoverhead (note that in Figure~\ref{fig:tput}, the Y-axises of most programs 
 start from a large number). \xxx's mean overhead on response time was merely 
 \latencyoverhead.
 
 As the number of threads increases, all programs' unreplicated executions 
-got a perforamnce improvement except \memcached. A prior 
+got a performance improvement except \memcached. A prior 
 evaluation~\cite{rex:eurosys14} also observed a similar \memcached low 
 scalability. \xxx scaled almost as well as the unreplicated executions.
 % a \latencyoverhead overhead compared to the unreplicated 
@@ -181,7 +181,7 @@ hash generations (\S\ref{sec:output-workflow}).
 % Figure~\ref{fig:latency} shows \xxx's latency.
 % % Bare consensus latency, micro events.
 
-To deeply understand \xxx's performance overhread, we collected the number of 
+To deeply understand \xxx's performance overhead, we collected the number of 
 socket call events and consensus durations in the leader replica. 
 Table~\ref{tab:consensus-latency} shows these statistics per 10K requests. 
 For each socket call, \xxx's leader invokes a consensus, which includes an SSD 
@@ -218,7 +218,7 @@ Consensus latency (\us) & 511.9  & 12.5\\
 
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
-We compared \xxx with \calvin's SMR system because \calvin's inpur consensus 
+We compared \xxx with \calvin's SMR system because \calvin's input consensus 
 uses \zookeeper, one of the most widely used coordination service built on 
 TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional 
 database server in \xxx as the server program, and we compared throughputs and 
@@ -229,8 +229,8 @@ As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved
 transactions/s with a 12.5 \us consensus latency. The throughput in \calvin 
 was 13.1\% higher than that in \xxx because \calvin puts transactions in a 
 batch with a 10 \ms timeout and then it invokes \zookeeper for consensus on 
-this batch. Batching helps \calvin ahieves good throughput. \xxx currently has 
-not incorporated a batching techinque because its latency is already reasonable 
+this batch. Batching helps \calvin achieves good throughput. \xxx currently has 
+not incorporated a batching technique because its latency is already reasonable 
 (\S\ref{sec:overhead}).
 
 Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
@@ -261,7 +261,7 @@ to three machines held two backups.
 
 Given the same \redis workload, \xxx's five-replica setting had a 17.9K 
 requests/s and 10.1 \us consensus latency, and its seven-replica setting had a 
-17.4K requests/s and 11.0 \us consensu latency. Compared to the three-replica 
+17.4K requests/s and 11.0 \us consensus latency. Compared to the three-replica 
 setting, 18.0K throughput and 9.9 \us consensus latency, \xxx achieves a similar 
 consensus latency from three to seven replicas, which mainly depends on the 
 latency of two SSD stores and one WRITE round-trip (see 
@@ -299,7 +299,7 @@ deterministic multithreading runtime with \clamav avoided this
 divergence~\cite{crane:sosp15}. \mediatomb contained physical timestamp in its 
 replies.
 
-Each \xxx periodic checkpoint operation costed between 0.12s to 11.6s to the 
+Each \xxx periodic checkpoint operation cost between 0.12s to 11.6s to the 
 evaluated server programs. The checkpoint duration depends on whether a 
 server's process has read files in its memory or modified files in its current 
 working directory. \clamav incurred the largest checkpoint time (11.6s) because 
