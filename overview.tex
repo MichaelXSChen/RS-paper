@@ -18,16 +18,29 @@ consensus requests, and the other replicas work as backups to agree on or reject
 these requests. If the leader fails, \paxos elects a new leader from the 
 backups.
 
-When a new input comes, \paxos starts a new consensus round, which invokes a 
-consensus request on this input to backups. As long as a majority of replicas 
-agree on this input (\ie, this input is \emph{committed}), \paxos guarantees 
-that all replicas consistently agree to process this input  This quorum based 
-consensus makes \paxos tolerate various faults such as machine failures and 
-network crashes. Before a replica agrees on an input, \paxos logs this input in 
-the replica's stable storage for durability. As consensus rounds move on, 
-\paxos consistently enforce the same sequence of inputs and execution states 
-across replicas without divergence, if a program behaves as a deterministic 
-state machine (\ie, always produces the same output on the same input).
+Two reliability features must be enforced in a standard \paxos protocol. The 
+first one is durability. When a new input comes, the \paxos leader writes this 
+input in local stable storage. The leader then starts a new consensus round, 
+which invokes a consensus request on ``processing this input" to the other 
+backups. A backup also writes the received consensus request in local storage 
+if it agrees on this request. Durability ensures that even if the leader or 
+backups fail and restart, they can still retrieve the requests from local stable 
+storage and re-execute them.
+
+The second feature is safety. As long as a quorum (typically, majority) of 
+replicas agree on this input (\ie, this input is \emph{committed}), \paxos 
+guarantees that all replicas consistently agree to process this input. If a 
+replica sees that an input consensus has been reached, this consensus must have 
+really been reached by at least a majority of replicas. Safety ensures that if 
+a consensus has not really been reached, no replica will ``think" that this 
+consensus has been reached.
+
+Durability and safety make replicas consistently agree on each input and 
+tolerate various faults, including machine failures and network errors. As 
+consensus rounds move on, \paxos consistently enforce the same sequence of 
+inputs across replicas. It also enforces same execution states across replicas 
+without divergence if a program behaves as a deterministic state machine (\ie, 
+always produces the same output on the same input).
 
 % Normal case, round trip.
 Network latency of consensus messages is one key problem to make general server 
@@ -50,10 +63,10 @@ network interface card (NIC) and remote NIC requires setting up a Queue Pair
 Completion Queue (CQ) to store ACKs. A QP belongs to a type of ``XY": X can be R 
 (reliable) or U (unreliable), and Y can be C (connected) or U (unconnected). 
 
-\xxx's implementations mainly use RC QPs, because such a reliable, connected QP 
-guarantees in-order, non-corrupted delivery in normal case. However, RC QPs may 
-still lose packets in typical \paxos exceptional cases (\eg, hardware failures, 
-OS crashes, or server program restarts).
+% \xxx's implementations mainly use RC QPs, because such a reliable, connected QP 
+% guarantees in-order, non-corrupted delivery in normal case. However, RC QPs may 
+% still lose packets in typical \paxos exceptional cases (\eg, hardware failures, 
+% OS crashes, or server program restarts).
 
 RDMA provides three types of communication primitives, from slowest to 
 fastest: IPoIB (IP over Infiniband), message verbs, and one-sided read/write 
@@ -83,20 +96,7 @@ already succeed before this ACK-checking starts).
 % machine's memory is not aware of the write either, so a careful protocol design 
 % is necessary when one-sided operations are used.
 
-
 \section{\xxx Overview}\label{sec:overview}
-
-\begin{figure}[t]
-\centering
-\vspace{-.15in}
-\includegraphics[width=.48\textwidth]{figures/arch}
-\vspace{-.50in}
-\caption{{\em The \xxx Architecture.} \xxx components are shaded (and in
-  blue).}
-\vspace{-.15in}
-  \label{fig:arch}
-\end{figure}
-
 
 % This section first presents \xxx's architecture, including its 
 % deployment model and key components (\S\ref{sec:arch}).
@@ -134,6 +134,18 @@ coordination (in short, the \emph{coordinator}), an output checking protocol
 (the \emph{checker}), a circular in-memory consensus log (the 
 \emph{log}), and a guard process that handles checkpointing and recovering a 
 server's process state and file system state (the \emph{guard}).
+
+\begin{figure}[t]
+\centering
+\vspace{-.15in}
+\includegraphics[width=.48\textwidth]{figures/arch}
+\vspace{-.50in}
+\caption{{\em The \xxx Architecture.} \xxx components are shaded (and in
+  blue).}
+\vspace{-.15in}
+  \label{fig:arch}
+\end{figure}
+
 
 % Coordinator: leader side. 
 The coordinator is invoked when a server program thread calls an inbound socket 
