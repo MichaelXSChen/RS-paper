@@ -291,8 +291,9 @@ modification except \calvin (we added a \nlinescalvin-line patch to make
 on response time in average. \xxx's consensus latency is \fasterthanzookeeper 
 faster than \calvin's SMR service \zookeeper.
 
-\item \xxx is scalable to replica group size. \xxx achieved a scalable 
-consensus latency of 9.9$\sim$11.0 \us from 3 to 7 replicas.
+\item \xxx is scalable to replica group size. \xxx achieved a similar 
+consensus latency of 9.9$\sim$11.0 \us on a replica group size of three to 
+seven.
 
 \item \xxx is robust. \xxx efficiently detected and recovered execution 
 divergence caused by output nondeterminism in \clamav.
@@ -311,12 +312,10 @@ divergence caused by output nondeterminism in \clamav.
 % New design space. comprehensive model. many applications: other replications, 
 % parallel analysis, datacenter OS.
 Our major conceptual contribution is a fast, scalable \paxos consensus 
-algorithm by tightly integrating RDMA write operations with the fault-tolerant 
-nature of \paxos. \xxx and its implementation have the potential to largely 
-increase the adoption of SMR. \xxx can also be applied to broad areas, 
-including other replication protocols (\eg, byzantine 
-fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}), distributed program 
-analyses, and future datacenter operating systems (\S\ref{sec:apps}). 
+algorithm. \xxx has the potential to largely improve the adoption of SMR. \xxx 
+can also be applied to broad areas, including other replication protocols (\eg, 
+byzantine fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}), distributed 
+program analyses, and future datacenter operating systems (\S\ref{sec:apps}). 
 % In addition, a fast, general SMR service has been long persued as a fundamental 
 % building block for the emerging datacenter operation system.
 
@@ -340,7 +339,7 @@ The remaining of this paper is organized as follows. \S\ref{sec:background}
 introduces background on \paxos and RDMA features. \S\ref{sec:overview} gives 
 an overview of our \xxx system. \S\ref{sec:input} presents our input consensus 
 protocol. \S\ref{sec:output} describes the output checking protocol. 
-\S\ref{sec:discuss} \xxx's discusses current limitations and its broad 
+\S\ref{sec:discuss} discusses \xxx's current limitations and its broad 
 applications in other areas. \S\ref{sec:evaluation} presents evaluation 
 results, \S\ref{sec:related} discusses related work, and \S\ref{sec:conclusion} 
 concludes.   
