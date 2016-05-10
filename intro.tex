@@ -29,9 +29,7 @@ transactions~\cite{crane:sosp15,eve:osdi12}, but prohibitive for
 key-value stores. To mitigate this challenge, some recent SMR 
 systems~\cite{calvin:sigmod12,rex:eusorys14} batch requests into one 
 consensus round. However, batching can only mitigate a server's throught lost; 
-it may aggravate response time. As the replica group size grows, consensus 
-protocols are even more difficult to scale, because a majority involves more 
-replicas with more round-trips.
+it may aggravate response time. 
 % As a possible consequence, although many recent storage 
 % systems~\cite{drtm} 
 % explicitly stated that they needed a replication system for high availability, 
@@ -42,6 +40,17 @@ replicas with more round-trips.
 % parallilism, but still slow: despite the large latency, context switches (400 
 % us).
 
+As the replica group size grows, the consensus latency of \paxos is even more 
+difficult to scale, because a majority now involves more replicas. One 
+scaling implementation approach may be using asynchrous IO (\eg, 
+Libevent~\cite{libevent}) to improve the parallilism of replicas'consensus 
+round-trips. However, the high latency of a each round-trip still exists, and 
+the event loop in this approach may involve frequent context switches (each may 
+take more time than a \v{ping} in Ethernet). To make SMR scales better, novel 
+replication models are proposed, including multi-leader (or nonleader) 
+models~\cite{epaxos:sosp13,mencius:osdi08}, clustering or nested consensus 
+models~\cite{scatter:sosp11,manos:hotdep10}. However, the core of these models, 
+\paxos itself, still faces a scalability challenge.
 
 % One 
 % scalling approach (\eg, ~\cite{crane:sosp15}) may be using an event-driven 
@@ -65,13 +74,14 @@ replicas with more round-trips.
 % P4.0: opportunity, RDMA. We argue that, network layers are not inherent.
 Remote Direct Access Memory (RDMA) is a promising technique to mitigate 
 consensus latency because recently it becomes cheaper and increasingly 
-pervasive in datacenters. RDMA allows a host machine to directly write to the 
-memory of a remote host, completely bypassing the OS kernel or CPU at 
-the remote host (the so called one-sided RDMA write operations). As a common 
-RDMA practice, to ensure the remote host is alive and such a write succees, the 
-local host should wait until the remote NIC to send an ACK to the local host's 
-NIC. An evaluation~\cite{pilaf:atc14} shows that such a write round-trip takes 
-only $\sim$3 \us in the Infiniband architecture~\cite{infiniband}.
+pervasive in datacenters. RDMA allows a process to directly write to the 
+user space memory of a remote process, completely bypassing the remote OS 
+kernel or CPU (the so called ``one-sided" operations). As a common 
+RDMA practice, to ensure that such a write successfully resides in the 
+memory of a remote process, the local process should wait until the remote NIC 
+to send an ACK to the local host's NIC. An evaluation~\cite{pilaf:atc14} shows 
+that such a write round-trip takes only $\sim$3 \us in the Infiniband 
+architecture~\cite{infiniband}.
 
 % However, it is technically challenging to fully exploit RDMA speed in \paxos 
 % protocols due to the unrichness of RDMA features. We present this challenge in 
@@ -99,41 +109,42 @@ only $\sim$3 \us in the Infiniband architecture~\cite{infiniband}.
 % 
 % to address this scalability challenge is that 
 % simply replacing RDMA writes with \paxos communications is not sufficient, and
-In addition to mitigating the one-hop consensus latency, RDMA also creates 
-new opportunity to address the scalability problem in \paxos, because our key 
-observation is that we can integrate RDMA writes even \emph{more tightly} with 
-the fault-tolerant nature of \paxos. In essense, \paxos has already tolerated 
-various faults, including machine failures and packet losses (even reliable 
-connections in RDMA may lose packets during hardware and program failovers). 
-Therefore, we can safely ignore the ACKs in RDMA writes and rely on \paxos to 
-handle the reliability issues of these writes.
+In addition to mitigating the one-hop consensus latency, RDMA also opens 
+new opportunity to address the \paxos scalability problem, because we
+can integrate RDMA features \emph{tightly} within the fault-tolerant nature of 
+\paxos. In essense, \paxos has already tolerated various faults, including 
+machine failures and process crashes. Therefore, we can safely ignore the ACKs 
+in RDMA writes and rely on \paxos to enforce the reliability of these writes.
 
-This tight integration of \paxos and RDMA writes looks simple, but it leads to 
-a new fast, scalable \paxos consensus algorithm with three steps in normal 
-case. First, the leader stores a consensus request in local stable storage 
-(SSD). Second, it does parallel RDMA writes to write this request to the remote 
-memory of the other replicas without waiting any RDMA ACKs. Remote replicas 
-also work in parallel: they poll from their local memory, store this request in 
-local storage, and send consensus replies to the leader rapidly with RDMA 
-writes, without waiting any RDMA ACKs either. Third, once the leader sees a 
-majority of replies in its local memory, a consensus is reached.
+This integration of \paxos and RDMA features looks simple, but it leads to 
+a fast, scalable \paxos consensus algorithm with three steps. First, the leader 
+stores a consensus request in local stable storage. Second, it does parallel 
+RDMA writes to write this request to the remote memory of the other replicas 
+without waiting any RDMA ACKs. Remote replicas also work in parallel: they poll 
+from their local memory, store this request in local storage, and send 
+consensus replies to the leader rapidly with RDMA writes, without waiting any 
+RDMA ACKs either. Third, once the leader sees a majority of replies in its 
+local memory, a consensus is reached.
 
 In the second step of this algorithm, both the leader and remote replicas work 
 in parallel, so a whole consensus latency aproximately consists of 
 three operations: a leader's write to stable storage, a remote replica's write 
 to local storage, and a single RDMA write round-trip. This consensus latency is 
-no longer linear to replica group size (confirmed in our evaluation); its 
-scalability is now mainly bounded by the max number of outbound RDMA writes in 
-the RDMA NIC hardware.
+no longer firmly correlated with replica group size (confirmed in our 
+evaluation); its scalability is now mainly bounded by the capacity of 
+outbound RDMA writes in the NIC hardware. By making the core of \paxos 
+scalable, other novel replication 
+models~\cite{epaxos:sosp13,mencius:osdi08,scatter:sosp11,manos:hotdep10} can 
+scale even better.
 %  (currently, 16~\cite{herd:sigcomm})
-
 
 % P4: Falcon; key features. Hook sockets in servers.
 This paper present \xxx, an SMR system that replicates general server programs 
 efficiently. With \xxx, a server program just runs as is, and \xxx 
 automatically deploys this program on replicas of machines. \xxx intercepts 
 inputs from the inbound socket calls (\eg, \recv) of a server program and 
-invokes our new consensus algorithm to enforce same inputs across replicas.
+invokes our new \paxos consensus algorithm to enforce same inputs across 
+replicas.
 
 % If \xxx finds that 
 % a replica produces an different output from what other replicas agree on, \xxx 
