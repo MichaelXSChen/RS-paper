@@ -81,15 +81,16 @@ DARE's evaluation uses a XX-line key-value store.
 
 \para{RDMA techniques.} RDMA techniques have been leveraged in many online 
 storage systems to improve latency and throughput within datacenters. These 
-systems include key-value stores~\cite{jinyang,herd,farm}, transactional 
-processing systems~\cite{haibo,microsoft:sosp15}, and XXX. These systems mainly 
-aim to use RDMA to speedup specific communications, where both their storage 
-and client access have RDMA enabled. \xxx's deployment model is to provide 
-SMR fault-tolerance to general server programs deployed in datacenters, and the 
-client programs access these server programs in LAN or WAN. It 
-would be interesting to investigate whether \xxx can improve the availability 
-for both the client side and server side of these advanced systems within a 
-datacenter, and we leave it for future work.
+systems include key-value 
+stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14}, transactional 
+processing systems~\cite{drtm:sosp15,farm:sosp15}, and XXX. These systems 
+mainly aim to use RDMA to speedup specific communications, where both their 
+storage and client access have RDMA enabled. \xxx's deployment model is to 
+provide SMR fault-tolerance to general server programs deployed in datacenters, 
+and the client programs access these server programs in LAN or WAN. It would be 
+interesting to investigate whether \xxx can improve the availability for both 
+the client side and server side of these advanced systems within a datacenter, 
+and we leave it for future work.
 
 % We didn't evaluate these systems because they are not available on client sides.
 

@@ -137,7 +137,7 @@ scalability. \xxx scaled almost as well as the unreplicated executions.
 reasons. First, for each \recv call in a server program, \xxx's input 
 coordination protocol only contains two one-sided RDMA writes and two SSD writes 
 between each leader and backup. A parallel SSD write 
-approach~\cite{alysson:atc13} may further improve \xxx's SSD performance.  
+approach~\cite{Bessani:usenix13} may further improve \xxx's SSD performance.  
 Second, \xxx's output checking protocol, which is based on the input 
 coordination protocol, invokes occasionally, once for every \thashcomp output 
 hash generations (\S\ref{sec:output-workflow}).
@@ -271,7 +271,7 @@ requests/s and 10.1 \us consensus latency, and its seven-replica setting had a
 setting, 18.0K throughput and 9.9 \us consensus latency, \xxx achieves a similar 
 consensus latency from three to seven replicas, which mainly depends on the 
 latency of two SSD stores and one WRITE round-trip (see 
-Table~\cite{tab:consensus-latency}).
+Table~\ref{tab:consensus-latency}).
 
 We didn't consider these initial scalability results general; we found them 
 promising. Given that each RDMA NIC hardware port supports up to 16 outbound 
