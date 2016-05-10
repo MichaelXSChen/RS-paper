@@ -215,19 +215,21 @@ As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved
 transactions/s with a 12.5 \us consensus latency. The throughput in \calvin 
 was 13.1\% higher than that in \xxx because \calvin puts transactions in a 
 batch with a 10 \ms timeout and then it invokes \zookeeper for consensus on 
-this batch. Batching helps \calvin achieves good throughput. \xxx currently has 
-not incorporated a batching technique because its latency is already reasonable 
-(\S\ref{sec:overhead}).
+this batch. The average number of bytes in \calvin's batches is 18.8KB, and 
+the average number of input bytes in each \xxx consensus (one for each \myread 
+call) is 93 bytes. Batching helps \calvin achieve good throughput. \xxx 
+currently has not incorporated a batching technique because its latency is 
+already reasonable (\S\ref{sec:overhead}).
 
 Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
 to \xxx's RDMA-accelerated consensus protocol, although we ran \calvin's 
 \zookeeper consensus on IPoIB. A prior SMR evaluation~\cite{dare:hpdc15} also 
-reports a similar 320 \us \zookeeper consensus latency as we got. Two other 
-recent SMR systems Crane~\cite{crane:sosp15} and Rex~\cite{rex:eurosys14} may 
-incur similar consensus latency as \zookeeper's because both their consensus 
-protocols are ran on TCP/IP. Overall, this \xxx-\calvin comparison suggests 
-that \calvin will be better if clients prefer high throughput, and \xxx will be 
-better if clients demand short latency.
+reports a similar 320 \us consensus latency in \zookeeper. Two other recent SMR 
+systems Crane~\cite{crane:sosp15} and Rex~\cite{rex:eurosys14} may incur similar 
+consensus latency as \zookeeper's because all their consensus protocols are 
+based on TCP/IP. Overall, this \xxx-\calvin comparison suggests that \calvin 
+will be better if clients prefer high throughput, and \xxx will be better if 
+clients demand short latency.
 
 \begin{table}[t]
 \footnotesize
