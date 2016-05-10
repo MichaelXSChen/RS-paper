@@ -50,6 +50,8 @@ annotation is needed), and its completeness depends on whether the diverged
 execution states propogate to network outputs. These two approaches are 
 complementary and can be integrated.
 
+% Two DARE limitations: first, no stable storage. second, old leader may 
+% % unsafely writes to remote logs and thought it has reached a consensus.
 The second category includes DARE, a coordination protocol that also uses RDMA 
 to reduce latency. \xxx differs from DARE in two aspects. First, 
 the reliability model in DARE is different from that in \paxos: DARE assumes 
