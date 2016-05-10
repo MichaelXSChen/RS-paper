@@ -123,7 +123,7 @@ can intercept the server's inputs, we wrote a \nlinescalvin patch for \calvin.
 
 Figure~\ref{fig:tput} shows \xxx's throughput and Figure~\ref{fig:latency} 
 response time. We varied the number of concurrent client connections for each 
-server program by from one to 16 threads. For \calvin, we only collected the 
+server program by from one to 32 threads. For \calvin, we only collected the 
 8-thread result because \calvin uses this constant thread count in their code 
 to serve client requests. Overall, compared to these server programs' 
 unreplicated executions, \xxx merely incurred a mean throughput degrade by 

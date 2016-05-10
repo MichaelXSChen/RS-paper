@@ -244,9 +244,9 @@ leader election poses one main issue caused by RDMA. Because backups do not
 communicate frequently with each other in normal case, thus a backup does not 
 know the remote memory locations where the other backups are polling. Writing to 
 a wrong remote memory location may cause the other backups to miss all leader 
-election messages. An existing approach establishes a control QP with specific 
-remote memory to handle leader election, but it poses complexity on the extra 
-QPs and specific data structures.
+election messages. An existing system~\cite{dare:hpdc15} establishes an extra 
+control QP with extra remote memory to handle leader election, posing more
+complexity via the extra communication channels.
 
 % If current leader fails, 
 % how does a backup know the other remote backups' memory location to WRITE to? 
@@ -259,21 +259,29 @@ QPs and specific data structures.
 % leader election state~\cite{paxos:practical}, but the old leader's WRITE may 
 % still corrupt the ongoing leader election. 
 
-For simplicity, \xxx handles election election with the same consensus log. It 
-addresses this issue with a simple approach. The leader does WRITEs to remote 
-logs as heartbeats with a period of T. Once backups have not received heartbeats 
-from the leader for a period of 3*T, they start to elect new leader. Before 
-starting a standard leader election phase as in traditional \paxos 
-protocols~\cite{paxos:practical}, each backup always first does RDMA one-sided 
-reads to get remote replicas' current polling location.
+For simplicity, \xxx handles election election with the same consensus log and 
+the same QP. It addresses this issue with a simple approach. In normal case, the 
+leader does WRITEs to remote logs as heartbeats with a period of T. Each 
+consensus log maintains a control data structure called \v{elect[MAX]}, one 
+element for each replica. Normal case operations and heartbeats circularly use 
+the other parts of the consensus log. Once backups have not received heartbeats 
+from the leader for a period of 3*T, they start to elect a new leader and let 
+their follower threads poll from the \v{elect} array.
 
-Then, backups start a standard \paxos leader 
-election algorithm~\cite{paxos:practical} on consensus logs with three steps. 
-First, backups propose a new view with a standard two-round \paxos 
-consensus~\cite{paxos:simple} by including its current log entry offset. 
-The backup with largest offset have a priority to win this proposal. Second, the 
-winning proposer proposes itself as a primary candidate, another two-round 
-\paxos consensus. Third, if the second step reaches a quorum, the new leader 
+% Before starting a standard leader election 
+% phase as in traditional \paxos protocols~\cite{paxos:practical}, each backup 
+% always first does RDMA one-sided reads to get remote replicas' current polling 
+% location.
+
+Backups start a standard \paxos leader election 
+algorithm~\cite{paxos:practical} with three steps. Each replica writes to its 
+own \v{elect} element at remote replicas. First, backups propose a new view 
+with a standard two-round \paxos consensus~\cite{paxos:simple} by including its 
+current log entry offset. The other backups also propose their views and poll 
+on this array in order to follow other proposals or confirm itself as the 
+winner. The backup with largest log offset will win. Second, the winner 
+proposes itself as a leader candidate using this array, another two-round 
+\paxos consensus. Third, after the second step reaches a quorum, the new leader 
 notifies remote replicas itself as the new leader and it starts to WRITE 
 periodic heartbeats.
 
