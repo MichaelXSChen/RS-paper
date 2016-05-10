@@ -79,7 +79,7 @@ algorithm~\cite{dare:hpdc15} which has to wait for ACKs from remote NICs, our
 WRITE immediately returns after pushing the entry to its local QP between the 
 leader and each backup, because \paxos has handled the reliability issues (\eg, 
 packet losses) for our WRITEs. In our evaluation, pushing a log entry to local 
-QP took no more than 0.1 \us. Therefore, the WRITEs to all backups are done in 
+QP took no more than 0.3 \us. Therefore, the WRITEs to all backups are done in 
 parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
 
 % Instead, \xxx's leader thread just return 
@@ -206,7 +206,7 @@ connection on backups. A naive approach could be matching a leader connection's
 socket descriptor to the same one on a backup, but backups' servers may return 
 nondeterministic descriptors due contentions on systems resources.
 
-Fortunately, \paxos have already made viewstamps~\cite{paxos:practical} of 
+Fortunately, \paxos has already made viewstamps~\cite{paxos:practical} of 
 socket calls strongly consistent across replicas. For TCP connections, \xxx 
 adds the \v{conn\_vs} field, the viewstamp of the the first socket call in 
 each connection (\ie, \accept) as the connection ID for log entries. Then, \xxx 
@@ -299,7 +299,7 @@ instance, both \xxx's normal case algorithm and
 the popular implementation~\cite{paxos:practical} involve two messages and 
 same senders and receivers (although we use WRITEs and carefully make them run 
 in parallel). We made this choice 
-because \paxos is \paxos is notoriously difficult to 
+because \paxos is notoriously difficult to 
 understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 implement~\cite{paxos:live,paxos:practical} 
 verify~\cite{modist:nsdi09,demeter:sosp11}. Aligning with a practical

@@ -11,14 +11,13 @@ mechanism to deal with divergence (\S\ref{sec:checkpoint}).
 \subsection{Checking Network Outputs} \label{sec:output-workflow}
 
 % Main issue. Output timings are pretty miscellaneous.
-One main issue on checking network outputs is the physical timing when a 
-server program produces an network output is usually miscellaneous. For 
-example, when we ran \redis simply on pure SET workloads, we found that 
-different replicas reply the numbers of ``OK" replies for SET operations 
-randomly: one replica may send four of them in one \send call, while another 
-replica may only send one of them in each \send call. Therefore, comparing 
-outputs on each \send call among replicas may not only yield wrong results, but 
-may slow down server programs among replicas.
+One main issue is that network outputs and their physical timings are pretty 
+miscellaneous. For example, when we ran \redis simply on pure SET workloads, we 
+found that different replicas reply the numbers of ``OK" replies for SET 
+operations randomly: one replica may send four of them in one \send call, while 
+another replica may only send one of them in each \send call. Therefore, 
+comparing outputs on each \send call among replicas may not only yield wrong 
+results, but may slow down server programs among replicas.
 
 % Two variables. Tckpt (checkpoint periods) and Tcmp (comparison periods).
 To overcome this timing issue, \xxx presents a bucket-based hash computation 
@@ -27,7 +26,7 @@ local, per-connection bucket with 1.5KB (MTU size). Whenever a bucket
 is full, \xxx computes a new CRC64 hash on a union of the current hash and this 
 bucket. Such a hash computation mechanism encodes accumulated network outputs. 
 Then, after every \thashcomp (by default, 1000 in \xxx) local hash values are 
-generated, \xxx invokes a output checking protocol to check this hash across 
+generated, \xxx invokes an output checking protocol to check this hash across 
 replicas. The index of this hash in the generated sequence is consistent across 
 replicas because each replica runs the same mechanism to generate the hash 
 sequence.
