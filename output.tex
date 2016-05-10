@@ -62,12 +62,12 @@ of replicas'; and (4) no majority has the same hash value. The first three
 cases should be the normal case unless a program tends to frequently compute 
 outputs on random functions (\eg, a scientific simulator).
 
-Note that \xxx does has incorporated an input re-planing approach (\eg, 
-Eve~\cite{eve:osdi12} sequentially re-execute requests after a rollback) because 
-we found that simply re-execution can already avoid the divergence. Previous 
-work~\cite{lu:concurrency-bugs,pres:sosp09} also confirmed that it was 
-extremely unlikely to trigger a concurrency bug in both of two consecutive 
-executions.
+Currently \xxx has not incorporated an input re-planing approach (\eg, 
+Eve~\cite{eve:osdi12} sequentially re-executes requests after detecting a 
+execution divergence) because we found that re-execution already empirically
+avoided divergence. Previous work~\cite{lu:concurrency-bugs,pres:sosp09} 
+also confirmed that it was extremely unlikely to trigger a concurrency bug 
+twice in two consecutive executions.
 
 % Even so, we can 
 % leverage prior approaches to hook these 
