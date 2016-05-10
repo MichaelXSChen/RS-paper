@@ -79,9 +79,9 @@ WRITE immediately returns after pushing the entry to its local QP between the
 leader and each backup, because \paxos has handled the reliability issues (\eg, 
 packet losses) for our WRITEs. In our evaluation, pushing a log entry to local 
 QP took no more than 0.1 \us. Therefore, the WRITEs to all backups are done in 
-parallel (see \textbf{L3} in Figure~\ref{fig:logentry}). In implementation, 
-\xxx uses selective signaling (\S\ref{sec:background}) to occasionally clear 
-ACKs in the CQ associated with the QP.
+parallel (see \textbf{L3} in Figure~\ref{fig:logentry}). In a implementation 
+level, \xxx uses selective signaling (\S\ref{sec:background}) to occasionally 
+check and clear ACKs in the CQ associated with the QP.
 
 % Instead, \xxx's leader thread just return 
 % immediately after 
