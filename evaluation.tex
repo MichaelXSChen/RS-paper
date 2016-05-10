@@ -184,7 +184,7 @@ quorum for these calls.}
 To deeply understand \xxx's performance overhead, we collected the number of 
 socket call events and consensus durations in the leader replica. 
 Table~\ref{tab:consensus-latency} shows these statistics per 10K requests, 8 
-threads. According to the consensus algorithm steps in 
+or max (if less than 8) threads. According to the consensus algorithm steps in 
 Figure~\ref{fig:consensus}, for each socket call, \xxx's leader does an ``L2": 
 SSD write (the ``SSD time" column in Table~\ref{tab:consensus-latency}) and an 
 ``L4": quorum waiting phase (the ``quorum time" column). L4 implies backups' 
