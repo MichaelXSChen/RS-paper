@@ -203,7 +203,7 @@ achieve acceptable overhead on many programs (although \xxx's deployment
 model is running server replicas in a datacenter and clients in LAN 
 or WAN).
 
-\subsection{Comparison with Traditional SMR systems} \label{sec:compare}
+\subsection{Comparison with Other SMR systems} \label{sec:compare}
 
 We compared \xxx with \calvin's SMR system because \calvin's input consensus 
 uses \zookeeper, one of the most widely used coordination service built on 
@@ -215,7 +215,7 @@ As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved
 19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K 
 transactions/s with a 12.5 \us consensus latency. The throughput in \calvin 
 was 13.1\% higher than that in \xxx because \calvin puts transactions in a 
-batch with a 10 \ms timeout and then it invokes \zookeeper for consensus on 
+batch with a 10 \ms timeout, it then invokes \zookeeper for consensus on 
 this batch. The average number of bytes in \calvin's batches is 18.8KB, and 
 the average number of input bytes in each \xxx consensus (one for each \myread 
 call) is 93 bytes. Batching helps \calvin achieve good throughput. \xxx 
