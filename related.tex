@@ -96,7 +96,7 @@ Even if a backup first carefully does a check on a heartbeat timeout (or a
 latest consensus request), it then closes the RDMA QP with this ``leader", 
 these two operations still have a vulnerable time window and the ``leader" can 
 write in between. Allowing a leader to ``think" that it has got a consensus 
-is unsafe. This is probably why standard \paxos 
+could be unsafe. This is probably why standard \paxos 
 protocols~\cite{paxos,paxos:simple,paxos:practical} must let backups do proposal 
 number of view checking rather than taking a pure-leader approach. \xxx complies 
 with standard \paxos protocol~\cite{paxos:practical}: a \xxx backup always 
@@ -119,14 +119,17 @@ programs.
 % TCP, and needs annotation.
 
 
-\para{RDMA techniques.} RDMA techniques have been leveraged in various systems 
-to improve latency and throughput, including key-value 
-stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14}, transactional 
-processing systems~\cite{drtm:sosp15,farm:sosp15},  These systems mainly aim to 
-use RDMA to speedup specific communications, where both their storage and client 
-access have RDMA enabled. It will be interesting to investigate whether \xxx can 
-improve the availability for both the client side and server side of these 
-advanced systems within a datacenter, and we leave it for future work.
+\para{RDMA techniques.} RDMA techniques have been implemented in various 
+architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
+iWRAP~\cite{iwrap}. RDMA have been leveraged in many systems to improve 
+application-specific latency and throughput, including high performance 
+computing~\cite{openmpi}, key-value 
+stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14,memcached:rdma}, 
+transactional processing systems~\cite{drtm:sosp15,farm:sosp15}, and file 
+systems~\cite{gibson:nfs}. These systems are largely complementary to \xxx. It 
+will be interesting to investigate whether \xxx can improve the availability for 
+both the client and server for some of these advanced systems within a 
+datacenter, and we leave it for future work.
 
 % \xxx's deployment model is to 
 % provide SMR fault-tolerance to general server programs deployed in datacenters, 
@@ -137,23 +140,24 @@ advanced systems within a datacenter, and we leave it for future work.
 
 % Increasing assurance of replicas on thread schedulings. Not general 
 % as Falcon's checkpoint techniques. But complementary for example ClamAV.
-\para{Determinism techniques.} In order to make multi-threading easier to 
-understand, test, analyze, and replicate, researchers have built two types of 
-reliable multi-threading systems: (1) stable multi-threading systems (or 
-\smt)~\cite{grace:oopsla09, dthreads:sosp11, determinator:osdi10} that aim to 
-reduce the number of possible thread interleavings for program all inputs, and 
-(2) deterministic multi-threading systems (or \dmt)~\cite{dpj:oopsla09, 
+\para{Nondeterminism.} 
+Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
+cui:tern:osdi10, kendo:asplos09,
+dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} is 
+pervasive in both application programs and OS kernels and it often comes with 
+concurrency bugs~\cite{lu:concurrency-bugs}. To mitigate nondeterminism, 
+deterministic and stable multithreading techniques have 
+been developed~\cite{grace:oopsla09, dthreads:sosp11, 
+determinator:osdi10,dpj:oopsla09, 
 dmp:asplos09,kendo:asplos09,coredet:asplos10,dos:osdi10,ddos:asplos13,
-ics:oopsla13} that aim to reduce the number of possible thread interleavings on 
-each program input. Typically, these systems use deterministic logical clocks 
-instead of nondeterministic physical clocks to make sure inter-thread 
-communications (\eg, \mutexlock and accesses to global variables) can only 
-happen at some specific logical clocks. Therefore, given the same or similar 
-inputs, these systems can enforce the same thread interleavings and eventually 
-the same executions. These systems 
-have shown to greatly improve software reliability, including coverage of 
-testing inputs~\cite{ics:oopsla13} and speed of recording 
-executions\cite{dos:osdi10} for debugging.
+ics:oopsla13}. Another way to mitigate nondeterminism and to ease debugging 
+concurrency bugs is deterministic replay 
+techniques~\cite{r2:osdi,friday2007,srinivasan:flashback,revirt,dejavu,
+vmware-record-replay,smp-revirt:vee08,pres:sosp09,scribe:sigmetrics10,
+odr:sosp09, capo:asplos09}. Much of these techniques can greatly improve 
+software reliability, but they often come with a performance slowdown. \xxx can 
+run these techniques with the server program to mitigate replica divergence 
+caused by concurrency bugs. 
 
 % \para{Concurrency.} Pervasive in real-world applications. Threads. Processes. 
 % Break SMR's state machine assumption. complementary.
