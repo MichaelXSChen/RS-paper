@@ -79,7 +79,9 @@ WRITE immediately returns after pushing the entry to its local QP between the
 leader and each backup, because \paxos has handled the reliability issues (\eg, 
 packet losses) for our WRITEs. In our evaluation, pushing a log entry to local 
 QP took no more than 0.1 \us. Therefore, the WRITEs to all backups are done in 
-parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
+parallel (see \textbf{L3} in Figure~\ref{fig:logentry}). In implementation, 
+\xxx uses selective signaling (\S\ref{sec:background}) to occasionally clear 
+ACKs in the CQ associated with the QP.
 
 % Instead, \xxx's leader thread just return 
 % immediately after 
@@ -112,9 +114,9 @@ To address this issue, one existing approach~\cite{farm:nsdi14,herd:sigcomm14}
 leverages the left-to-right ordering of RDMA WRITEs and puts a special 
 non-zero variable at the end of a fix-sized log entry because they mainly 
 handle key-value stores with fixed value length. As long as this variable is 
-non-zero, RDMA WRITE ordering guarantees that the log entry WRITE is complete. 
-However, because \xxx aims to support general server programs with largely 
-variant received data lengths, this approach cannot be applied in \xxx.
+non-zero, the RDMA WRITE ordering guarantees that the log entry WRITE is 
+complete. However, because \xxx aims to support general server programs with 
+largely variant received data lengths, this approach cannot be applied in \xxx.
 
 An alternative approach is using atomic primitives provided by RDMA hardware, 
 but a prior evaluation~\cite{drtm:sosp15} has showned that RDMA atomic 
@@ -127,8 +129,8 @@ primivites are much slower than normal RDMA WRITEs and local memory reads.
 array. Because \xxx uses a QP with the type of RC (reliable connection) 
 (\S\ref{sec:background}), the follower always first checks the canary value 
 according to \v{data\_size} and then starts a standard \paxos consensus reply 
-decision~\cite{paxos:practical}. Our efficient, lock-free approach guarantees 
-that the follower always reads a complete log entry.
+decision~\cite{paxos:practical}. Our efficient, synchronization-free approach 
+guarantees that the follower always reads a complete log entry.
 % This check guarantees that a log entry is 
 % completely written in a local backup.
 % 
