@@ -11,7 +11,7 @@ applications in other research areas (\S\ref{sec:apps}).
 % evaluated apps. 
 \xxx currently does not hook random functions such as \v{gettimeofday()} and 
 \v{rand()} because these random results are often explicit and easy to examine 
-in network outputs (\eg, a timestamp in an HTTP reply header). Existing 
+from network outputs (\eg, a timestamp in the header of a reply). Existing 
 approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can also be 
 leveraged to intercept these functions and make them produce same results among 
 replicas.
