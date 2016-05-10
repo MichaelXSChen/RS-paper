@@ -143,9 +143,8 @@ because of two reasons. First, for each \recv call in a server, \xxx's input
 coordination protocol only contains two one-sided RDMA writes and two SSD writes 
 between each leader and backup. A parallel SSD write 
 approach~\cite{Bessani:usenix13} may further improve \xxx's SSD performance.  
-Second, \xxx's output checking protocol, which is based on the input 
-coordination protocol, invokes occasionally, once for every \thashcomp output 
-hash generations (\S\ref{sec:output-workflow}).
+Second, \xxx's output checking protocol invokes occasionally 
+(\S\ref{sec:output-workflow}).
 
 \begin{table}[h]
 \footnotesize
