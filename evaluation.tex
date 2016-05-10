@@ -53,9 +53,9 @@ latency between every two replicas are 84 \us (the IPoIB round-trip latency).
 
 To mitigate network latency of public network, all client benchmarks were ran 
 in a Dell R320 server (the client machine), with Linux 3.16.0, 2.2GHz Intel 
-Xeon with 12 hyper-threading cores, 32GB memory, and 160GB SSD. This server 
-connects with the replica machines with 1Gbps bandwidth LAN. The average 
-\v{ping} latency between the client machine and a replica machine is 301 \us. A 
+Xeon 12 hyper-threading cores, 32GB memory, and 160GB SSD. This server 
+connects with the server machines with 1Gbps bandwidth LAN. The average 
+\v{ping} latency between the client machine and a server machine is 301 \us. A 
 larger network latency (\eg, sending client requests from WAN) will further 
 mask \xxx's overhead.
 
@@ -73,12 +73,16 @@ strong fault-tolerance of SMR is especially attractive to these programs.
 Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. To 
 evaluate \xxx's practicality, we used the server developers' own performance 
 benchmarks or popular third-party. For benchmark workload settings, we used the 
-benchmarks' default workloads whenever available. We spawned up to 16 
-concurrent connections, and then we measured both response time and 
-throughput. We also measured \xxx's bare consensus latency. All evaluation 
-results were done with a replica group size of three except the scalability 
-evaluation (\S\ref{sec:scalability}). Each performance data point in the 
-evaluation is taken from the mean value of 10 repeated executions.
+benchmarks' default workloads whenever available. To perform a stress testing 
+on \xxx's input consensus protocol, we chose workloads with significant 
+portions of writes, because write operations often contain more input bytes than 
+reads (\eg, a key-value SET operation contains more bytes than a GET).
+
+We spawned up to 32 concurrent connections, and then we measured both response 
+time and throughput. We also measured \xxx's bare consensus latency. All 
+evaluation results were done with a replica group size of three except the 
+scalability evaluation (\S\ref{sec:scalability}). Each performance data point in 
+the evaluation is taken from the mean value of 10 repeated executions.
 
 % evaluation metric. client benchmarks all run in LAN, average latency
 The rest of this section focuses on these questions:
@@ -92,11 +96,12 @@ in \xxx?
 unreplicated executions? What is the consensus latency of \xxx's \paxos 
 protocol?
 
-\item[\S\ref{sec:scalability}:] How scalable is \xxx on different replica group 
-sizes?
-
 \item[\S\ref{sec:compare}:] What is \xxx's performance compared to existing 
 SMR systems?
+
+
+\item[\S\ref{sec:scalability}:] How scalable is \xxx on different replica group 
+sizes?
 
 \item[\S\ref{sec:robust}:] How fast can \xxx checkpoint and recover replicas 
 when output divergence is detected?
@@ -278,8 +283,8 @@ We didn't consider these initial scalability results general; we found them
 promising. Given that each RDMA NIC hardware port supports up to 16 outbound 
 RDMA WRITEs with peak performance~\cite{herd:sigcomm14}, and our NIC has dual 
 ports, we anticipate that our algorithm may scale up to around 32 replicas 
-under current hardware techniques. We plan to buy more RDMA servers and verify 
-whether \xxx's scalability is bounded by the capacity of RDMA hardware.
+under current hardware techniques. We plan to buy more servers and verify 
+whether \xxx's scalability is bounded by RDMA NIC capacity.
 
 
 % For seven nodes 
@@ -330,7 +335,7 @@ replicas.
 \begin{table}[h]
 \footnotesize
 \centering
-\vspace{-.1in}
+% \vspace{-.05in}
 \begin{tabular}{lrrr}
 {\bf Performance metric} & {\bf Three} & {\bf Five} & {\bf Seven}\\
 \hline\\[-2.3ex]

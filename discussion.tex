@@ -25,7 +25,7 @@ replicas.
 because it is just designed to try to improve assurance on whether replicas run 
 in sync. A server program running in \xxx may have false positive when it uses 
 multiple threads to serve the same client connection and uses these threads to 
-concurrently append outputs to networks (\eg, \clamav in our evaluation). 
+concurrently add outputs (\eg, \clamav in our evaluation). 
 Running a deterministic multithreading 
 scheduler~\cite{coredet:asplos10,parrot:sosp13} with the server program 
 addresses this problem.
@@ -85,7 +85,7 @@ outputs across replicas diverge.
 In addition to greatly improving the availability of general server programs, 
 we envision that \xxx can be applied in broad areas, and here we elaborate 
 three. First, \xxx's RDMA-accelerated \paxos protocol and its implementation 
-could be an effective template for other replication protocols (\eg, byzantine 
+could be a template for other replication protocols (\eg, byzantine 
 fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}). 
 
 % Another promising direction is three-phase commit (3PC): 3PC is often 
@@ -105,12 +105,10 @@ same program, \xxx can benefit distributed program analysis techniques. Bounded
 by the limited computing resources on single machine, recent advanced 
 program analysis frameworks become 
 distributed~\cite{decouple:usenix08, speck:asplos08, 
-shadowreplica:ccs13, wester:parallelizing:asplos13, superpin, 
-jungwoo:oopsla09,repframe:apsys15} in order to offload analyses on multiple 
-machines. \xxx can be leveraged in these 
+shadowreplica:ccs13, wester:parallelizing:asplos13,repframe:apsys15} in order to 
+offload analyses on multiple machines. \xxx can be leveraged in these 
 frameworks so that developers of analysis tools can just focus on their own 
-analysis logic, while \xxx's general replication architecture efficiently 
-handles the rest.
+analysis logic, while \xxx's general replication architecture handles the rest.
 
 Moreover, program analyses developers can tightly integrate their tools with 
 \xxx. For instance, they can proactively diversify the orders of socket calls 
@@ -139,4 +137,4 @@ such a giant computer. \xxx's fast, general coordination service is especially
 suitable for such an OS's scheduler to maintain a consistent, reliable view on 
 both computing resources and data in a datacenter. For instance, \xxx's 
 latency is largely between less than 30 \us, much smaller than a typical 
-context switch of a process (typically, a few hundreds \us).
+process context switch (a few hundreds \us).
