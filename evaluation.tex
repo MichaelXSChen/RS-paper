@@ -127,7 +127,7 @@ response time. We varied the number of concurrent client connections for each
 server program by from one to 32 threads. For \calvin, we only collected the 
 8-thread result because \calvin uses this constant thread count in their code 
 to serve client requests. Overall, compared to these server programs' 
-unreplicated executions, \xxx merely incurred a mean throughput degrade by 
+unreplicated executions, \xxx merely incurred a mean throughput overhead of 
 \tputoverhead (note that in Figure~\ref{fig:tput}, the Y-axises of most programs 
 start from a large number). \xxx's mean overhead on response time was merely 
 \latencyoverhead.
@@ -183,7 +183,7 @@ quorum for these calls.}
 % % Bare consensus latency, micro events.
 
 To deeply understand \xxx's performance overhead, we collected the number of 
-socket call events and consensus durations in the leader replica. 
+socket call events and consensus durations on the leader side. 
 Table~\ref{tab:consensus-latency} shows these statistics per 10K requests, 8 
 or max (if less than 8) threads. According to the consensus algorithm steps in 
 Figure~\ref{fig:consensus}, for each socket call, \xxx's leader does an ``L2": 
