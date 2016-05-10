@@ -79,9 +79,7 @@ WRITE immediately returns after pushing the entry to its local QP between the
 leader and each backup, because \paxos has handled the reliability issues (\eg, 
 packet losses) for our WRITEs. In our evaluation, pushing a log entry to local 
 QP took no more than 0.1 \us. Therefore, the WRITEs to all backups are done in 
-parallel (see \textbf{L3} in Figure~\ref{fig:logentry}). In a implementation 
-level, \xxx uses selective signaling (\S\ref{sec:background}) to occasionally 
-check and clear ACKs in the CQ associated with the QP.
+parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
 
 % Instead, \xxx's leader thread just return 
 % immediately after 
@@ -94,6 +92,7 @@ field (notably, different from an RDMA ACK) in its local log entry for backups'
 consensus replies. Once consensus is reached, the leader thread finishes 
 intercepting this \recv socket call and continues with its server application 
 logic.
+
 % 
 % The leader does a
 % busy loop to check the \v{ack} array until it sees that a majority of replicas, 
@@ -158,6 +157,14 @@ and the local server program according to the socket calls in the consensus log.
 % thus \xxx can 
 % maintain consistent concurrent client connection mappings between the leader and 
 % backups.
+
+
+% TBD: should we put the impl here or somewhere else?
+In a implementation level, \xxx stores log entries in local SSD using Berkely 
+DB~\cite{berkeleydb}. Although \xxx's algorithm does not wait every RDMA ACK in 
+order to achieve high scalability, we use selective signaling 
+(\S\ref{sec:background}) to occasionally check and clear ACKs in the CQ 
+associated with the QP, an essential ACK clearing phase in RDMA.
 
 % On replicas, server programs run as is without being 
 % intercepted. In short, this follower thread runs a high performance loop to 
