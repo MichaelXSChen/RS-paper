@@ -52,7 +52,7 @@ the \recv type (\eg, \recv and \myread), the \send type (\eg, \send and
 % spin % lock and get view stamp, store the log, and post send to all replicas. 
 % Non blocking. Wait % for over half agree, and then execute the operation.
 Figure~\ref{fig:logentry} shows the input consensus algorithm. Suppose a leader 
-thread invokes a consensus request when it calls a socet call with the \recv 
+thread invokes a consensus request when it calls a socket call with the \recv 
 type. A consensus request includes four steps. The first step (\textbf{L1}) is 
 executing the actual Libc socket call, because \xxx needs to get the actual 
 return values or received data bytes of this call and then replicates them in 
@@ -69,8 +69,8 @@ remote replicas' logs.
 
 
 The second step (\textbf{L2}) is local preparation, including assigning a 
-global, monotonically increashing viewstamp to locate this entry in the 
-consensus log, building a log entry struct for this call, and writing this 
+global, monotonically increasing viewstamp to locate this entry in the 
+consensus log, building a log entry structure for this call, and writing this 
 entry to its local SSD.
 
 The third step (\textbf{L3}) is to WRITE a log entry to remote backups 
@@ -119,8 +119,8 @@ complete. However, because \xxx aims to support general server programs with
 largely variant received data lengths, this approach cannot be applied in \xxx.
 
 An alternative approach is using atomic primitives provided by RDMA hardware, 
-but a prior evaluation~\cite{drtm:sosp15} has showned that RDMA atomic 
-primivites are much slower than normal RDMA WRITEs and local memory reads.
+but a prior evaluation~\cite{drtm:sosp15} has shown that RDMA atomic 
+primitives are much slower than normal RDMA WRITEs and local memory reads.
 % Thus, in a RDMA-accelerated protocol, an extra mechanism 
 % is needed to gurantee that a 
 % leader's write has finished and then replicas can agree or disagree.
@@ -153,15 +153,16 @@ Third (\textbf{B3}, not shown in Figure~\ref{fig:consensus}), the follower
 does a regular \paxos check on \v{last\_committed} and executes all socket 
 calls that it has not executed before this viewstamp. It then ``executes" each 
 log entry by forwarding the socket calls to the local server program. This 
-forwarding faithly builds and closes concurrent connections between the follower 
-and the local server program according to the socket calls in the consensus log.
+forwarding faithfully builds and closes concurrent connections between the 
+follower and the local server program according to the socket calls in the 
+consensus log.
 % thus \xxx can 
 % maintain consistent concurrent client connection mappings between the leader and 
 % backups.
 
 
 % TBD: should we put the impl here or somewhere else?
-In a implementation level, \xxx stores log entries in local SSD using Berkely 
+In a implementation level, \xxx stores log entries in local SSD using Berkley 
 DB~\cite{berkeleydb}. Although \xxx's algorithm does not wait every RDMA ACK in 
 order to achieve high scalability, we use selective signaling 
 (\S\ref{sec:background}) to occasionally check and clear ACKs in the CQ 
@@ -198,7 +199,7 @@ associated with the QP, an essential ACK clearing step in RDMA implementations.
 \subsection{Handling Concurrent Connections} \label{sec:concurrent}
 
 Unlike traditional \paxos protocols which mainly handle single-threaded 
-programs due to SMR's deterministic state machine assumption, \xxx aims to 
+programs due to the deterministic state machine assumption in SMR, \xxx aims to 
 support both single-threaded as well as multithreaded server programs running 
 on multi-core machines. Therefore, a strongly consistent mechanism is needed to 
 map every concurrent client connection on the leader and to its corresponding 
@@ -206,11 +207,11 @@ connection on backups. A naive approach could be matching a leader connection's
 socket descriptor to the same one on a backup, but backups' servers may return 
 nondeterministic descriptors due contentions on systems resources.
 
-Fortunately, \paxos have already made viewstamps of socket calls strongly 
-consistent across replicas. For TCP connections, \xxx addes the 
-\v{conn\_vs} field, the viewstamp of the the first socket call in each 
-connection (\ie, \accept) as the connection ID for log entries. Then, \xxx 
-maintains a hashmap on each local replica to map this connection ID to local 
+Fortunately, \paxos have already made viewstamps~\cite{paxos:practical} of 
+socket calls strongly consistent across replicas. For TCP connections, \xxx 
+adds the \v{conn\_vs} field, the viewstamp of the the first socket call in 
+each connection (\ie, \accept) as the connection ID for log entries. Then, \xxx 
+maintains a hash map on each local replica to map this connection ID to local 
 socket descriptors.
 
 % On a local 
@@ -262,7 +263,7 @@ For simplicity, \xxx handles election election with the same consensus log. It
 addresses this issue with a simple approach. The leader does WRITEs to remote 
 logs as heartbeats with a period of T. Once backups have not received heartbeats 
 from the leader for a period of 3*T, they start to elect new leader. Before 
-starting a standard leader election phase as in tranditional \paxos 
+starting a standard leader election phase as in traditional \paxos 
 protocols~\cite{paxos:practical}, each backup always first does RDMA one-sided 
 reads to get remote replicas' current polling location.
 
@@ -285,7 +286,7 @@ periodic heartbeats.
 % 
 To minimize protocol-level bugs, 
 \xxx's \paxos protocol mostly sticks with a popular, 
-practical implementation~\cite{paxos:practical}, espeically the behaviors of 
+practical implementation~\cite{paxos:practical}, especially the behaviors of 
 senders and receivers (\S\ref{sec:normal} and \S\ref{sec:election}). For 
 instance, both \xxx's normal case algorithm and 
 the popular implementation~\cite{paxos:practical} involve two messages and 

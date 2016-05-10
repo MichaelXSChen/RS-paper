@@ -34,7 +34,7 @@ addresses this problem.
 % positives.
 
 A server program may also have false negative when it triggers a software bug 
-but the bug does not propogate to network outputs. On client programs' point of 
+but the bug does not propagate to network outputs. On client programs' point of 
 view, such bugs do not matter. Moreover, \xxx already checkpoints file system 
 state to mitigate this issue.
 
@@ -103,7 +103,7 @@ fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}).
 Second, by efficiently constructing multiple, equivalent executions for the 
 same program, \xxx can benefit distributed program analysis techniques. Bounded 
 by the limited computing resources on single machine, recent advanced 
-program analaysis frameworks become 
+program analysis frameworks become 
 distributed~\cite{speck:asplos08,repframe:apsys15} in order to offload analyses 
 on multiple machines. \xxx can be leveraged in these 
 frameworks so that developers of analysis tools can just focus on their own 
@@ -133,8 +133,8 @@ security attacks~\cite{con:hotpar12}.
 Third, \xxx can be a core building block in the emerging datacenter operating 
 systems~\cite{matei:hotcloud11, mesos:nsdi11, datacenter:os}. As a 
 datacenter continuously emerges a computer, an OS may be increasingly needed for 
-thus a giant computer. \xxx's fast, general coordination service is espeicially 
+thus a giant computer. \xxx's fast, general coordination service is especially 
 suitable for such an OS's scheduler to maintain a consistent, reliable view on 
 both computing resources and data in a datacenter. For instance, \xxx's 
 latency is largely between less than 30 \us, much smaller than a typical 
-context swtich of a process (typically, a few hundreds \us).
+context switch of a process (typically, a few hundreds \us).

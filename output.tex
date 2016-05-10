@@ -18,12 +18,12 @@ different replicas reply the numbers of ``OK" replies for SET operations
 randomly: one replica may send four of them in one \send call, while another 
 replica may only send one of them in each \send call. Therefore, comparing 
 outputs on each \send call among replicas may not only yield wrong results, but 
-may unnecesssarily slow down server programs among replicas.
+may slow down server programs among replicas.
 
 % Two variables. Tckpt (checkpoint periods) and Tcmp (comparison periods).
 To overcome this timing issue, \xxx presents a bucket-based hash computation 
 mechanism. When a server calls a \send call, \xxx puts the sent bytes into a 
-local, per-connection bucket with 1.5KB (same as MTU size). Whenever a bucket 
+local, per-connection bucket with 1.5KB (MTU size). Whenever a bucket 
 is full, \xxx computes a new CRC64 hash on a union of the current hash and this 
 bucket. Such a hash computation mechanism encodes accumulated network outputs. 
 Then, after every \thashcomp (by default, 1000 in \xxx) local hash values are 
@@ -61,13 +61,13 @@ present replies and handles divergence, which includes four shaded cases:
 but minor replicas' hashes diverge; (3) leader's hash diverges from a majority 
 of replicas'; and (4) no majority has the same hash value. The first three 
 cases should be the normal case unless a program tends to frequently compute 
-outputs on random functions (\eg, a scientific similator).
+outputs on random functions (\eg, a scientific simulator).
 
 Note that \xxx does has incorporated an input re-planing approach (\eg, 
 Eve~\cite{eve:osdi12} sequentially re-execute requests after a rollback) because 
 we found that simply re-execution can already avoid the divergence. Previous 
 work~\cite{lu:concurrency-bugs,pres:sosp09} also confirmed that it was 
-extremely unlikely to trigger a concurrency bug in both of two consencutive 
+extremely unlikely to trigger a concurrency bug in both of two consecutive 
 executions.
 
 % Even so, we can 
@@ -131,7 +131,7 @@ The second task for guards is that all guards in all alive replicas handle
 rollback requests once divergence is detected (\S\ref{sec:output-workflow}). 
 According to the rollback workflow, a backup guard which receives a rollback 
 request from the leader guard will kill the local server process and roll back 
-to a previous checkpoint before the last successfuly hash check.
+to a previous checkpoint before the last successful hash check.
 % Suppose the 
 % viewstamp associated with the 
 % % previous checkpoint is $vs_{ckpt}$, and the viewstamp of the last matching 
