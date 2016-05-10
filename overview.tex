@@ -49,6 +49,7 @@ network interface card (NIC) and remote NIC requires setting up a Queue Pair
 (QP), including a send queue and a receive queue. Each QP associates with a 
 Completion Queue (CQ) to store ACKs. A QP belongs to a type of ``XY": X can be R 
 (reliable) or U (unreliable), and Y can be C (connected) or U (unconnected). 
+
 \xxx's implementations mainly use RC QPs, because such a reliable, connected QP 
 guarantees in-order, non-corrupted delivery in normal case. However, RC QPs may 
 still lose packets in typical \paxos exceptional cases (\eg, hardware failures, 
@@ -85,11 +86,6 @@ already succeed before this ACK-checking starts).
 
 \section{\xxx Overview}\label{sec:overview}
 
-% This section first presents \xxx's architecture, including its 
-% deployment model and key components (\S\ref{sec:arch}).
- 
-% \subsection{Architecture}\label{sec:arch}
-
 \begin{figure}[t]
 \centering
 \vspace{-.15in}
@@ -100,6 +96,14 @@ already succeed before this ACK-checking starts).
 \vspace{-.15in}
   \label{fig:arch}
 \end{figure}
+
+
+% This section first presents \xxx's architecture, including its 
+% deployment model and key components (\S\ref{sec:arch}).
+ 
+% \subsection{Architecture}\label{sec:arch}
+
+
 
 % \begin{figure*}[!htb]
 % \centering
@@ -130,8 +134,6 @@ coordination (in short, the \emph{coordinator}), an output checking protocol
 (the \emph{checker}), a circular in-memory consensus log (the 
 \emph{log}), and a guard process that handles checkpointing and recovering a 
 server's process state and file system state (the \emph{guard}).
-
-
 
 % Coordinator: leader side. 
 The coordinator is invoked when a server program thread calls an inbound socket 

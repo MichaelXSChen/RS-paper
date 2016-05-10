@@ -51,12 +51,12 @@ the \recv type (\eg, \recv and \myread), the \send type (\eg, \send and
 % Second, leader thread behavior on \recv(). Return from orig recv, grab 
 % spin % lock and get view stamp, store the log, and post send to all replicas. 
 % Non blocking. Wait % for over half agree, and then execute the operation.
-Figure~\ref{fig:logentry} shows the input consensus algorithm. Suppose a leader 
-thread invokes a consensus request when it calls a socket call with the \recv 
-type. A consensus request includes four steps. The first step (\textbf{L1}) is 
-executing the actual Libc socket call, because \xxx needs to get the actual 
-return values or received data bytes of this call and then replicates them in 
-remote replicas' logs.
+Figure~\ref{fig:consensus} shows the input consensus algorithm. Suppose a 
+leader thread invokes a consensus request when it calls a socket call with the 
+\recv type. A consensus request includes four steps. The first step 
+(\textbf{L1}) is executing the actual Libc socket call, because \xxx needs to 
+get the actual return values or received data bytes of this call and then 
+replicates them in remote replicas' logs.
 
 \begin{figure}[b]
 \centering
@@ -118,7 +118,7 @@ non-zero, the RDMA WRITE ordering guarantees that the log entry WRITE is
 complete. However, because \xxx aims to support general server programs with 
 largely variant received data lengths, this approach cannot be applied in \xxx.
 
-An alternative approach is using atomic primitives provided by RDMA hardware, 
+Another approach is using atomic primitives provided by RDMA hardware, 
 but a prior evaluation~\cite{drtm:sosp15} has shown that RDMA atomic 
 primitives are much slower than normal RDMA WRITEs and local memory reads.
 % Thus, in a RDMA-accelerated protocol, an extra mechanism 

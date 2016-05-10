@@ -44,15 +44,15 @@ lost; it may aggravate response time.
 
 As the replica group size grows, the consensus latency of \paxos is even more 
 difficult to scale, because a majority now involves more replicas. One 
-scaling implementation approach may be using asynchronous IO (\eg, 
+scaling approach may be using asynchronous IO (\eg, 
 Libevent~\cite{libevent}) to improve the parallelism of consensus round-trips. 
 However, the high latency of a each round-trip still exists, and the event loop 
 in this approach may involve frequent context switches (each may take more time 
-than a \v{ping} in Ethernet). To make SMR scales better, advanced replication 
-models are proposed, including multi-leader 
-models~\cite{epaxos:sosp13,mencius:osdi08}, clustering or nested consensus 
-models~\cite{scatter:sosp11,manos:hotdep10}. However, the core of these models, 
-\paxos itself, still scales poorly~\cite{ellis:thesis}.
+than a \v{ping} in Ethernet). To scale SMR, advanced replication 
+models are proposed, including multi-leader~\cite{epaxos:sosp13,mencius:osdi08}, 
+cluster~\cite{manos:hotdep10}, and nested consensus 
+models~\cite{scatter:sosp11}. However, the core of these models, \paxos, 
+still scales poorly~\cite{ellis:thesis}.
 
 % One 
 % scalling approach (\eg, ~\cite{crane:sosp15}) may be using an event-driven 
@@ -111,7 +111,7 @@ $\sim$3 \us in the Infiniband architecture~\cite{infiniband}.
 % 
 % to address this scalability challenge is that 
 % simply replacing RDMA writes with \paxos communications is not sufficient, and
-In addition to mitigating consensus latency, RDMA also opens 
+In addition to mitigating consensus latency, RDMA creates 
 new opportunity to address the \paxos scalability problem, because we
 can integrate RDMA features \emph{tightly} within the fault-tolerant nature of 
 \paxos. In essence, \paxos already tolerates various faults, including 
@@ -147,9 +147,11 @@ efficiently. Within \xxx, a server program just runs as is. \xxx
 automatically deploys this program on replicas of machines. It intercepts 
 inputs from a server program's inbound socket calls (\eg, \recv) and invokes 
 our \paxos consensus algorithm to efficiently enforce same inputs across 
-replicas. In a consensus protocol level, \xxx carefully tackles several 
-technical challenges, including handling an atomicity challenge 
-(\S\ref{sec:normal}) and concurrent connections (\S\ref{sec:concurrent}).
+replicas.
+
+In a consensus protocol level, \xxx carefully tackles several technical 
+challenges, including handling an atomicity challenge (\S\ref{sec:normal}) and 
+concurrent connections (\S\ref{sec:concurrent}).
 
 % If \xxx finds that 
 % a replica produces an different output from what other replicas agree on, \xxx 
@@ -170,10 +172,10 @@ contentions in inter-thread resources (\eg, global memory and locks) and systems
 resources (\eg, network ports) can easily cause program execution states to 
 diverge across replicas and compute wrong outputs to clients.
 
-To handle nondeterminism, SMR systems either use deterministic multithreading 
+To tackle nondeterminism, SMR systems either use deterministic multithreading 
 and replay approaches~\cite{rex:eurosys14,crane:sosp15,ddos:asplos13}, or they 
 rely on manually annotating share states in program code to detect execution 
-divergence~\cite{eve:osdi12}. These approaches fall short in either performance 
+divergence~\cite{eve:osdi12}. These approaches fall short in performance 
 or automation.
 
 On top of its input consensus protocol, \xxx builds an efficient network output 
