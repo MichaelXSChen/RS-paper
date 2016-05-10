@@ -22,7 +22,7 @@ Unfortunately, despite these recent advances, SMR remains difficult to be
 widely adopted due to the high consensus latency in \paxos. To agree on an 
 input, traditional consensus protocols invoke at least one message round-trip 
 between two replicas. Given that a \v{ping} in Ethernet takes hundreds of \us, a 
-server program running in an SMR system with only three replicas must wait at 
+server program running in an SMR system with three replicas must wait at 
 least this time before processing an input. This latency may be acceptable for 
 maintaining global configuration~\cite{chubby:osdi,zookeeper} or processing SQL 
 transactions~\cite{crane:sosp15,eve:osdi12}, but prohibitive for 
@@ -50,7 +50,7 @@ than a \v{ping} in Ethernet). To make SMR scales better, novel replication
 models are proposed, including multi-leader 
 models~\cite{epaxos:sosp13,mencius:osdi08}, clustering or nested consensus 
 models~\cite{scatter:sosp11,manos:hotdep10}. However, the core of these models, 
-\paxos itself, still faces a scalability challenge.
+\paxos itself, still scales poorly~\cite{ellis:thesis}.
 
 % One 
 % scalling approach (\eg, ~\cite{crane:sosp15}) may be using an event-driven 
@@ -79,7 +79,7 @@ user space memory of a remote process, completely bypassing the remote OS
 kernel or CPU (the so called ``one-sided" operations). As a common 
 RDMA practice, to ensure that such a write successfully resides in the 
 memory of a remote process, the local process should wait until the remote NIC 
-(network interface card) to send an ACK to the local host's NIC. An 
+(network interface card) sends an ACK to the local host's NIC. An 
 evaluation~\cite{pilaf:usenix14} shows that such a write round-trip takes only 
 $\sim$3 \us in the Infiniband architecture~\cite{infiniband}.
 
@@ -114,7 +114,7 @@ new opportunity to address the \paxos scalability problem, because we
 can integrate RDMA features \emph{tightly} within the fault-tolerant nature of 
 \paxos. In essence, \paxos has already tolerated various faults, including 
 machine failures and process crashes. Therefore, we can safely ignore the ACKs 
-in RDMA writes and rely on \paxos to enforce the reliability of these writes.
+in RDMA writes and rely on \paxos to handle the (un)reliability of these writes.
 
 This integration of \paxos and RDMA features looks simple, but it leads to 
 a fast, scalable \paxos consensus algorithm with three steps. First, the leader 
