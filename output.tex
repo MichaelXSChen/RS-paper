@@ -111,13 +111,13 @@ A guard process is running on each replica to checkpoint and restore the local
 server program. The guard does two tasks. First, \xxx assigns one backup 
 replica's guard to checkpoint the local server program's process state and file 
 system state of current working directory within a physical duration 
-\tcheckpoint (by default, one hour in \xxx).
+\tcheckpoint (one hour in \xxx).
 
 Such a checkpoint operation and its duration are not sensitive to \xxx's 
 performance because the other backups can still reach quorum rapidly. Each 
 checkpoint is associate with a last committed socket call viewstamp of the 
-server program. After each periodical checkpoint, the backup distributes the 
-checkpoint zip file to the other replicas.
+server program. After each checkpoint, the backup dispatches the checkpoint zip 
+file to the other replicas.
 
 Specifically, \xxx leverages CRIU, a popular, open source process checkpoint 
 tool, to checkpoint a server program's process state (\eg, CPU registers and 

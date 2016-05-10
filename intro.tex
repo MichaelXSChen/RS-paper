@@ -7,15 +7,14 @@ State machine replication (SMR) runs the same program on a
 number of replicas and uses a distributed consensus protocol (\eg, 
 \paxos~\cite{crane:sosp15}) to enforce the same inputs among 
 replicas. Typically, \paxos assigns a replica as the leader to propose 
-consensus requests, while the other replicas agree or reject requests. 
-Consensus on a new input can be achieved as long as a majority of replicas 
-agree, thus SMR can tolerate various faults such as minor replica 
-failures.
+consensus requests, and the other replicas agree or reject requests. 
+An input consensus can achieve as long as a majority of replicas 
+agree, thus SMR can tolerate various faults such as minor replica failures.
 
-Attracted by this strong fault-tolerance, recently, several SMR 
+Due to this strong fault-tolerance, recently, several SMR 
 systems~\cite{chubby:osdi, zookeeper, crane:sosp15, eve:osdi12, rex:eurosys14} 
-have been built to greatly improve the availability of various server programs, 
-because these programs tend to serve client requests at all time.
+have been built to greatly improve the availability of server programs, 
+because these programs need to serve requests at all time.
 
 % P2: Performance too slow. Agree first and then execute. Even three nodes, one 
 % round-trip (~400 us). Not for performance critical servers such as key-value.
@@ -320,8 +319,8 @@ algorithm. \xxx has the potential to largely improve the adoption of SMR. \xxx
 can also be applied to broad areas, including other replication protocols (\eg, 
 byzantine fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}), distributed 
 program analyses, and future datacenter operating systems (\S\ref{sec:apps}). 
-All \xxx source code, benchmarks, and evaluation results are 
-available at \github. 
+% All \xxx source code, benchmarks, and evaluation results are 
+% available at \github. 
 % In addition, a fast, general SMR service has been long persued as a fundamental 
 % building block for the emerging datacenter operation system.
 
