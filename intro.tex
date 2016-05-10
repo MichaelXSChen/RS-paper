@@ -141,13 +141,13 @@ scale even better.
 % P4: Falcon; key features. Hook sockets in servers.
 This paper present \xxx,\footnote{We name our system after falcon, one of the 
 fastest birds.} an SMR system that replicates general server programs 
-efficiently. With \xxx, a server program just runs as is, and \xxx 
-automatically deploys this program on replicas of machines. \xxx intercepts 
-inputs from the inbound socket calls (\eg, \recv) of a server program and 
-invokes our \paxos consensus algorithm to efficiently enforce same inputs 
-across replicas. In a consensus protocol level, \xxx carefully tackles several 
+efficiently. Within \xxx, a server program just runs as is. \xxx 
+automatically deploys this program on replicas of machines. It intercepts 
+inputs from a server program's inbound socket calls (\eg, \recv) and invokes 
+our \paxos consensus algorithm to efficiently enforce same inputs across 
+replicas. In a consensus protocol level, \xxx carefully tackles several 
 technical challenges, including handling an atomicity challenge 
-(\S\ref{sec:normal}) concurrent connections (\S\ref{sec:conclusion}).
+(\S\ref{sec:normal}) and concurrent connections (\S\ref{sec:concurrent}).
 
 % If \xxx finds that 
 % a replica produces an different output from what other replicas agree on, \xxx 
@@ -159,8 +159,8 @@ However, to practically replicate general server programs, only enforcing same
 inputs is often not enough. An automated, efficient output checking mechanism 
 that can improve the assurance on ``replicas run in sync" is still missing in 
 existing SMR 
-systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. Server 
-programs now already use multithreading to harness the power of multi-core 
+systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. 
+Most erver programs use multithreading to harness the power of multi-core 
 hardware. Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
 cui:tern:osdi10, kendo:asplos09,
 dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} caused by 
@@ -169,17 +169,17 @@ resources (\eg, network ports) can easily cause program execution states to
 diverge across replicas and compute wrong outputs to clients.
 
 To handle nondeterminism, SMR systems either use deterministic multithreading 
-and replay approaches~\cite{rex:eurosys14,crane:sosp15,ddos:asplos13} or rely 
-on manually annotating share states in program code to detect execution 
+and replay approaches~\cite{rex:eurosys14,crane:sosp15,ddos:asplos13}, or they 
+rely on manually annotating share states in program code to detect execution 
 divergence~\cite{eve:osdi12}. These approaches fall short in either performance 
 or automation.
 
-On top of the input consensus protocol, \xxx builds an efficient network output 
+On top of its input consensus protocol, \xxx builds an efficient network output 
 checking protocol that occasionally checks output divergence across replicas. 
 This checking protocol works by first computing a accumulated hash by 
-intercepting outbound socket calls (\eg, \send) in a server program, it then 
-occasionally invokes an output consensus by collecting the hashes in replicas' 
-consensus replies for the leader. \xxx then provides an optional 
+intercepting a server program's outbound socket calls (\eg, \send), it then 
+occasionally invokes an output consensus and collects hashes carried in other 
+replicas' consensus replies for the leader. \xxx then provides an optional 
 rollback/restore mechanism to make an effort to restore the diverged replicas. 
 Because hash computation is efficient and output consensus is invoked rarely, 
 this output checking protocol introduced negligible performance impact in our 
@@ -272,20 +272,24 @@ perform checkpoint and restore on general server programs.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
 We evaluated \xxx on \nprog widely used or studied server programs, including 
-\nkvprog key value stores (\redis, \memcached, \ssdb, and \mongodb), one SQL 
-server \mysql, one anti-virus server \clamav, one multimedia storage server 
-\mediatomb, one LDAP server \openldap, and one advanced transactional database 
-\calvin (with \zookeeper as its SMR protocol). Our evaluation shows that
+\nkvprog key value stores (\redis~\cite{redis}, \memcached~\cite{memcached}, 
+\ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), one SQL 
+server \mysql~\cite{mysql}, one anti-virus server \clamav~\cite{clamav}, one 
+multimedia storage server 
+\mediatomb~\cite{mediatomb}, one LDAP server \openldap~\cite{openldap}, and one 
+advanced transactional database 
+\calvin~\cite{calvin:sigmod12} (with \zookeeper~\cite{zookeeper} as its SMR 
+protocol). Our evaluation shows that
 
 \begin{tightenum}
 \item \xxx is general. For all evaluated programs, \xxx ran them without any 
-modification except \calvin (we added a \nlinescalvin patch to make its client 
-and server programs communicate with sockets).
+modification except \calvin (we added a \nlinescalvin-line patch to make 
+\calvin's client and server communicate with sockets).
 
-\item \xxx is fast. Compared to the \nprog servers' unreplicated executions, 
+\item \xxx is fast. Compared to servers' own unreplicated executions, 
 \xxx incurred merely \tputoverhead overhead on throughput and \latencyoverhead 
 on response time in average. \xxx's consensus latency is \fasterthanzookeeper 
-faster than \calvin's \zookeeper-based SMR service.
+faster than \calvin's SMR service \zookeeper.
 
 \item \xxx is scalable to replica group size. \xxx achieved a scalable 
 consensus latency of 9.9$\sim$11.0 \us from 3 to 7 replicas.
