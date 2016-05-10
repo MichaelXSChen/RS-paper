@@ -298,6 +298,14 @@ verify~\cite{modist:nsdi09,demeter:sosp11}. Aligning with a practical
 readily mature understanding, engineering experience, and the theoretically 
 verified safety rules into our protocol design and implementation.
 
+% TBD: reliability analyzes. We do not need the lossless assumption in RDMA QPs.
+Although \xxx's \paxos protocol works on a RDMA network, the reliability of 
+this protocol does not rely on the lossless networking in RDMA. \xxx's protocol 
+still complies with the standard \paxos failure-handling model, where a stable 
+storage exists, but hardware may fail, network may be partitioned, packets may 
+be delayed or lost, and server programs may crash.
+
+
 % Define safety: TBD.
 % A \paxos protocol must ensure safety: the agreed operation must be an actually 
 % proposed one; if agreed, all active replicas must consistently enforce this 
