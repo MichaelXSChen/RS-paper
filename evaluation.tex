@@ -293,28 +293,28 @@ whether \xxx's scalability is bounded by the capacity of RDMA hardware.
 
 \subsection{Checkpoint and Recovery} \label{sec:robust}
 
-For all the \nprog programs, our output checking protocol found these servers 
-produced identical results except \clamav and \mediatomb. The output divergence 
-of \clamav is because its threading model. \clamav uses multiple threads to 
-serve a directory scan request, where the threads scan files in parallel and 
-append the scanned files into a shared output buffer protected by a mutex lock. 
-Therefore, sometimes \clamav's output will diverge across replicas. Attaching a 
-deterministic multithreading runtime with \clamav avoided this 
-divergence~\cite{crane:sosp15}. \mediatomb contained physical timestamp in its 
-replies. \calvin did not send outputs to its client.
+\xxx's output checking protocol found different output results on \clamav, 
+\openldap, and \mediatomb. The output divergence of \clamav was caused by its 
+threading model: \clamav uses multiple threads to serve a directory scan 
+request, where the threads scan files in parallel and append the scanned files 
+into a shared output buffer protected by a mutex lock. Therefore, sometimes 
+\clamav's output will diverge across replicas. Running a deterministic 
+multithreading runtime with \clamav avoided this divergence~\cite{crane:sosp15}. 
+\openldap and \mediatomb contained physical timestamps in their replies. 
+\calvin did not send outputs to its client.
 
 % TBD: what types of servers are good for output checking.
 
-Each \xxx periodic checkpoint operation cost between 0.12s to 11.6s to the 
-evaluated server programs. The checkpoint duration depends on whether a 
-server's process has read files in its memory or modified files in its current 
-working directory. \clamav incurred the largest checkpoint time (11.6s) because 
-we ran it to scan files with a total size of $\sim$3GB in a \v{/lib} directory. 
-We ran our recovery mechanism to recover \clamav from its diverged 
-timestamps, which rollbacks of all three replicas. A \clamav rollback time 
-varied from 0.81s to 2.72s for backups and the leader, including extracting a 
-checkpoint ZIP, restoring process state with CRIU, and reconnecting RDMA QPs 
-with remote replicas.
+Each \xxx periodic checkpoint operation cost 0.12s to 11.6s on the 
+evaluated server programs. A checkpoint duration depends on whether a 
+server's process has updated much of its memory or modified files in its 
+current working directory. \clamav incurred the largest checkpoint time (11.6s) 
+because it loaded and scanned files in a \v{/lib} directory. To evaluate the 
+efficiency of \xxx's rocovery, we ran \clamav and tried to randomly trigger its 
+output divergence. \clamav's rocovery time varied from 1.47s to 1.49s for 
+backups and the leader, including extracting files in its local directory, 
+restoring process state with CRIU, and reconnecting RDMA QPs with remote 
+replicas.
 
 
 
