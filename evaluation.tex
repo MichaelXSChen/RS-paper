@@ -109,38 +109,6 @@ SMR systems?
 
 \end{tightenum}
 
-\begin{table}[h]
-\footnotesize
-\centering
-\vspace{.05in}
-\begin{tabular}{lrrrr}
-{\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time} 
-& {\bf Quorum time}\\
-\hline\\[-2.3ex]
-% Heming: normalized clamav to 10K req.
-\clamav & 30,000  & 42.0 & 4.9 \us & 7.2 \us\\
-% TBD: normalize mediatomb to 10K req.
-\mediatomb & 30,000  & 140.0 & 4.4 \us & 6.9 \us\\
-\memcached & 10,016  & 38.0 & 4.6 \us & 6.3 \us\\
-\mongodb & 10,376  & 492.4 & 14.9 \us & 16.4 \us\\
-\mysql & 10,009  & 26.0 & 5.0 \us & 8.4 \us\\
-% TBD: normalize ldap to 10K req.
-\openldap & 10,016  & 27.3 & 6.4 \us & 12.0 \us\\
-\redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us\\
-% TBD: normalize ssdb to 10K req.
-\ssdb & 10,016  & 47.0 & 3.7 \us & 10.9 \us\\
-\calvin & 10,002  & 93.0 & 2.5 \us  & 9.9 \us\\
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em Leader's input consensus events per 10K requests.} 
-The ``\# Calls" column means the number of socket calls that went through \xxx 
-input consensus; ``Input" means average bytes of a server's inputs received in 
-these calls; ``SSD time" means the average time spent on storing these calls to 
-stable storage; and ``Quorum time" means the average time spent on waiting 
-quorum for these calls.} 
-\label{tab:consensus-latency}
-\end{table}
-
 
 \subsection{Ease of Use} \label{sec:ease-of-use}
 
@@ -178,6 +146,38 @@ Second, \xxx's output checking protocol, which is based on the input
 coordination protocol, invokes occasionally, once for every \thashcomp output 
 hash generations (\S\ref{sec:output-workflow}).
 
+\begin{table}[h]
+\footnotesize
+\centering
+\vspace{.05in}
+\begin{tabular}{lrrrr}
+{\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time} 
+& {\bf Quorum time}\\
+\hline\\[-2.3ex]
+% Heming: normalized clamav to 10K req.
+\clamav & 30,000  & 42.0 & 4.9 \us & 7.2 \us\\
+% TBD: normalize mediatomb to 10K req.
+\mediatomb & 30,000  & 140.0 & 4.4 \us & 6.9 \us\\
+\memcached & 10,016  & 38.0 & 4.6 \us & 6.3 \us\\
+\mongodb & 10,376  & 492.4 & 14.9 \us & 16.4 \us\\
+\mysql & 10,009  & 26.0 & 5.0 \us & 8.4 \us\\
+% TBD: normalize ldap to 10K req.
+\openldap & 10,016  & 27.3 & 6.4 \us & 12.0 \us\\
+\redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us\\
+% TBD: normalize ssdb to 10K req.
+\ssdb & 10,016  & 47.0 & 3.7 \us & 10.9 \us\\
+\calvin & 10,002  & 93.0 & 2.5 \us  & 9.9 \us\\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Leader's input consensus events per 10K requests.} 
+The ``\# Calls" column means the number of socket calls that went through \xxx 
+input consensus; ``Input" means average bytes of a server's inputs received in 
+these calls; ``SSD time" means the average time spent on storing these calls to 
+stable storage; and ``Quorum time" means the average time spent on waiting 
+quorum for these calls.} 
+\label{tab:consensus-latency}
+\end{table}
+
 % Figure~\ref{fig:latency} shows \xxx's latency.
 % % Bare consensus latency, micro events.
 
@@ -185,8 +185,8 @@ To deeply understand \xxx's performance overhead, we collected the number of
 socket call events and consensus durations in the leader replica. 
 Table~\ref{tab:consensus-latency} shows these statistics per 10K requests. 
 According to the consensus algorithm steps in Figure~\ref{fig:consensus}, for 
-each socket call, \xxx's leader does a ``L2": SSD write (the ``SSD time" 
-column in Table~\ref{tab:consensus-latency}) and a ``L4": quorum waiting phase 
+each socket call, \xxx's leader does an ``L2": SSD write (the ``SSD time" 
+column in Table~\ref{tab:consensus-latency}) and an ``L4": quorum waiting phase 
 (the ``quorum time" column). L4 implies backups' performance because each 
 backup stores the proposed socket call in local SSD and then WRITEs a consensus 
 reply to the leader.
