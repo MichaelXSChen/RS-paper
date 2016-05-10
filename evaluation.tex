@@ -137,8 +137,8 @@ scalability. \xxx scaled almost as well as the unreplicated executions.
 % a \latencyoverhead overhead compared to the unreplicated 
 % executions.
 
-\xxx achieves such low overhead in both throughput and response time due to two 
-reasons. First, for each \recv call in a server program, \xxx's input 
+\xxx achieves such a low overhead in both throughput and response time mainly 
+because of two reasons. First, for each \recv call in a server, \xxx's input 
 coordination protocol only contains two one-sided RDMA writes and two SSD writes 
 between each leader and backup. A parallel SSD write 
 approach~\cite{Bessani:usenix13} may further improve \xxx's SSD performance.  
