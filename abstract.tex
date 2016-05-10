@@ -20,7 +20,7 @@ latency is often too high to make SMR widely adopted. This paper presents \xxx,
 a fast SMR system for general server programs by leveraging Remote Direct 
 Memory Access (RDMA). \xxx intercepts a server program's socket calls and runs 
 a new RDMA-accelerated \paxos protocol that needs only two fastest RDMA write 
-operations per input. This protocol addresses a scalability challenge by 
+operations per input. This protocol addresses a \paxos scalability challenge by 
 tightly integrating RDMA features within the fault-tolerant nature of \paxos, 
 making replicas reach consensus rapidly in parallel. On top of this protocol, 
 \xxx presents a fast output checking protocol to improve assurance on whether 

@@ -38,6 +38,24 @@ but the bug does not propogate to network outputs. On client programs' point of
 view, such bugs do not matter. Moreover, \xxx already checkpoints file system 
 state to mitigate this issue.
 
+Currently \xxx has not incorporated read-only optimizations~\cite{eve:osdi12} 
+because its performance overhead compared to the evaluated programs' 
+unreplicated executions is already reasonable (\S\ref{sec:overhead}). However, 
+\xxx can be extended to support read-only optimization if two conditions are 
+met: (1) the semantic an operation is read-only is explicit in a server 
+program; and (2) the number of output bytes for this operation is fixed. GET 
+requests in key-value stores often meet these two conditions.
+
+We use GET requests to present a design. \xxx intercepts a client program's 
+outbound socket calls (\eg, \send), compares the first three bytes in each call 
+with ``GET". If they match, \xxx appends two extra \xxx metadata fields 
+\v{read\_only, length} in this outbound call to the server. \xxx then 
+intercepts a server's \recv calls and strips these two fields. If the first 
+field is true, \xxx directly processes this operation in a local replica 
+and strips the next \v{length} bytes from the output checker for the same
+connection. Then, \xxx processes these operations locally without making 
+outputs across replicas diverge.
+
 % When execution divergence is detected in a replica, \xxx's rollback mechanism 
 % is not designed to guarantee that the re-executions of this replica will 
 % definitely avoids this divergence. We made this design choice because both 
