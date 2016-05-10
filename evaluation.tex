@@ -1,11 +1,35 @@
 \section{Evaluation} \label{sec:evaluation}
 
+\begin{table}[b]
+\footnotesize
+\centering
+\vspace{-.15in}
+\begin{tabular}{lrr}
+{\bf Program} & {\bf Benchmark} & {\bf Workload/input description}\\
+\hline\\[-2.3ex]
+\clamav & clamscan  & Files in \v{/lib} from same replica \\
+\mediatomb & ApacheBench  & Transcode video files in parallel\\
+\memcached & mcperf  & 50\% set and 50\% put operations\\
+\mongodb & YCSB  & Workload C\\
+\mysql & Sysbench  & Concurrent SQL transactions\\
+\openldap & Self  & Concurrent LDAP queries\\
+\redis & Self  & 50\% set and 50\% put operations\\
+\ssdb & Self  & 50\% set and 50\% put operations\\
+\calvin & Self  & Concurrent SQL transactions\\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means 
+we used a server program's own performance benchmark program.} 
+\label{tab:benchmarks}
+\end{table}
+
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/throughput}
 \vspace{-.10in}
 \caption{\small {\em \xxx throughput compared to the unreplicated 
 execution.}}
+\vspace{-.20in}
 \label{fig:tput}
 \end{figure*}
 
@@ -15,6 +39,7 @@ execution.}}
 \vspace{-.10in}
 \caption{\small {\em \xxx response time (latency) compared to the unreplicated 
 execution.}}
+\vspace{-.20in}
 \label{fig:latency}
 \end{figure*}
 
@@ -42,29 +67,6 @@ database system that leverages \zookeeper as its SMR service. All these programs
 are multithreaded except \redis (but it can serve concurrent requests via 
 Libevent). These servers all update or store important data and files, thus the 
 strong fault-tolerance of SMR is especially attractive to these programs.
-
-\begin{table}[b]
-\footnotesize
-\centering
-\vspace{-.05in}
-\begin{tabular}{lrr}
-{\bf Program} & {\bf Benchmark} & {\bf Workload/input description}\\
-\hline\\[-2.3ex]
-\clamav & clamscan  & Files in \v{/lib} from same replica \\
-\mediatomb & ApacheBench  & Transcode video files in parallel\\
-\memcached & mcperf  & 50\% set and 50\% put operations\\
-\mongodb & YCSB  & Workload C\\
-\mysql & Sysbench  & Concurrent SQL transactions\\
-\openldap & Self  & Concurrent LDAP queries\\
-\redis & Self  & 50\% set and 50\% put operations\\
-\ssdb & Self  & 50\% set and 50\% put operations\\
-\calvin & Self  & Concurrent SQL transactions\\
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means 
-we used a server program's own performance benchmark program.} 
-\label{tab:benchmarks}
-\end{table}
 
 % Benchmarks table.
 Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. To 
@@ -106,6 +108,39 @@ SMR systems?
 
 \end{tightenum}
 
+\begin{table}[h]
+\footnotesize
+\centering
+\vspace{.05in}
+\begin{tabular}{lrrrr}
+{\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time} 
+& {\bf Quorum time}\\
+\hline\\[-2.3ex]
+% Heming: normalized clamav to 10K req.
+\clamav & 30,000  & 42.0 & 4.9 \us & 7.2 \us\\
+% TBD: normalize mediatomb to 10K req.
+\mediatomb & 30,000  & 140.0 & 4.4 \us & 6.9 \us\\
+\memcached & 10,016  & 38.0 & 4.6 \us & 6.3 \us\\
+\mongodb & 10,376  & 492.4 & 14.9 \us & 16.4 \us\\
+\mysql & 10,009  & 26.0 & 5.0 \us & 8.4 \us\\
+% TBD: normalize ldap to 10K req.
+\openldap & 10,016  & 27.3 & 6.4 \us & 12.0 \us\\
+\redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us\\
+% TBD: normalize ssdb to 10K req.
+\ssdb & 10,016  & 47.0 & 3.7 \us & 10.9 \us\\
+\calvin & 10,002  & 93.0 & 2.5 \us  & 9.9 \us\\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Leader's input consensus events per 10K requests.} 
+The ``\# Calls" column means the number of socket calls that went through \xxx 
+input concensus; ``Input" means average bytes of a server's inputs received in 
+these calls; ``SSD time" means the average time spent on storing these calls to 
+stable storage; and ``Quorum time" means the average time spent on waiting 
+quorum for these calls.} 
+\label{tab:consensus-latency}
+\end{table}
+
+
 \subsection{Ease of Use} \label{sec:ease-of-use}
 
 \xxx is able to run all \nprog evaluated programs without modifying them except 
@@ -142,38 +177,6 @@ Second, \xxx's output checking protocol, which is based on the input
 coordination protocol, invokes occasionally, once for every \thashcomp output 
 hash generations (\S\ref{sec:output-workflow}).
 
-\begin{table}[b]
-\footnotesize
-\centering
-\vspace{-.05in}
-\begin{tabular}{lrrrr}
-{\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time} 
-& {\bf Quorum time}\\
-\hline\\[-2.3ex]
-% Heming: normalized clamav to 10K req.
-\clamav & 30,000  & 42.0 & 4.9 \us & 7.2 \us\\
-% TBD: normalize mediatomb to 10K req.
-\mediatomb & 30,000  & 140.0 & 4.4 \us & 6.9 \us\\
-\memcached & 10,016  & 38.0 & 4.6 \us & 6.3 \us\\
-\mongodb & 10,376  & 492.4 & 14.9 \us & 16.4 \us\\
-\mysql & 10,009  & 26.0 & 5.0 \us & 8.4 \us\\
-% TBD: normalize ldap to 10K req.
-\openldap & 10,016  & 27.3 & 6.4 \us & 12.0 \us\\
-\redis & 10,016  & 107.0 & 3.6 \us & 6.3 \us\\
-% TBD: normalize ssdb to 10K req.
-\ssdb & 10,016  & 47.0 & 3.7 \us & 10.9 \us\\
-\calvin & 10,002  & 93.0 & 2.5 \us  & 9.9 \us\\
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em Leader's input consensus events per 10K requests.} 
-The ``\# Calls" column means the number of socket calls that went through \xxx 
-input concensus; ``Input" means average bytes of a server's inputs received in 
-these calls; ``SSD time" means the average time spent on storing these calls to 
-stable storage; and ``Quorum time" means the average time spent on waiting 
-quorum for these calls.} 
-\label{tab:consensus-latency}
-\end{table}
-
 % Figure~\ref{fig:latency} shows \xxx's latency.
 % % Bare consensus latency, micro events.
 
@@ -197,12 +200,10 @@ achieve acceptable overhead on many programs (although \xxx's deployment
 model is running server replicas in a datacenter and clients in LAN 
 or WAN).
 
-\subsection{Comparison with Traditional SMR systems} \label{sec:compare}
-
 \begin{table}[b]
 \footnotesize
 \centering
-\vspace{-.05in}
+\vspace{-.2in}
 \begin{tabular}{lrr}
 {\bf Performance metric} & {\bf \zookeeper} & {\bf \xxx}\\
 \hline\\[-2.3ex]
@@ -214,13 +215,16 @@ Consensus latency (\us) & 511.9  & 12.5\\
 \label{tab:compare}
 \end{table}
 
+\subsection{Comparison with Traditional SMR systems} \label{sec:compare}
+
 We compared \xxx with \calvin's SMR system because \calvin's inpur consensus 
 uses \zookeeper, one of the most widely used coordination service built on 
 TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional 
 database server in \xxx as the server program, and we compared throughputs and 
-the consensus latency with \calvin's \zookeeper consensus. As shown in 
-Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved 19.9K 
-transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K 
+the consensus latency with \calvin's \zookeeper consensus.
+
+As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved 
+19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K 
 transactions/s with a 12.5 \us consensus latency. The throughput in \calvin 
 was 13.1\% higher than that in \xxx because \calvin puts transactions in a 
 batch with a 10 \ms timeout and then it invokes \zookeeper for consensus on 
@@ -238,25 +242,14 @@ protocols are ran on TCP/IP. Overall, this \xxx-\calvin comparison suggests
 that \calvin will be better if clients prefer high throughput, and \xxx will be 
 better if clients demand short latency.
 
+
+
+
+
 % Comparison with Crane. Run Crane. TBD
 
 
 \subsection{Scalability on Replica Group Size} \label{sec:scalability}
-
-\begin{table}[b]
-\footnotesize
-\centering
-\vspace{-.05in}
-\begin{tabular}{lrrr}
-{\bf Performance metric} & {\bf Three} & {\bf Five} & {\bf Seven}\\
-\hline\\[-2.3ex]
-Throughput (requests/s) & 18,054   & 17,890  & 17,410\\
-Consensus latency (\us) & 9.9  & 10.9 & 11.0\\
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em \xxx's scalability on replica group size.}} 
-\label{tab:scalability}
-\end{table}
 
 % TBD: rerun \redis micro events; it is too small, so we can not use it here.
 
@@ -279,6 +272,7 @@ RDMA WRITEs with peak performance~\cite{herd:sigcomm14}, and our NIC has dual
 ports, we anticipate that our algorithm may scale up to around 32 replicas 
 under current hardware techniques. We plan to buy more RDMA servers and verify 
 whether \xxx's scalability is bounded by the capacity of RDMA hardware.
+
 
 % For seven nodes 
 % XXX TBD. We plan to buy more server machines for a larger scale of scalability 
@@ -314,7 +308,35 @@ timestamps, which rollbacks of all three replicas. A \clamav rollback time
 varied from 0.81s to 2.72s for backups and the leader, including extracting a 
 checkpoint ZIP, restoring process state with CRIU, and reconnecting RDMA QPs 
 with remote replicas.
+
+
+
 % Heming: TBD, just estimation. Current 0.81s to 2.72s are from redis.
+
+
+
+
+
+\begin{table}[h]
+\footnotesize
+\centering
+% \vspace{-.1in}
+\begin{tabular}{lrrr}
+{\bf Performance metric} & {\bf Three} & {\bf Five} & {\bf Seven}\\
+\hline\\[-2.3ex]
+Throughput (requests/s) & 18,054   & 17,890  & 17,410\\
+Consensus latency (\us) & 9.9  & 10.9 & 11.0\\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em \xxx's scalability on replica group size.}} 
+\label{tab:scalability}
+\end{table}
+
+
+
+
+
+
 
 % Once an output divergence is detected, \xxx will roll bacak the divergent 
 % replica, including leader and backups. For all the \nprog programs, our output 
