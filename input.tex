@@ -260,13 +260,13 @@ complexity via the extra communication channels.
 % still corrupt the ongoing leader election. 
 
 For simplicity, \xxx handles election election with the same consensus log and 
-the same QP. It addresses this issue with a simple approach. In normal case, the 
-leader does WRITEs to remote logs as heartbeats with a period of T. Each 
-consensus log maintains a control data structure called \v{elect[MAX]}, one 
-element for each replica. Normal case operations and heartbeats circularly use 
-the other parts of the consensus log. Once backups have not received heartbeats 
-from the leader for a period of 3*T, they start to elect a new leader and let 
-their follower threads poll from the \v{elect} array.
+the same QP. In normal case, the leader does WRITEs to remote logs as 
+heartbeats with a period of T. Each consensus log maintains a control data 
+structure called \v{elect[MAX]}, one element for each replica. Normal case 
+operations and heartbeats use the other parts of the consensus log but leave 
+this \v{elect} array alone. Once backups have not received heartbeats from the 
+leader for a period of 3*T, they start to elect a new leader and let their 
+follower threads poll from the \v{elect} array.
 
 % Before starting a standard leader election 
 % phase as in traditional \paxos protocols~\cite{paxos:practical}, each backup 
