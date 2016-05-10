@@ -199,17 +199,33 @@ or WAN).
 
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
+\begin{table}[b]
+\footnotesize
+\centering
+\vspace{-.05in}
+\begin{tabular}{lrr}
+{\bf Performance metric} & {\bf \zookeeper} & {\bf \xxx}\\
+\hline\\[-2.3ex]
+Throughput (requests/s) & 19,925   & 17,614 \\
+Consensus latency (\us) & 511.9  & 12.5\\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Comparison with \calvin's \zookeeper replication.}} 
+\label{tab:compare}
+\end{table}
+
 We compared \xxx with \calvin's SMR system because \calvin's inpur consensus 
 uses \zookeeper, one of the most widely used coordination service built on 
 TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional 
 database server in \xxx as the server program, and we compared throughputs and 
-the consensus latency with \calvin's \zookeeper consensus. \xxx achieved 17.6K 
-transactions/s with a 12.5 \us consensus latency. \calvin achieved 19.9K 
-transactions/s with a 511.9 \us consensus latency. The throughput in \calvin was 
-13.1\% higher than that in \xxx because \calvin puts transactions in a batch 
-with a 10 \ms timeout and then it invokes \zookeeper for consensus on this 
-batch. Batching helps \calvin ahieves good throughput. \xxx currently has not 
-incorporated a batching techinque because its latency is already reasonable 
+the consensus latency with \calvin's \zookeeper consensus. As shown in 
+Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved 19.9K 
+transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K 
+transactions/s with a 12.5 \us consensus latency. The throughput in \calvin 
+was 13.1\% higher than that in \xxx because \calvin puts transactions in a 
+batch with a 10 \ms timeout and then it invokes \zookeeper for consensus on 
+this batch. Batching helps \calvin ahieves good throughput. \xxx currently has 
+not incorporated a batching techinque because its latency is already reasonable 
 (\S\ref{sec:overhead}).
 
 Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
@@ -226,6 +242,21 @@ better if clients demand short latency.
 
 
 \subsection{Scalability on Replica Group Size} \label{sec:scalability}
+
+\begin{table}[b]
+\footnotesize
+\centering
+\vspace{-.05in}
+\begin{tabular}{lrrr}
+{\bf Performance metric} & {\bf Three} & {\bf Five} & {\bf Seven}\\
+\hline\\[-2.3ex]
+Throughput (requests/s) & 18,054   & 17,890  & 17,410\\
+Consensus latency (\us) & 9.9  & 10.9 & 11.0\\
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em \xxx's scalability on replica group size.}} 
+\label{tab:scalability}
+\end{table}
 
 % TBD: rerun \redis micro events; it is too small, so we can not use it here.
 
