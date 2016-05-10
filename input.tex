@@ -102,27 +102,33 @@ logic.
 % Post send carry the last committed (consensus reached) operation.
 
 % One key issue, check integrity. Strawmen approach, check viewstamp first.
-On a backup side, one tricky issue on replying consensus request is that 
-there is no efficient way to make RDMA WRITEs atomic. For instance, while a 
-leader thread is doing a WRITE on \v{vs} to a remote backup, this backup's 
-follower thread may be reading this variable concurrently, causing a partial 
-(wrong) read.
+On a backup side, one tricky synchronization issue is that an efficient way is 
+needed to make the leader's RDMA WRITEs and backups' polls atomic. For instance, 
+while a leader thread is doing a WRITE on \v{vs} to a remote backup, this 
+backup's follower thread may be reading this variable concurrently, causing a 
+incomplete (wrong) read.
 
-Existing approaches~\cite{farm:nsdi14,herd:sigcomm14} address this issue by 
-leverage the left-to-right ordering of WRITEs and putting a special non-zero 
-variable at then end of a fix-sized log entry because they handle key-value 
-stores with fixed value length. However, because \xxx aims to support general 
-applications with variable received data length, this trick does not apply to 
-\xxx.
+To address this issue, one existing approach~\cite{farm:nsdi14,herd:sigcomm14} 
+leverages the left-to-right ordering of RDMA WRITEs and puts a special 
+non-zero variable at the end of a fix-sized log entry because they mainly 
+handle key-value stores with fixed value length. As long as this variable is 
+non-zero, RDMA WRITE ordering guarantees that the log entry WRITE is complete. 
+However, because \xxx aims to support general server programs with largely 
+variant received data lengths, this approach cannot be applied in \xxx.
+
+An alternative approach is using atomic primitives provided by RDMA hardware, 
+but a prior evaluation~\cite{drtm:sosp15} has showned that RDMA atomic 
+primivites are much slower than normal RDMA WRITEs and local memory reads.
 % Thus, in a RDMA-accelerated protocol, an extra mechanism 
 % is needed to gurantee that a 
 % leader's write has finished and then replicas can agree or disagree.
 
 \xxx tackles this issue by adding a canary value after the actual \v{data} 
-array. Leveraging a QP with the type of RC (reliable connection) 
-(\S\ref{sec:background}), the follower reads a complete entry by: it
-always first checks the canary value according to \v{data\_size} and then 
-starts the consensus reply decision.
+array. Because \xxx uses a QP with the type of RC (reliable connection) 
+(\S\ref{sec:background}), the follower always first checks the canary value 
+according to \v{data\_size} and then starts a standard \paxos consensus reply 
+decision~\cite{paxos:practical}. Our efficient, lock-free approach guarantees 
+that the follower always reads a complete log entry.
 % This check guarantees that a log entry is 
 % completely written in a local backup.
 % 
