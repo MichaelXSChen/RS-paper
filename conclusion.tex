@@ -1,12 +1,9 @@
 \section{Conclusion}\label{sec:conclusion}
 
-We have presented \xxx, a fast, general state machine replication system 
+We have presented \xxx, a fast, general SMR system 
 through building an RDMA-accelerated \paxos protocol to efficiently coordinate 
-replica inputs. On top of this protocol, \xxx introduces an automated, 
-efficient output checking protocol to detect and recover execution divergence 
-among replicas and improve the assurance of sync in replicas. Evaluation on 
-widely used, diverse server programs shows that \xxx supports these unmodified 
-programs with reasonable performance overhead, and can recover from replica 
-divergence caused by real-world software bugs. \xxx has the potential to 
-greatly increase the adoption of state machine replication and improve the 
-reliability of general programs.
+inputs. On top of this protocol, \xxx introduces an automated, efficient output 
+checking protocol to detect and recover out divergence. Evaluation on widely 
+used server programs shows that \xxx is fast, scalable, and robust. 
+\xxx has the potential to promote the adoption of SMR and to improve 
+the reliability of general programs.
