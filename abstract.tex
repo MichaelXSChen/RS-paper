@@ -23,8 +23,8 @@ calls and runs a new RDMA-accelerated \paxos protocol that needs only two
 fastest RDMA write operations per input. This protocol addresses a \paxos 
 scalability challenge by tightly integrating RDMA features within the 
 fault-tolerant nature of \paxos, making replicas reach consensus rapidly in 
-parallel. On top of this protocol, \xxx presents a fast output checking protocol 
-to improve assurance on whether replicas run in sync.
+parallel. Leveraging this protocol, \xxx presents a fast network output 
+checking protocol to assure whether replicas run in sync.
 
 % \xxx addresses 
 % a pervasive 
@@ -43,8 +43,9 @@ without modifications except one program; (2) fast, it incurred merely a
 \latencyoverhead mean overhead in response time and \tputoverhead in 
 throughput, and its consensus latency was \fasterthanzookeeper faster than 
 a prior SMR system built on \zookeeper; (3) scalable, it achieved similar 
-consensus latency from three to seven replicas; and (4) robust, its output 
-protocol efficiently detected and recovered replicas from divergence.
+consensus latency with a replica group size of three to seven; and (4) 
+robust, its network output protocol efficiently detected and recovered replicas 
+from divergence.
 
 % Stat machine replication definition. Focus on networking part, 
 % message passing, 
