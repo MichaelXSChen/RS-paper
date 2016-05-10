@@ -59,14 +59,14 @@ whether the diverged execution states propagate to network outputs. Eve and
 % Two DARE limitations: first, no stable storage. second, old leader may 
 % % unsafely writes to remote logs and thought it has reached a consensus.
 The second category includes DARE~\cite{dare:hpdc15}, a coordination protocol 
-that also uses RDMA to reduce latency. \xxx differs from DARE in three major 
-aspects. First, in a reliability model level, DARE's model is 
-different from standard \paxos's: DARE assumes that a replica's memory is still 
-accessible to remote replicas even if this replica's CPU fails, so that DARE's 
-leader can still write to remote backups. With this reliability model, DARE 
-requires four one-sided RDMA writes in each consensus round between the leader 
-and a backup. DARE's paper shows that the MTTF (mean time to failure) of memory 
-and CPU is similar.
+that also uses RDMA to reduce latency. Part of \xxx's implementation was 
+inspired by DARE. \xxx differs from DARE in three major aspects. First, in a 
+reliability model level, DARE's model is different from standard \paxos's: DARE 
+assumes that a replica's memory is still accessible to remote replicas even if 
+this replica's CPU fails, so that DARE's leader can still write to remote 
+backups. With this reliability model, DARE requires four one-sided RDMA writes 
+in each consensus round between the leader and a backup. DARE's paper shows that 
+the MTTF (mean time to failure) of memory and CPU is similar.
 
 In contrast, \xxx's reliability model complies with standard \paxos's: memory 
 and CPU may fail, thus consensus requests must be written to stable storage. 
@@ -100,10 +100,10 @@ is unsafe. This is probably why standard \paxos
 protocols~\cite{paxos,paxos:simple,paxos:practical} must let backups do proposal 
 number of view checking rather than taking a pure-leader approach. \xxx complies 
 with standard \paxos protocol~\cite{paxos:practical}: a \xxx backup always 
-first compares its own view ID with the view ID in a consensue request, it then 
+first compares its own view ID with the view ID in a consensus request, it then 
 agrees or rejects this request.
 
-Third, in a application level, DARE's evaluation used a 335-line, 
+Third, in an application level, DARE's evaluation used a 335-line, 
 single-threaded key-value store. \xxx supports general, diverse server 
 programs.
 
@@ -119,18 +119,18 @@ programs.
 % TCP, and needs annotation.
 
 
-\para{RDMA techniques.} RDMA techniques have been leveraged in many online 
-storage systems to improve latency and throughput within datacenters. These 
-systems include key-value 
-stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14} and 
-transactional processing systems~\cite{drtm:sosp15,farm:sosp15}. These systems 
-mainly aim to use RDMA to speedup specific communications, where both their 
-storage and client access have RDMA enabled. \xxx's deployment model is to 
-provide SMR fault-tolerance to general server programs deployed in datacenters, 
-and the client programs access these server programs in LAN or WAN. It would be 
-interesting to investigate whether \xxx can improve the availability for both 
-the client side and server side of these advanced systems within a datacenter, 
-and we leave it for future work.
+\para{RDMA techniques.} RDMA techniques have been leveraged in various systems 
+to improve latency and throughput, including key-value 
+stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14}, transactional 
+processing systems~\cite{drtm:sosp15,farm:sosp15},  These systems mainly aim to 
+use RDMA to speedup specific communications, where both their storage and client 
+access have RDMA enabled. It will be interesting to investigate whether \xxx can 
+improve the availability for both the client side and server side of these 
+advanced systems within a datacenter, and we leave it for future work.
+
+% \xxx's deployment model is to 
+% provide SMR fault-tolerance to general server programs deployed in datacenters, 
+% and the client programs access these server programs in LAN or WAN. 
 
 % We didn't evaluate these systems because they are not available on client sides.
 
@@ -157,15 +157,15 @@ executions\cite{dos:osdi10} for debugging.
 
 % \para{Concurrency.} Pervasive in real-world applications. Threads. Processes. 
 % Break SMR's state machine assumption. complementary.
-\para{Concurrency.} \xxx are mutually beneficial with much prior work on 
-concurrency error 
-detection~\cite{yu:racetrack:sosp,savage:eraser,racerx:sosp03,lu:muvi:sosp,
-avio:asplos06,conmem:asplos10},
-diagnosis~\cite{racefuzzer:pldi08,ctrigger:asplos09,atomfuzzer:fse08}, and
-correction~\cite{dimmunix:osdi08,gadara:osdi08,wu:loom:osdi10,cfix:osdi12}. 
-On one hand, these techniques can be deployed in \xxx's backups and help 
-\xxx detect data races. On the other hand, \xxx's asynchronous replication 
-architecture can mitigate the performance overhead of these powerful 
-analyses~\cite{repframe:apsys15}.
+% \para{Concurrency.} \xxx are mutually beneficial with much prior work on 
+% concurrency error 
+% detection~\cite{yu:racetrack:sosp,savage:eraser,racerx:sosp03,lu:muvi:sosp,
+% avio:asplos06,conmem:asplos10},
+% diagnosis~\cite{racefuzzer:pldi08,ctrigger:asplos09,atomfuzzer:fse08}, and
+% correction~\cite{dimmunix:osdi08,gadara:osdi08,wu:loom:osdi10,cfix:osdi12}. 
+% On one hand, these techniques can be deployed in \xxx's backups and help 
+% \xxx detect data races. On the other hand, \xxx's asynchronous replication 
+% architecture can mitigate the performance overhead of these powerful 
+% analyses~\cite{repframe:apsys15}.
 
 
