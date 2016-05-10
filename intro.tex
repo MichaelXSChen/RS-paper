@@ -310,7 +310,9 @@ Our major conceptual contribution is a fast, scalable \paxos consensus
 algorithm by tightly integrating RDMA write operations with the fault-tolerant 
 nature of \paxos. \xxx and its implementation have the potential to largely 
 increase the adoption of SMR. \xxx can also be applied to broad areas, 
-including other distributed protocols, distributed program analyses, and 
+including other replication protocols (\eg, byzantine 
+fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}), distributed program 
+analyses, and 
 future datacenter operating systems (\S\ref{sec:apps}). 
 % In addition, a fast, general SMR service has been long persued as a fundamental 
 % building block for the emerging datacenter operation system.
