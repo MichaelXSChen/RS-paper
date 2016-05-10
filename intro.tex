@@ -112,7 +112,7 @@ $\sim$3 \us in the Infiniband architecture~\cite{infiniband}.
 In addition to mitigating the one-hop consensus latency, RDMA also opens 
 new opportunity to address the \paxos scalability problem, because we
 can integrate RDMA features \emph{tightly} within the fault-tolerant nature of 
-\paxos. In essense, \paxos has already tolerated various faults, including 
+\paxos. In essence, \paxos has already tolerated various faults, including 
 machine failures and process crashes. Therefore, we can safely ignore the ACKs 
 in RDMA writes and rely on \paxos to enforce the reliability of these writes.
 
@@ -127,7 +127,7 @@ RDMA ACKs either. Third, once the leader sees a majority of replies in its
 local memory, a consensus is reached.
 
 In the second step of this algorithm, both the leader and remote replicas work 
-in parallel, so a whole consensus latency aproximately consists of 
+in parallel, so a whole consensus latency approximately consists of 
 three operations: a leader's write to stable storage, a remote replica's write 
 to local storage, and a single RDMA write round-trip. This consensus latency is 
 no longer firmly correlated with replica group size (confirmed in our 
@@ -146,7 +146,7 @@ automatically deploys this program on replicas of machines. \xxx intercepts
 inputs from the inbound socket calls (\eg, \recv) of a server program and 
 invokes our \paxos consensus algorithm to efficiently enforce same inputs 
 across replicas. In a consensus protocol level, \xxx carefully tackles several 
-technical challenges, including handling an atomicy challenge 
+technical challenges, including handling an atomicity challenge 
 (\S\ref{sec:normal}) concurrent connections (\S\ref{sec:conclusion}).
 
 % If \xxx finds that 
@@ -177,12 +177,12 @@ or automation.
 On top of the input consensus protocol, \xxx builds an efficient network output 
 checking protocol that occasionally checks output divergence across replicas. 
 This checking protocol works by first computing a accumulated hash by 
-intercepting outbound socke calls (\eg, \send) in a server program, it then 
+intercepting outbound socket calls (\eg, \send) in a server program, it then 
 occasionally invokes an output consensus by collecting the hashes in replicas' 
 consensus replies for the leader. \xxx then provides an optional 
 rollback/restore mechanism to make an effort to restore the diverged replicas. 
 Because hash computation is efficient and output consensus is invoked rarely, 
-this output checking protocol introduced neglible performance impact in our 
+this output checking protocol introduced negligible performance impact in our 
 evaluation.
 
 % This 
@@ -283,16 +283,15 @@ modification except \calvin (we added a \nlinescalvin patch to make its client
 and server programs communicate with sockets).
 
 \item \xxx is fast. Compared to the \nprog servers' unreplicated executions, 
-\xxx incurred merely \tputoverhead overhead on throughtput and \latencyoverhead 
+\xxx incurred merely \tputoverhead overhead on throughput and \latencyoverhead 
 on response time in average. \xxx's consensus latency is \fasterthanzookeeper 
-faster than \calvin's \zookeeper-based SMR service running on IPoIB.
+faster than \calvin's \zookeeper-based SMR service.
 
 \item \xxx is scalable to replica group size. \xxx achieved a scalable 
 consensus latency of 9.9$\sim$11.0 \us from 3 to 7 replicas.
 
-\item \xxx is robust. Among XXX repeated executions, \xxx detected and 
-recovered execution divergence caused by a software bug in \redis, while 
-\redis's own replication service missed the bug.
+\item \xxx is robust. \xxx efficiently detected and recovered execution 
+divergence caused by output nondeterminism in \clamav.
 
 % \item \xxx is extensible. To extend optimization on read-only requests, XX 
 % lines of code in our two provided APIs, \xxx is able to avoid the read-only 
@@ -313,8 +312,7 @@ nature of \paxos. \xxx and its implementation have the potential to largely
 increase the adoption of SMR. \xxx can also be applied to broad areas, 
 including other replication protocols (\eg, byzantine 
 fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}), distributed program 
-analyses, and 
-future datacenter operating systems (\S\ref{sec:apps}). 
+analyses, and future datacenter operating systems (\S\ref{sec:apps}). 
 % In addition, a fast, general SMR service has been long persued as a fundamental 
 % building block for the emerging datacenter operation system.
 
