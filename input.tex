@@ -161,7 +161,7 @@ consensus log.
 
 
 % TBD: should we put the impl here or somewhere else?
-In a implementation level, \xxx stores log entries in local SSD using Berkley 
+In an implementation level, \xxx stores log entries in local SSD using Berkley 
 DB~\cite{berkeleydb}. Although \xxx's algorithm does not wait every RDMA ACK in 
 order to achieve high scalability, we use selective signaling 
 (\S\ref{sec:background}) to occasionally check and clear ACKs in the CQ 

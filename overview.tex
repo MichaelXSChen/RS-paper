@@ -67,7 +67,7 @@ To ensure a remote replica is alive and a WRITE succeeds, a common RDMA
 practice is that after a WRITE is pushed to a QP, the local replica polls
 for an ACK from the associated CQ before it continues (the so called 
 \emph{signaling}). However, depending on local algorithm logic, the local 
-replica sometimes can do \emph{selected signaling}~\cite{herd:sigcomm14}: it 
+replica sometimes can do \emph{selective signaling}~\cite{herd:sigcomm14}: it 
 only checks for an ACK after pushing a number of WRITEs (previous WRITEs may 
 already succeed before this ACK-checking starts).
 
