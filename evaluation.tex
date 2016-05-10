@@ -47,9 +47,11 @@ execution.}}
 Our evaluation used three Dell R430 servers as SMR replicas. Each server has 
 Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 hyper-threading cores, 64GB 
 memory, and 1TB SSD. Each machine has a Mellanox ConnectX-3 Pro Dual Port 40 
-Gbps NIC. These NICs are connected using the Infiniband RDMA architecture 
-through a Dell S6000 high-performance switch with 32 40Gpbs ports. The \v{ping} 
-latency between every two replicas are 84 \us (the IPoIB round-trip latency).
+Gbps NIC. These NICs are connected using the Infiniband RDMA architecture.
+The \v{ping} latency between every two replicas are 84 \us (the IPoIB 
+round-trip latency).
+% 
+% through a Dell S6000 high-performance switch with 32 40Gpbs ports. 
 
 To mitigate network latency of public network, all client benchmarks were ran 
 in a Dell R320 server (the client machine), with Linux 3.16.0, 2.2GHz Intel 

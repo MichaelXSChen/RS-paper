@@ -275,14 +275,17 @@ new leader and let their follower threads poll from the \v{elect} array.
 Backups start a standard \paxos leader election 
 algorithm~\cite{paxos:practical} with three steps. Each replica writes to its 
 own \v{elect} element at remote replicas. First, backups propose a new view 
-with a standard two-round \paxos consensus~\cite{paxos:simple} by including its 
-current log entry offset. The other backups also propose their views and poll 
-on this array in order to follow other proposals or confirm itself as the 
-winner. The backup with largest log offset will win. Second, the winner 
-proposes itself as a leader candidate using this array, another two-round 
-\paxos consensus. Third, after the second step reaches a quorum, the new leader 
-notifies remote replicas itself as the new leader and it starts to WRITE 
-periodic heartbeats.
+with a standard two-round \paxos consensus~\cite{paxos:simple} by including 
+both the view and the index of the latest log entry. The other backups also 
+propose their views and poll on this array in order to follow other proposals 
+or confirm itself as the winner. The backup whose log is more up-to-date will 
+win. A log is more up-to-date if its latest entry has either a higher view or 
+the same view but a higher index.
+
+Second, the winner proposes itself as a leader candidate using this 
+array, another two-round \paxos consensus. Third, after the second step reaches 
+a quorum, the new leader notifies remote replicas itself as the new leader and 
+it starts to WRITE periodic heartbeats.
 
 \subsection{Reliability} \label{sec:guarantees}
 
