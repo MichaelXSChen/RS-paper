@@ -39,9 +39,9 @@ or rejects consensus requests.
 
 Figure~\ref{fig:logentry} shows the format of a log entry in \xxx's consensus 
 log. Most fields are regular as those in a typical \paxos 
-protocol~\cite{paxos:practical} except three ones: the \v{ack} array, the 
+protocol~\cite{paxos:practical} except three ones: the \v{reply} array, the 
 client connection ID \v{conn\_vs}, and the type ID of a socket call 
-\v{call\_type}. The \v{ack} array is for backups to WRITE their consensus 
+\v{call\_type}. The \v{reply} array is for backups to WRITE their consensus 
 replies to the leader. The \v{conn\_vs} is for identifying which connection this 
 socket call belongs to (see \ref{sec:concurrent}). The \v{call\_type} 
 identifies four types of socket calls in \xxx: the \accept type (\eg, \accept), 
@@ -88,11 +88,10 @@ parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
 % because \paxos protocol \xxx implements has already considered packet losses 
 % (\eg, due to remote replica failures).
 
-The fourth step (\textbf{L4}) is the leader thread polling on its \v{ack} 
-field (notably, different from an RDMA ACK) in its local log entry for backups' 
-consensus replies. Once consensus is reached, the leader thread finishes 
-intercepting this \recv socket call and continues with its server application 
-logic.
+The fourth step (\textbf{L4}) is the leader thread polling on its \v{reply} 
+field in its local log entry for backups' consensus replies. Once consensus is 
+reached, the leader thread finishes intercepting this \recv socket call and 
+continues with its server application logic.
 
 % 
 % The leader does a
@@ -145,7 +144,7 @@ entry and does three steps to agree on consensus requests, shown in
 Figure~\ref{fig:consensus}. First (\textbf{B1}), it does a regular \paxos view 
 ID checking to see whether the leader is up-to-date, it then stores the log 
 entry in its local SSD. Second (\textbf{B2}), it does a WRITE to send back 
-a consensus reply to the leader's \v{ack} array element according to its 
+a consensus reply to the leader's \v{reply} array element according to its 
 own node ID. Backups perform these two steps in parallel 
 (see Figure~\ref{fig:logentry}).
 

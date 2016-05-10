@@ -1,5 +1,5 @@
 struct log_entry_t {
-  consensus_ack ack[MAX]; // Per replica output hash.
+  consensus_ack reply[MAX]; // Per replica consensus reply.
   viewstamp_t vs;
   viewstamp_t last_committed;
   int node_id;

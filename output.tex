@@ -39,7 +39,7 @@ sequence.
 % Leverage the input protocol to carry the hash of outputs. Occasionally.
 To compare a hash across replicas, \xxx's output checking protocol runs the 
 same as the input coordination protocol (\S\ref{sec:normal}) except that the 
-follower thread on each backup replica carries this hash value in the \v{ack} 
+follower thread on each backup replica carries this hash value in the \v{reply} 
 written back into the leader's corresponding log entry. To make an effort to 
 collect more remote hash values, \xxx waits for \twait (by default, 20 \us) 
 and then starts to detect divergence on hash values.
