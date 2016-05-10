@@ -34,9 +34,9 @@ addresses this problem.
 % positives.
 
 A server program may also have false negative when it triggers a software bug 
-but the bug does not propagate to network outputs. On client programs' point of 
-view, such bugs do not matter. Moreover, \xxx already checkpoints file system 
-state to mitigate this issue.
+but the bug does not propagate to network outputs. From client programs' point 
+of view, such bugs do not matter. Moreover, \xxx already checkpoints file 
+system state to mitigate this issue.
 
 Currently \xxx has not incorporated read-only optimization~\cite{eve:osdi12} 
 because its performance overhead compared to the evaluated programs' 
@@ -135,7 +135,7 @@ security attacks~\cite{con:hotpar12}.
 Third, \xxx can be a core building block in the emerging datacenter operating 
 systems~\cite{matei:hotcloud11, mesos:nsdi11, datacenter:os}. As a 
 datacenter continuously emerges a computer, an OS may be increasingly needed for 
-thus a giant computer. \xxx's fast, general coordination service is especially 
+such a giant computer. \xxx's fast, general coordination service is especially 
 suitable for such an OS's scheduler to maintain a consistent, reliable view on 
 both computing resources and data in a datacenter. For instance, \xxx's 
 latency is largely between less than 30 \us, much smaller than a typical 

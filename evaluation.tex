@@ -44,7 +44,7 @@ execution.}}
 \label{fig:latency}
 \end{figure*}
 
-Our evaluation used three Dell R430 servers as SMR replicas. Each server having 
+Our evaluation used three Dell R430 servers as SMR replicas. Each server has 
 Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 hyper-threading cores, 64GB 
 memory, and 1TB SSD. Each machine has a Mellanox ConnectX-3 Pro Dual Port 40 
 Gbps NIC. These NICs are connected using the Infiniband RDMA architecture 
@@ -117,7 +117,8 @@ when output divergence is detected?
 \calvin. \calvin integrates its client program and server program within the 
 same process and uses local memory to let these two programs communicate. To 
 make \calvin's client and server communicate with POSIX sockets so that \xxx 
-can intercept the server's inputs, we wrote a \nlinescalvin patch for \calvin.
+can intercept the server's inputs, we wrote a \nlinescalvin-line patch for 
+\calvin.
 
 \subsection{Performance Overhead} \label{sec:overhead}
 
