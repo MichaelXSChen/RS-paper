@@ -33,7 +33,7 @@ set for [i=0:5] xtics (0,2**i)
 #set key 
 
 # plot A
-set ylabel "latency (s)" offset 1,0 font ",30"
+set ylabel "response time (s)" offset 1,0 font ",30"
 set key right top 
 #set key at 0.1,0.1
 #set key offset 3,3
@@ -53,7 +53,7 @@ unset yrange
 unset ytics
 
 # plot B
-set ylabel "latency (us)" offset 1,0
+set ylabel "response time (us)" offset 1,0
 set key left top at 2,1200
 #set key at 2,1200
 set xrange [1:16]
@@ -167,10 +167,10 @@ set key inside
 
 # plot I
 set xrange [1:16]
-#set ylabel "latency (us)" offset 3,0
+#set ylabel "response time (us)" offset 3,0
 set key right top
-set yrange [0:600]
-set ytics 100
+set yrange [0:80]
+set ytics 20
 set origin 2.0,0.05
 set size 1.0,0.85
 #set title "(i) OpenTftp"
