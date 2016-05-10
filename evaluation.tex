@@ -238,9 +238,14 @@ requests/s and 10.1 \us consensus latency, and its seven-replica setting had a
 setting, 18.0K throughput and 9.9 \us consensus latency, \xxx achieves a similar 
 consensus latency from three to seven replicas, which mainly depends on the 
 latency of two SSD stores and one WRITE round-trip (see 
-Table~\cite{tab:consensus-latency}). We plan to buy more RDMA servers and verify 
-that whether \xxx's scalability is bounded by the capacity of the max number of 
-outbound WRITEs in RDMA NIC hardware.
+Table~\cite{tab:consensus-latency}).
+
+We didn't consider these initial scalability results general; we found them 
+promising. Given that each RDMA NIC hardware port supports up to 16 outbound 
+RDMA WRITEs with peak performance~\cite{herd:sigcomm14}, and our NIC has dual 
+ports, we anticipate that our algorithm may scale up to around 32 replicas 
+under current hardware techniques. We plan to buy more RDMA servers and verify 
+whether \xxx's scalability is bounded by the capacity of RDMA hardware.
 
 % For seven nodes 
 % XXX TBD. We plan to buy more server machines for a larger scale of scalability 

@@ -164,7 +164,7 @@ In a implementation level, \xxx stores log entries in local SSD using Berkely
 DB~\cite{berkeleydb}. Although \xxx's algorithm does not wait every RDMA ACK in 
 order to achieve high scalability, we use selective signaling 
 (\S\ref{sec:background}) to occasionally check and clear ACKs in the CQ 
-associated with the QP, an essential ACK clearing phase in RDMA implementations.
+associated with the QP, an essential ACK clearing step in RDMA implementations.
 
 % On replicas, server programs run as is without being 
 % intercepted. In short, this follower thread runs a high performance loop to 
