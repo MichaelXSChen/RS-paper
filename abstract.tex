@@ -15,16 +15,16 @@
 State machine replication (SMR) runs replicas of the same program and 
 uses a distributed consensus protocol (\eg, \paxos) to enforce same program 
 inputs among replicas, tolerating various faults. Recent SMR systems have shown 
-to greatly improved the availablity of server programs. Unfortunately, consensus 
-latency is often too high to make SMR widely adopted. This paper presents \xxx, 
-a fast SMR system for general server programs by leveraging Remote Direct 
-Memory Access (RDMA). \xxx intercepts a server program's socket calls and runs 
-a new RDMA-accelerated \paxos protocol that needs only two fastest RDMA write 
-operations per input. This protocol addresses a \paxos scalability challenge by 
-tightly integrating RDMA features within the fault-tolerant nature of \paxos, 
-making replicas reach consensus rapidly in parallel. On top of this protocol, 
-\xxx presents a fast output checking protocol to improve assurance on whether 
-replicas run in sync.
+to greatly improved the availability of server programs. Unfortunately, 
+consensus latency is often too high to make SMR widely adopted. This paper 
+presents \xxx, a fast SMR system for general server programs by leveraging 
+Remote Direct Memory Access (RDMA). \xxx intercepts a server program's socket 
+calls and runs a new RDMA-accelerated \paxos protocol that needs only two 
+fastest RDMA write operations per input. This protocol addresses a \paxos 
+scalability challenge by tightly integrating RDMA features within the 
+fault-tolerant nature of \paxos, making replicas reach consensus rapidly in 
+parallel. On top of this protocol, \xxx presents a fast output checking protocol 
+to improve assurance on whether replicas run in sync.
 
 % \xxx addresses 
 % a pervasive 

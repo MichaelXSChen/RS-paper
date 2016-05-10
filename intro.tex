@@ -3,7 +3,7 @@
 %P1: SMR difinition; traditional network message passing; reliable; attractive 
 % for general servers. Agree-execute: must reach consensus and then execute a 
 % request.
-State machine replicaion (SMR) runs the same program on a 
+State machine replication (SMR) runs the same program on a 
 number of replicas and uses a distributed consensus protocol (\eg, 
 \paxos~\cite{crane:sosp15}) to enforce the same inputs among 
 replicas. Typically, \paxos assigns a replica as the leader to propose 
@@ -28,8 +28,8 @@ maintaining global configuration~\cite{chubby:osdi,zookeeper} or processing SQL
 transactions~\cite{crane:sosp15,eve:osdi12}, but prohibitive for 
 key-value stores. To mitigate this challenge, some recent SMR 
 systems~\cite{calvin:sigmod12,rex:eurosys14} batch requests into one 
-consensus round. However, batching can only mitigate a server's throught lost; 
-it may aggravate response time. 
+consensus round. However, batching can only mitigate a server's throughput 
+lost; it may aggravate response time. 
 % As a possible consequence, although many recent storage 
 % systems~\cite{drtm} 
 % explicitly stated that they needed a replication system for high availability, 
@@ -42,15 +42,15 @@ it may aggravate response time.
 
 As the replica group size grows, the consensus latency of \paxos is even more 
 difficult to scale, because a majority now involves more replicas. One 
-scaling implementation approach may be using asynchrous IO (\eg, 
-Libevent~\cite{libevent}) to improve the parallilism of replicas'consensus 
-round-trips. However, the high latency of a each round-trip still exists, and 
-the event loop in this approach may involve frequent context switches (each may 
-take more time than a \v{ping} in Ethernet). To make SMR scales better, novel 
-replication models are proposed, including 
-multi-leader models~\cite{epaxos:sosp13,mencius:osdi08}, clustering or nested 
-consensus models~\cite{scatter:sosp11,manos:hotdep10}. However, the core of 
-these models, \paxos itself, still faces a scalability challenge.
+scaling implementation approach may be using asynchronous IO (\eg, 
+Libevent~\cite{libevent}) to improve the parallelism of consensus round-trips. 
+However, the high latency of a each round-trip still exists, and the event loop 
+in this approach may involve frequent context switches (each may take more time 
+than a \v{ping} in Ethernet). To make SMR scales better, novel replication 
+models are proposed, including multi-leader 
+models~\cite{epaxos:sosp13,mencius:osdi08}, clustering or nested consensus 
+models~\cite{scatter:sosp11,manos:hotdep10}. However, the core of these models, 
+\paxos itself, still faces a scalability challenge.
 
 % One 
 % scalling approach (\eg, ~\cite{crane:sosp15}) may be using an event-driven 
@@ -79,9 +79,9 @@ user space memory of a remote process, completely bypassing the remote OS
 kernel or CPU (the so called ``one-sided" operations). As a common 
 RDMA practice, to ensure that such a write successfully resides in the 
 memory of a remote process, the local process should wait until the remote NIC 
-to send an ACK to the local host's NIC. An evaluation~\cite{pilaf:usenix14} 
-shows that such a write round-trip takes only $\sim$3 \us in the Infiniband 
-architecture~\cite{infiniband}.
+(network interface card) to send an ACK to the local host's NIC. An 
+evaluation~\cite{pilaf:usenix14} shows that such a write round-trip takes only 
+$\sim$3 \us in the Infiniband architecture~\cite{infiniband}.
 
 % However, it is technically challenging to fully exploit RDMA speed in \paxos 
 % protocols due to the unrichness of RDMA features. We present this challenge in 
