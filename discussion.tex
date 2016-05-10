@@ -53,7 +53,7 @@ with ``GET". If they match, \xxx appends two extra \xxx metadata fields
 intercepts a server's \recv calls and strips these two fields. If the first 
 field is true, \xxx directly processes this operation in a local replica 
 and strips the next \v{length} bytes from the output checker within the same
-connection. Then, \xxx processes these operations locally without making 
+connection. In sum, \xxx processes these operations locally without making 
 outputs across replicas diverge.
 
 % When execution divergence is detected in a replica, \xxx's rollback mechanism 
