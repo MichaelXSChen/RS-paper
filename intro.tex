@@ -164,7 +164,7 @@ inputs is often not enough. An automated, efficient output checking mechanism
 that can improve the assurance on ``replicas run in sync" is still missing in 
 existing SMR 
 systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. 
-Most erver programs use multithreading to harness the power of multi-core 
+Most server programs use multithreading to harness the power of multi-core 
 hardware. Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
 cui:tern:osdi10, kendo:asplos09,
 dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} caused by 
@@ -180,7 +180,7 @@ or automation.
 
 On top of its input consensus protocol, \xxx builds an efficient network output 
 checking protocol that occasionally checks output divergence across replicas. 
-This checking protocol works by first computing a accumulated hash by 
+This checking protocol works by first computing an accumulated hash by 
 intercepting a server program's outbound socket calls (\eg, \send), it then 
 occasionally invokes an output consensus and collects hashes carried in other 
 replicas' consensus replies for the leader. \xxx then provides an optional 
@@ -276,7 +276,7 @@ perform checkpoint and restore on general server programs.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
 We evaluated \xxx on \nprog widely used or studied server programs, including 
-\nkvprog key value stores (\redis~\cite{redis}, \memcached~\cite{memcached}, 
+\nkvprog key-value stores (\redis~\cite{redis}, \memcached~\cite{memcached}, 
 \ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), one SQL 
 server \mysql~\cite{mysql}, one anti-virus server \clamav~\cite{clamav}, one 
 multimedia storage server 
