@@ -184,11 +184,12 @@ hash generations (\S\ref{sec:output-workflow}).
 To deeply understand \xxx's performance overhead, we collected the number of 
 socket call events and consensus durations in the leader replica. 
 Table~\ref{tab:consensus-latency} shows these statistics per 10K requests. 
-For each socket call, \xxx's leader invokes a consensus, which includes an SSD 
-write (the ``SSD time" column in Table~\ref{tab:consensus-latency}) and a 
-quorum waiting phase (the ``quorum time" column). The leader's quorum waiting 
-phase implies backups' performance because each backup stores the proposed 
-socket call in local SSD and then WRITEs a consensus reply to the leader. 
+According to the consensus algorithm steps in Figure~\ref{fig:consensus}, for 
+each socket call, \xxx's leader does a ``L2": SSD write (the ``SSD time" 
+column in Table~\ref{tab:consensus-latency}) and a ``L4": quorum waiting phase 
+(the ``quorum time" column). L4 implies backups' performance because each 
+backup stores the proposed socket call in local SSD and then WRITEs a consensus 
+reply to the leader.
 
 By summing these two time columns, overall, a \xxx input consensus took only 
 9.9 \us (\redis) to 39.6 \us (\mongodb). This consensus latency mainly depends 
@@ -201,28 +202,13 @@ achieve acceptable overhead on many programs (although \xxx's deployment
 model is running server replicas in a datacenter and clients in LAN 
 or WAN).
 
-\begin{table}[b]
-\footnotesize
-\centering
-\vspace{-.2in}
-\begin{tabular}{lrr}
-{\bf Performance metric} & {\bf \zookeeper} & {\bf \xxx}\\
-\hline\\[-2.3ex]
-Throughput (requests/s) & 19,925   & 17,614 \\
-Consensus latency (\us) & 511.9  & 12.5\\
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em Comparison with \calvin's \zookeeper replication.}} 
-\label{tab:compare}
-\end{table}
-
 \subsection{Comparison with Traditional SMR systems} \label{sec:compare}
 
 We compared \xxx with \calvin's SMR system because \calvin's input consensus 
 uses \zookeeper, one of the most widely used coordination service built on 
 TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional 
 database server in \xxx as the server program, and we compared throughputs and 
-the consensus latency with \calvin's \zookeeper consensus.
+the consensus latency with \calvin's consensus protocol \zookeeper.
 
 As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved 
 19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K 
@@ -242,6 +228,22 @@ incur similar consensus latency as \zookeeper's because both their consensus
 protocols are ran on TCP/IP. Overall, this \xxx-\calvin comparison suggests 
 that \calvin will be better if clients prefer high throughput, and \xxx will be 
 better if clients demand short latency.
+
+\begin{table}[t]
+\footnotesize
+\centering
+% \vspace{-.2in}
+\begin{tabular}{lrr}
+{\bf Performance metric} & {\bf \zookeeper} & {\bf \xxx}\\
+\hline\\[-2.3ex]
+Throughput (requests/s) & 19,925   & 17,614 \\
+Consensus latency (\us) & 511.9  & 12.5\\
+\end{tabular}
+\vspace{-.1in}
+\caption{{\em Comparison with \calvin's \zookeeper replication.}} 
+\vspace{-.2in}
+\label{tab:compare}
+\end{table}
 
 
 
