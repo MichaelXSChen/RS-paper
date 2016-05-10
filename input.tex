@@ -18,15 +18,6 @@ our protocol (\S\ref{sec:guarantees}).
 \vspace{-.05in}
 \end{figure}
 
-\begin{figure}[t]
-\centering
-\vspace{-0.15in}
-\includegraphics[width=.48\textwidth]{figures/consensus}
-\vspace{-.4in}
-\caption{{\em \xxx consensus algorithm in normal case.}} \label{fig:consensus}
-\vspace{-.05in}
-\end{figure}
-
 % \subsubsection{The Basic } \label{sec:primitive}
 
 % Question: What if on a machine, it viewed it as the leader, it executes the 
@@ -66,6 +57,16 @@ type. A consensus request includes four steps. The first step (\textbf{L1}) is
 executing the actual Libc socket call, because \xxx needs to get the actual 
 return values or received data bytes of this call and then replicates them in 
 remote replicas' logs.
+
+\begin{figure}[b]
+\centering
+\vspace{-0.15in}
+\includegraphics[width=.48\textwidth]{figures/consensus}
+\vspace{-.4in}
+\caption{{\em \xxx consensus algorithm in normal case.}} \label{fig:consensus}
+\vspace{-.05in}
+\end{figure}
+
 
 The second step (\textbf{L2}) is local preparation, including assigning a 
 global, monotonically increashing viewstamp to locate this entry in the 
