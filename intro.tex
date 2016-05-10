@@ -46,7 +46,7 @@ scaling implementation approach may be using asynchronous IO (\eg,
 Libevent~\cite{libevent}) to improve the parallelism of consensus round-trips. 
 However, the high latency of a each round-trip still exists, and the event loop 
 in this approach may involve frequent context switches (each may take more time 
-than a \v{ping} in Ethernet). To make SMR scales better, novel replication 
+than a \v{ping} in Ethernet). To make SMR scales better, advanced replication 
 models are proposed, including multi-leader 
 models~\cite{epaxos:sosp13,mencius:osdi08}, clustering or nested consensus 
 models~\cite{scatter:sosp11,manos:hotdep10}. However, the core of these models, 
@@ -118,22 +118,22 @@ in RDMA writes and rely on \paxos to handle the (un)reliability of these writes.
 
 This integration of \paxos and RDMA features looks simple, but it leads to 
 a fast, scalable \paxos consensus algorithm with three steps. First, the leader 
-stores a consensus request in local stable storage. Second, it does parallel 
-RDMA writes to write this request to the remote memory of the other replicas 
-without waiting any RDMA ACKs. Remote replicas also work in parallel: they poll 
-from their local memory, store this request in local storage, and send 
-consensus replies to the leader rapidly with RDMA writes, without waiting any 
-RDMA ACKs either. Third, once the leader sees a majority of replies in its 
-local memory, a consensus is reached.
+stores a consensus request in local stable storage. Second, it does RDMA writes 
+in parallel to put this request to the memory of remote replicas without 
+waiting any RDMA ACKs. Remote replicas also work in parallel: they poll from 
+their local memory, store this request in local storage, and send consensus 
+replies to the leader with RDMA writes, without waiting any RDMA ACKs 
+either. Third, once the leader sees a majority of replies in local memory, 
+a consensus is reached.
 
 In the second step of this algorithm, both the leader and remote replicas work 
-in parallel, so a whole consensus latency approximately consists of 
+in parallel, thus a complete consensus latency approximately consists of 
 three operations: a leader's write to stable storage, a remote replica's write 
-to local storage, and a single RDMA write round-trip. This consensus latency is 
-no longer firmly correlated with replica group size (confirmed in our 
-evaluation); its scalability is now mainly bounded by the capacity of 
+to local storage, and a RDMA write round-trip. This consensus 
+latency is no longer firmly correlated with replica group size (confirmed in 
+our evaluation); its scalability is now mainly bounded by the capacity of 
 outbound RDMA writes in the NIC hardware. By making the core of \paxos 
-scalable, other novel replication 
+scalable, other advanced replication 
 models~\cite{epaxos:sosp13,mencius:osdi08,scatter:sosp11,manos:hotdep10} can 
 scale even better.
 %  (currently, 16~\cite{herd:sigcomm})
