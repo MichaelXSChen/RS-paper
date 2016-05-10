@@ -18,15 +18,25 @@ it can also leverage other consensus protocols and approaches.
 Five systems aim to provide SMR or similar services to server programs and 
 thus they are the most relevant to \xxx. They can be divided into two 
 categories depending on whether they use RDMA to accelerate their services. 
-Tet first category includes Eve, Rex, Calvin, and Crane, which 
+The first category includes Eve, Rex, Calvin, and Crane, which 
 leverage traditional \paxos protocols (or similar synchronized replication 
-protocols, \eg, Zookeeper in Calvin) running on TCP/IP as the coordination 
+protocols, \eg, \zookeeper in \calvin) running on TCP/IP as the coordination 
 service. The evaluation in these systems have shown that SMR services incur 
 modest overhead on server programs' throughput compared to their unreplicated 
 executions. However, for key-value stores that are extremely critical on 
 latency, their consensus latency one order of magnitude higher than that in 
 \xxx (\S\ref{sec:compare}). These systems can leverage \xxx's general, 
 RDMA-accelerated protocol to improve latency.
+
+% % DARE: simply use RDMA writes to do consensus on the leader side.
+% To further improve consensus speed, DARE~\cite{dare:hpdc15} proposes a second 
+% approach by simply replacing message passing in \paxos with one-sided RDMA 
+% operations. For speed, DARE lets the leader handle a whole consensus round
+% with three steps. The leader first appends a consensus request to a consensus 
+% log in all remote replicas with RDMA writes. For the the successful writes with 
+% ACKs, it then updates the tail pointers in remote logs and wait ACKs of these 
+% updates. Finally, the leader knows that the minimum tail pointer among at 
+% least a majority of replcias reach consensus.
 
 % Two systems Rex and Eve did not provide latency evaluation; not open source.
 % Two systems Calvin and Crane, we ran them with Calvin's database; we are XX 
@@ -35,11 +45,13 @@ RDMA-accelerated protocol to improve latency.
 Notably, Eve presents a execution state checking approach based on their 
 coordination service. Eve's completeness on detecting execution divergence 
 relies on whether developers have manually annotated all thread-shared states 
-in program code. \xxx's output checking approach is automated (no manuall code 
+in program code. \xxx's output checking approach is automated (no manual code 
 annotation is needed), and its completeness depends on whether the diverged 
-execution states propogate to network outputs. These two approaches are 
+execution states propagate to network outputs. These two approaches are 
 complementary and can be integrated.
 
+% Two DARE limitations: first, no stable storage. second, old leader may 
+% % unsafely writes to remote logs and thought it has reached a consensus.
 The second category includes DARE, a coordination protocol that also uses RDMA 
 to reduce latency. \xxx differs from DARE in two aspects. First, 
 the reliability model in DARE is different from that in \paxos: DARE assumes 
@@ -69,15 +81,16 @@ DARE's evaluation uses a XX-line key-value store.
 
 \para{RDMA techniques.} RDMA techniques have been leveraged in many online 
 storage systems to improve latency and throughput within datacenters. These 
-systems include key-value stores~\cite{jinyang,herd,farm}, transactional 
-processing systems~\cite{haibo,microsoft:sosp15}, and XXX. These systems mainly 
-aim to use RDMA to speedup specific communications, where both their storage 
-and client access have RDMA enabled. \xxx's deployment model is to provide 
-SMR fault-tolerance to general server programs deployed in datacenters, and the 
-client programs access these server programs in LAN or WAN. It 
-would be interesting to investigate whether \xxx can improve the availability 
-for both the client side and server side of these advanced systems within a 
-datacenter, and we leave it for future work.
+systems include key-value 
+stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14} and 
+transactional processing systems~\cite{drtm:sosp15,farm:sosp15}. These systems 
+mainly aim to use RDMA to speedup specific communications, where both their 
+storage and client access have RDMA enabled. \xxx's deployment model is to 
+provide SMR fault-tolerance to general server programs deployed in datacenters, 
+and the client programs access these server programs in LAN or WAN. It would be 
+interesting to investigate whether \xxx can improve the availability for both 
+the client side and server side of these advanced systems within a datacenter, 
+and we leave it for future work.
 
 % We didn't evaluate these systems because they are not available on client sides.
 
