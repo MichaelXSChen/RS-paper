@@ -121,11 +121,11 @@ coordinate inputs among replicas.
 % \close type. 
 Figure~\ref{fig:arch} shows \xxx's architecture. \xxx intercepts a server 
 program's socket calls (\eg, \recv) using a Linux technique called LD\_PRELOAD. 
-\xxx involves four key components: the \paxos consensus protocol for input 
-coordination (in short, the \emph{coordinator}), the output checking protocol 
-(the \emph{checker}), the in-memory consensus log (the \emph{log}), the guard 
-process that handles checkpointing and recovering a server's process state and 
-file system state (the \emph{guard}).
+\xxx involves four key components: a \paxos consensus protocol for input 
+coordination (in short, the \emph{coordinator}), an output checking protocol 
+(the \emph{checker}), a circular, reusable in-memory consensus log (the 
+\emph{log}), and a guard process that handles checkpointing and recovering a 
+server's process state and file system state (the \emph{guard}).
 
 
 
