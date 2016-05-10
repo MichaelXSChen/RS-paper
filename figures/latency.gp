@@ -169,8 +169,8 @@ set key inside
 set xrange [1:16]
 #set ylabel "response time (us)" offset 3,0
 set key right top
-set yrange [0:600]
-set ytics 100
+set yrange [0:80]
+set ytics 20
 set origin 2.0,0.05
 set size 1.0,0.85
 #set title "(i) OpenTftp"
