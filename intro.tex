@@ -144,7 +144,7 @@ efficiently. With \xxx, a server program just runs as is, and \xxx
 automatically deploys this program on replicas of machines. \xxx intercepts 
 inputs from the inbound socket calls (\eg, \recv) of a server program and 
 invokes our \paxos consensus algorithm to efficiently enforce same inputs 
-across replicas. In a consensus protocol level, \xxx carefully tacklles several 
+across replicas. In a consensus protocol level, \xxx carefully tackles several 
 technical challenges, including handling an atomicy challenge 
 (\S\ref{sec:normal}) concurrent connections (\S\ref{sec:conclusion}).
 
@@ -165,18 +165,24 @@ cui:tern:osdi10, kendo:asplos09,
 dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} caused by 
 contentions in inter-thread resources (\eg, global memory and locks) and systems 
 resources (\eg, network ports) can easily cause program execution states to 
-diverge across replicas and compute wrong outputs to clients. Existing 
-replication approaches either use only \v{ping} to check the liveness of 
-replicas (\eg, \redis~\cite{redis}) or rely on manually annotating share states 
-in program code to detect execution divergence~\cite{eve:osdi12}.
+diverge across replicas and compute wrong outputs to clients.
 
-On top of the input consensus protocol, \xxx builds an efficient output 
+To handle nondeterminism, SMR systems either use deterministic multithreading 
+and replay approaches~\cite{rex:eurosys14,crane:sosp15,ddos:asplos13} or rely 
+on manually annotating share states in program code to detect execution 
+divergence~\cite{eve:osdi12}. These approaches fall short in either performance 
+or automation.
+
+On top of the input consensus protocol, \xxx builds an efficient network output 
 checking protocol that occasionally checks output divergence across replicas. 
-This checking protocol works by first computing a accumulated hash for outbound 
-socke calls (\eg, \send) in a server program, it then occasionally invokes an 
-output consensus by collecting the hashes in replicas' consensus replies for 
-the leader. \xxx then provides an optional rollback and restore mechanism for 
-program deployers to make an effort to restore the diverged replicas.
+This checking protocol works by first computing a accumulated hash by 
+intercepting outbound socke calls (\eg, \send) in a server program, it then 
+occasionally invokes an output consensus by collecting the hashes in replicas' 
+consensus replies for the leader. \xxx then provides an optional 
+rollback/restore mechanism to make an effort to restore the diverged replicas. 
+Because hash computation is efficient and output consensus is invoked rarely, 
+this output checking protocol introduced neglible performance impact in our 
+evaluation.
 
 % This 
 % protocol automatically, efficiently checks the fine-grained network outputs 
@@ -281,8 +287,7 @@ on response time in average. \xxx's consensus latency is \fasterthanzookeeper
 faster than \calvin's \zookeeper-based SMR service running on IPoIB.
 
 \item \xxx is scalable to replica group size. \xxx achieved a scalable 
-consensus latency of 9.9$\sim$11.0 \us from 3 to 7 replicas, while that 
-of DARE is 7.0$\sim$28.2 \us from 3 to 5 replicas.
+consensus latency of 9.9$\sim$11.0 \us from 3 to 7 replicas.
 
 \item \xxx is robust. Among XXX repeated executions, \xxx detected and 
 recovered execution divergence caused by a software bug in \redis, while 

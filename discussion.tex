@@ -10,9 +10,8 @@ applications in other research areas (\S\ref{sec:apps}).
 % Have not hooked time and rand(). Can use PMP approach. Not a problem for 
 % evaluated apps. 
 \xxx currently does not hook random functions such as \v{gettimeofday()} and 
-\v{rand()} because these random results are often explicit in network outputs 
-(\eg, a timestamp in an HTTP reply header). Developers can easily disable them 
-from outputs if they want. Existing 
+\v{rand()} because these random results are often explicit and easy to examine 
+in network outputs (\eg, a timestamp in an HTTP reply header). Existing 
 approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can also be 
 leveraged to intercept these functions and make them produce same results among 
 replicas.
