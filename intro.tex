@@ -143,8 +143,10 @@ This paper present \xxx, an SMR system that replicates general server programs
 efficiently. With \xxx, a server program just runs as is, and \xxx 
 automatically deploys this program on replicas of machines. \xxx intercepts 
 inputs from the inbound socket calls (\eg, \recv) of a server program and 
-invokes our new \paxos consensus algorithm to enforce same inputs across 
-replicas.
+invokes our \paxos consensus algorithm to efficiently enforce same inputs 
+across replicas. In a consensus protocol level, \xxx carefully tacklles several 
+technical challenges, including handling an atomicy challenge 
+(\S\ref{sec:normal}) concurrent connections (\S\ref{sec:conclusion}).
 
 % If \xxx finds that 
 % a replica produces an different output from what other replicas agree on, \xxx 
