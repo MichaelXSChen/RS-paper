@@ -10,7 +10,9 @@ replicas. Typically, \paxos assigns a replica as the leader to propose
 consensus requests, while the other replicas agree or reject requests. 
 Consensus on a new input can be achieved as long as a majority of replicas 
 agree, thus SMR can tolerate various faults such as minor replica 
-failures. Attracted by this strong fault-tolerance, recently, several SMR 
+failures.
+
+Attracted by this strong fault-tolerance, recently, several SMR 
 systems~\cite{chubby:osdi, zookeeper, crane:sosp15, eve:osdi12, rex:eurosys14} 
 have been built to greatly improve the availability of various server programs, 
 because these programs tend to serve client requests at all time.
@@ -109,12 +111,12 @@ $\sim$3 \us in the Infiniband architecture~\cite{infiniband}.
 % 
 % to address this scalability challenge is that 
 % simply replacing RDMA writes with \paxos communications is not sufficient, and
-In addition to mitigating the one-hop consensus latency, RDMA also opens 
+In addition to mitigating consensus latency, RDMA also opens 
 new opportunity to address the \paxos scalability problem, because we
 can integrate RDMA features \emph{tightly} within the fault-tolerant nature of 
-\paxos. In essence, \paxos has already tolerated various faults, including 
+\paxos. In essence, \paxos already tolerates various faults, including 
 machine failures and process crashes. Therefore, we can safely ignore the ACKs 
-in RDMA writes and rely on \paxos to handle the (un)reliability of these writes.
+in RDMA writes and let \paxos handle the (un)reliability of these writes.
 
 This integration of \paxos and RDMA features looks simple, but it leads to 
 a fast, scalable \paxos consensus algorithm with three steps. First, the leader 
