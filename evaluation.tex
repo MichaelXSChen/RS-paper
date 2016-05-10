@@ -38,7 +38,7 @@ execution.}}
 \centering
 \includegraphics[width=0.9\textwidth]{figures/latency}
 \vspace{-.10in}
-\caption{\small {\em \xxx response time (latency) compared to the unreplicated 
+\caption{\small {\em \xxx response time compared to the unreplicated 
 execution.}}
 \vspace{-.20in}
 \label{fig:latency}
@@ -169,7 +169,7 @@ hash generations (\S\ref{sec:output-workflow}).
 \calvin & 10,002  & 93.0 & 2.5 \us  & 9.9 \us\\
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em Leader's input consensus events per 10K requests.} 
+\caption{{\em Leader's input consensus events per 10K requests, 8 threads.} 
 The ``\# Calls" column means the number of socket calls that went through \xxx 
 input consensus; ``Input" means average bytes of a server's inputs received in 
 these calls; ``SSD time" means the average time spent on storing these calls to 
@@ -183,13 +183,13 @@ quorum for these calls.}
 
 To deeply understand \xxx's performance overhead, we collected the number of 
 socket call events and consensus durations in the leader replica. 
-Table~\ref{tab:consensus-latency} shows these statistics per 10K requests. 
-According to the consensus algorithm steps in Figure~\ref{fig:consensus}, for 
-each socket call, \xxx's leader does an ``L2": SSD write (the ``SSD time" 
-column in Table~\ref{tab:consensus-latency}) and an ``L4": quorum waiting phase 
-(the ``quorum time" column). L4 implies backups' performance because each 
-backup stores the proposed socket call in local SSD and then WRITEs a consensus 
-reply to the leader.
+Table~\ref{tab:consensus-latency} shows these statistics per 10K requests, 8 
+threads. According to the consensus algorithm steps in 
+Figure~\ref{fig:consensus}, for each socket call, \xxx's leader does an ``L2": 
+SSD write (the ``SSD time" column in Table~\ref{tab:consensus-latency}) and an 
+``L4": quorum waiting phase (the ``quorum time" column). L4 implies backups' 
+performance because each backup stores the proposed socket call in local SSD and 
+then WRITEs a consensus reply to the leader.
 
 By summing these two time columns, overall, a \xxx input consensus took only 
 9.9 \us (\redis) to 39.6 \us (\mongodb). This consensus latency mainly depends 
