@@ -60,7 +60,7 @@ whether the diverged execution states propagate to network outputs. Eve and
 % % unsafely writes to remote logs and thought it has reached a consensus.
 The second category includes DARE~\cite{dare:hpdc15}, a coordination protocol 
 that also uses RDMA to reduce latency. Part of \xxx's implementation was 
-inspired by DARE. \xxx differs from DARE in three major aspects. First, in a 
+inspired by DARE. \xxx differs from DARE in two major aspects. First, in a 
 reliability model level, DARE's model is different from standard \paxos's: DARE 
 assumes that a replica's memory is still accessible to remote replicas even if 
 this replica's CPU fails, so that DARE's leader can still write to remote 
@@ -76,34 +76,34 @@ latency, and \xxx's latency is compatible with DARE's on same payload: DARE's
 payload is 64bytes, similar to \xxx's \redis consensus latency 
 (\S\ref{sec:overhead}).
 
-Second, in a protocol level, DARE does pure-leader consensus in normal case 
-for efficiency. The leader writes a consensus request to remote replicas' 
-logs. If a majority of writes succeed with RDMA ACKs, the leader thinks that a 
-consensus has reached. DARE's backups do not invoke any proposal 
-number~\cite{paxos:simple} or view~\cite{paxos:practical} checking during 
-consensus.
+% Second, in a protocol level, DARE does pure-leader consensus in normal case 
+% for efficiency. The leader writes a consensus request to remote replicas' 
+% logs. If a majority of writes succeed with RDMA ACKs, the leader thinks that a 
+% consensus has reached. DARE's backups do not invoke any proposal 
+% number~\cite{paxos:simple} or view~\cite{paxos:practical} checking during 
+% consensus.
+% 
+% In general, we argue that a pure-leader consensus approach is difficult to 
+% guarantee safety. For instance, a leader may disconnect from the network 
+% shortly (\eg, a temporary NIC error), reconnect, and then invoke 
+% consensus requests. Concurrently, backups may start a leader election. It could 
+% be risky that the leader's RDMA writes succeed and it ``thinks" that a 
+% consensus has reached (because it handles everything of a consensus without any 
+% backup involvement), but backups may have inconsistently started a leader 
+% election.
+% 
+% Even if a backup first carefully does a check on a heartbeat timeout (or a 
+% latest consensus request), it then closes the RDMA QP with this ``leader", 
+% these two operations still have a vulnerable time window and the ``leader" can 
+% write in between. Allowing a leader to ``think" that it has got a consensus 
+% could be unsafe. This is probably why standard \paxos 
+% protocols~\cite{paxos,paxos:simple,paxos:practical} must let backups do proposal 
+% number of view checking rather than taking a pure-leader approach. \xxx complies 
+% with standard \paxos protocol~\cite{paxos:practical}: a \xxx backup always 
+% first compares its own view ID with the view ID in a consensus request, it then 
+% agrees or rejects this request.
 
-In general, we argue that a pure-leader consensus approach is difficult to 
-guarantee safety. For instance, a leader may disconnect from the network 
-shortly (\eg, a temporary NIC error), reconnect, and then invoke 
-consensus requests. Concurrently, backups may start a leader election. It could 
-be risky that the leader's RDMA writes succeed and it ``thinks" that a 
-consensus has reached (because it handles everything of a consensus without any 
-backup involvement), but backups may have inconsistently started a leader 
-election.
-
-Even if a backup first carefully does a check on a heartbeat timeout (or a 
-latest consensus request), it then closes the RDMA QP with this ``leader", 
-these two operations still have a vulnerable time window and the ``leader" can 
-write in between. Allowing a leader to ``think" that it has got a consensus 
-could be unsafe. This is probably why standard \paxos 
-protocols~\cite{paxos,paxos:simple,paxos:practical} must let backups do proposal 
-number of view checking rather than taking a pure-leader approach. \xxx complies 
-with standard \paxos protocol~\cite{paxos:practical}: a \xxx backup always 
-first compares its own view ID with the view ID in a consensus request, it then 
-agrees or rejects this request.
-
-Third, in an application level, DARE's evaluation used a 335-line, 
+Second, in an application level, DARE's evaluation used a 335-line, 
 single-threaded key-value store. \xxx supports general, diverse server 
 programs.
 
