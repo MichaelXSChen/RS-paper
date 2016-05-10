@@ -30,7 +30,7 @@ across replicas without divergence, if a program behaves as a deterministic
 state machine (\ie, always produces the same output on the same input).
 
 % Normal case, round trip.
-Netork latency of consensus messages is one key problem to make general server 
+Network latency of consensus messages is one key problem to make general server 
 programs adopt SMR. For instance, in an efficient, practical 
 \paxos implementation~\cite{paxos:practical}, each input in normal case takes 
 one consensus round-trip between every two replicas (one request from the leader 
@@ -42,20 +42,22 @@ and one reply from a backup).
 % Fastest: RDMA one-sided write. % Define one-side RDMA write as WRITE.
 % UC and RC.
 % RC Need an ACK. But can also do selective signaling.
-RDMA hardware recently becomes commonplace in datacenters due to its extreme 
-low latency, high throughput, and its decreashing prices. RDMA communications 
-between a local network inteface card (NIC) and remote NIC requires setting up a 
-Queue Pair (QP), including a send queue and a receive queue. Each QP associates 
-with a Completion Queue (CQ) to store ACKs. A QP belongs to a type of 
-XY: X can be R (reliable) or U (unreliable), and Y can be C (connected) or U 
-(unconnected). \xxx and DARE's implementations mainly use RC QPs, because such a 
-reliable, connected QP guarantees in-order, non-corrupted delivery in normal 
-case. However, RC QPs may still lose packets in typical \paxos exceptional cases 
-(\eg, hardware failures, OS crashes, or server program restarts).
+RDMA architecture such as Infiniband~\cite{infiniband} or RoCE~\cite{roce} 
+recently becomes commonplace in datacenters due to its extreme low latency, 
+high throughput, and its decreasing prices. RDMA communications between a local 
+network interface card (NIC) and remote NIC requires setting up a Queue Pair 
+(QP), including a send queue and a receive queue. Each QP associates with a 
+Completion Queue (CQ) to store ACKs. A QP belongs to a type of ``XY": X can be R 
+(reliable) or U (unreliable), and Y can be C (connected) or U (unconnected). 
+\xxx's implementations mainly use RC QPs, because such a reliable, connected QP 
+guarantees in-order, non-corrupted delivery in normal case. However, RC QPs may 
+still lose packets in typical \paxos exceptional cases (\eg, hardware failures, 
+OS crashes, or server program restarts).
 
 RDMA provides three types of communication primitives, from slowest to 
-fastest: IPoIB, message verbs, and one-sided read/write operations. A one-sided 
-RDMA read/write operation can directly write from one replica's memory to a 
+fastest: IPoIB (IP over Infiniband), message verbs, and one-sided read/write 
+operations. A one-sided RDMA read/write operation can directly write from one 
+replica's memory to a 
 remote replica's memory, completely bypassing OS kernel and CPU of the remote 
 replica. For brevity, the rest of this paper denotes a one-sided RDMA write 
 operation as a ``WRITE".
@@ -183,7 +185,7 @@ socket calls and then forward these calls to its local server program.
 
 % Output checker: leader side. % Output checker: backup side.
 The output checker is occasionally invoked as the leader's server program 
-executes outbound socket calls (\eg, \send). For every 1.5K bytes (MTU size) of 
+executes outbound socket calls (\eg, \send). For every 1.5KB (MTU size) of 
 accumulated outputs per connection, the checker unions the previous hash with 
 current outputs and computes a new CRC64 hash. After a fixed number of hashes 
 are generated, the checker then invokes consensus across replicas, which 
