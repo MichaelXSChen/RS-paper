@@ -12,19 +12,62 @@
 % states on systems nondeterminism such as thread nondeternimism and systems 
 % resources contentions.
 
-State machine replication (SMR) runs replicas of the same program and 
-uses a distributed consensus protocol (\eg, \paxos) to enforce the same inputs 
-among replicas, tolerating various faults. Although recent SMR systems have 
-greatly improved the reliability of server programs, SMR remains difficult to 
-deploy due to its high consensus latency. This paper presents \xxx, 
-a fast SMR system by leveraging Remote Direct Memory Access (RDMA). \xxx 
-intercepts inputs from a server program's socket calls and runs a new 
-RDMA-accelerated \paxos protocol to coordinate these inputs among replicas. This 
-protocol addresses a \paxos scalability challenge by tightly integrating RDMA 
-features within the fault-tolerant nature of \paxos, making replicas reach 
-consensus rapidly in parallel. Leveraging this protocol, \xxx presents a fast 
-network output checking protocol to check whether replicas run in sync.
+% State machine replication (SMR) runs replicas of the same program and 
+% uses a distributed consensus protocol (\eg, \paxos) to enforce the same inputs 
+% among replicas, tolerating various faults. Although recent SMR systems have 
+% greatly improved the reliability of server programs, SMR remains difficult to 
+% deploy due to its high consensus latency. This paper presents \xxx, 
+% a fast SMR system by leveraging Remote Direct Memory Access (RDMA). \xxx 
+% intercepts inputs from a server program's socket calls and runs a new 
+% RDMA-accelerated \paxos protocol to coordinate these inputs among replicas. This 
+% protocol addresses a \paxos scalability challenge by tightly integrating RDMA 
+% features within the fault-tolerant nature of \paxos, making replicas reach 
+% consensus rapidly in parallel. Leveraging this protocol, \xxx presents a fast 
+% network output checking protocol to check whether replicas run in sync.
 
+Distributed consensus protocol (typically, \paxos) enforce a strongly 
+consistent order of inputs for the same program running on a group of machines 
+(or replicas), tolerating various hardware or software failures. Therefore, 
+\paxos is widely deployed in numerous systems, including ordering or 
+fault-tolerance services. Unfortunately, despite much effort, the consensus 
+group size of traditional \paxos protocol hardly goes to a dozen, because 
+the consensus of traditional \paxos protocols run on TCP/IP, and the consensus 
+latency will increase almost linearly to the replica group size.
+% Our 
+% study on four popular traditional \paxos protocols show that \systemcostlow to 
+% \systemcosthigh increased consensus latency were spent in the OS kernel.
+
+This paper presents \xxx, a fast, scalable \paxos-compatible system by 
+leveraging Remote Direct Memory Access (RDMA). \xxx's key to achieve 
+scalability is making \paxos replicas receive consensus messages \emph{purely 
+on local memory}, just like a thread communicating with other threads 
+via bare shared-memory. Evaluation shows that \xxx outperforms four popular 
+traditional \paxos implimentations by \comptradlow to \comptradhigh. When 
+increasing the replica group size from three to 105, \xxx's consensus latency 
+increases merely from \xxxlatencythree to \xxxlatencyonezerofive. \xxx's 
+consensus latency is faster than DARE, a recent RDMA \paxos implementation, by 
+\fasterDARE. All \xxx source code, benchmarks, and raw evaluation results are 
+available at \github.
+
+% \xxx's key to achieve scalability is making \paxos replicas receive consensus 
+% messages \emph{purely on local memory}, creating an ilusion that these replicas 
+% communicate via shared-memory on multi-core.
+
+% Our key idea to achieve 
+% scalability is making \paxos replicas receive consensus messages \emph{purely 
+% on local memory}, totally getting rid of traditional TCP/IP communication 
+% primitives as well as RDMA inbound communication primitives. 
+
+% on \nprog widely used, 
+% diverse server programs (\eg, \memcached and 
+% \mysql) shows that \xxx is: (1) general, it ran these servers 
+% without modifications except one program; (2) fast, it incurred merely a 
+% \latencyoverhead mean overhead in response time and \tputoverhead in 
+% throughput, and its consensus latency was \fasterthanzookeeper faster than 
+% a prior SMR system built on \zookeeper; (3) scalable, it achieved similar 
+% consensus latency on a replica group size of three to seven; and (4) 
+% robust, its network output protocol efficiently detected and recovered replicas 
+% from divergence. 
 % \xxx addresses 
 % a pervasive 
 % challenge, avoiding a server' execution state divergence in active replicas, by 
@@ -36,16 +79,7 @@ network output checking protocol to check whether replicas run in sync.
 % because consensus protocols can already tolerate various faults (\eg, crash in 
 % the OS layer). 
 
-Evaluation on \nprog widely used, diverse server programs (\eg, \memcached and 
-\mysql) shows that \xxx is: (1) general, it ran these servers 
-without modifications except one program; (2) fast, it incurred merely a 
-\latencyoverhead mean overhead in response time and \tputoverhead in 
-throughput, and its consensus latency was \fasterthanzookeeper faster than 
-a prior SMR system built on \zookeeper; (3) scalable, it achieved similar 
-consensus latency on a replica group size of three to seven; and (4) 
-robust, its network output protocol efficiently detected and recovered replicas 
-from divergence. All \xxx source code, benchmarks, and evaluation results are 
-available at \github.
+
 
 % Stat machine replication definition. Focus on networking part, 
 % message passing, 
