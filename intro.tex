@@ -126,31 +126,47 @@ $\sim$3 \us in an evaluation~\cite{pilaf:usenix14}.
 
 % A strawman approach: DARE. RDMA communication primitives themselves have 
 % scalability issues.
-However, due to the unrichness of RDMA communication primitives, it's 
-technically challenging to build a \paxos runtime system that fully exploits 
-RDMA's power. For instance, one-sided RDMA operations eliminate remote 
-replicas' participations, a counterintuition to traditional \paxos 
-protocols in which non-leader replicas must examine the leader's consensus 
-requests for an (dis)agreement. To overcome this counterintuition, 
-DARE~\cite{dare:hpdc15}, a recent RDMA-based \paxos protocol, conducts a 
-sole-leader, two-rounded protocol. First, the leader first does RDMA writes the 
-consensus requests to all replicas, polls RDMA ACKs to check whether the writes 
-succeed. Second, on a majority of successful writes, the leader then do another 
-round of writes to notify other replicas. Our evaluation shows that both polling 
-RDMA ACKs and the two-rounded consensus incur scalability bottlenecks on the 
-leader side: DARE's consensus latency increased approximately linearly by 
-\darescalability as replica group size increased by 35x (\S\ref{evaluation}).
+However, due to the unrichness of RDMA primitives, it's technically challenging 
+to build a \paxos runtime system that fully exploits RDMA speed. For 
+instance, one-sided RDMA operations eliminate remote replicas' participations, 
+but traditional \paxos protocols require non-leader replicas to examine the 
+leader's consensus requests. To overcome this issue, DARE~\cite{dare:hpdc15}, a 
+recent RDMA-based \paxos protocol, proposes a sole-leader, two-round protocol. 
+First, the leader uses RDMA to write the consensus requests to all 
+replicas and polls RDMA ACKs to check whether the writes succeed. Second, for 
+the successful writes, the leader does another round of RDMA writes to 
+mark the writes as successful on other replicas, and poll ACKs on these writes. 
+One a majority of successful writes in the second round, DARE reaches a 
+consensus. Our evaluation shows that both the polling of RDMA ACKs and the 
+two-round consensus incurred approximately linearly consensus latency: DARE's 
+consensus latency increased by \darescalability as replica group size increased 
+by 35x (\S\ref{evaluation}).
 
 % Our key idea: pure remote-memory consensus. A fully scalable RDMA Paxos 
 % should allow leader to process requests pure on memory. Leader and replica 
 % % join % consensus; have stable storage with this benefit.
 % Why is this idea fast. Mulithreading.
+
+Our key idea is that we should make all \paxos replicas receive consensus 
+messages purely on their local memory. By doing so, both the leader and 
+non-leaders can receive consensus messages purely on their local memory, 
+bypassing various inbound scalability bottlenecks, including RDMA ACKs and RDMA 
+queue accesses. An analogy is that threads receive other threads' data and 
+signals via bare memory, a fast and scalable multithreading pattern. Now the 
+only RDMA primitive our \paxos replicas involve is just sending RDMA writes 
+(\ie, copying the data to be sent to NIC). Our evaluation showed that 
+most of such outbound RDMA write operations took less than 0.2 \us, much faster 
+faster than inbound RDMA operations.
+
 % Why is this idea feasible. Paxos can already handle unreliability.
 % Tech challenge? data integrity. Storage. Checkpoints? Others?
-Our key idea is that we should make \paxos replicas, including the leader, 
-receive consensus messages \emph{purely on their local memory}, totally getting 
-rid of socket primitives or RDMA ACK or queue primitives. This is just like 
-making threads communicate with other threads efficiently via bare memory.
+In deed, this idea appears to pose reliability issues because now the leader 
+lacks evidence on whether the remote RDMA writes succeed. Fortunately, the 
+\paxos protocol already tolerates various reliability issues, including message 
+losses caused by hardware or software failures. A scalable RDMA-based \paxos 
+runtime system now just needs to carefully ensure the atomicity and integrity 
+of RDMA writes among replicas (\S\ref{sec:normal}).
+
 
 
 % As a common RDMA practice, to ensure that such a write 
@@ -216,18 +232,31 @@ making threads communicate with other threads efficiently via bare memory.
 %  (currently, 16~\cite{herd:sigcomm})
 
 % P4: Falcon; key features. Hook sockets in servers.
-We have implemented this idea in \xxx,\footnote{We name our system after 
-falcon, one of the 
-fastest birds.} an SMR system that replicates general server programs 
-efficiently. Within \xxx, a server program just runs as is, and \xxx 
-automatically deploys this program on replicas of machines. It intercepts 
-inputs from a server program's inbound socket calls (\eg, \recv) and invokes 
-our \paxos consensus algorithm to efficiently enforce same inputs across 
+We have adopted this idea in \xxx,\footnote{We name our system after 
+falcon, one of the astest birds.} a fast, scalable \paxos protocol and its 
+runtime system. \xxx supports general programs: within \xxx, a program just 
+runs as is, and \xxx automatically deploys this program on replicas of machines. 
+It intercepts inputs from a server program's inbound socket calls (\eg, \recv) 
+and invokes our \paxos protocol to efficiently enforce same inputs across 
 replicas.
 
-In a consensus protocol level, \xxx carefully tackles several technical 
-challenges, including handling an atomicity challenge (\S\ref{sec:normal}) and 
-concurrent connections (\S\ref{sec:concurrent}).
+To practically improve the assurance that replicas run in sync, on top of 
+\xxx's \paxos protocol, we also build an efficient network output checking 
+protocol that efficiently compares output across replicas. first computing an 
+accumulated hash by intercepting a server program's outbound socket calls (\eg, 
+\send), it then occasionally invokes an consensus to compare these hashes among 
+replicas. This output checking protocol is just a practical feature that could 
+improve assurance on keeping replicas in sync and promote \xxx's deployments. 
+
+% \xxx then provides an optional 
+% rollback/restore mechanism to make an effort to restore the diverged replicas. 
+% Because hash computation is efficient and output consensus is invoked rarely, 
+% this output checking protocol introduced negligible performance impact in our 
+% evaluation.
+
+% In a consensus protocol level, \xxx carefully tackles several technical 
+% challenges, including handling an atomicity challenge (\S\ref{sec:normal}) and 
+% concurrent connections (\S\ref{sec:concurrent}).
 
 % If \xxx finds that 
 % a replica produces an different output from what other replicas agree on, \xxx 
@@ -235,35 +264,26 @@ concurrent connections (\S\ref{sec:concurrent}).
 % that have been agreed on from the checkpoint. 
 
 % P6: Falcon: output checker.
-However, to practically replicate general server programs, only enforcing same 
-inputs is often not enough. An automated, efficient output checking mechanism 
-that can improve the assurance on ``replicas run in sync" is still missing in 
-existing SMR 
-systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. 
-Most server programs use multithreading to harness the power of multi-core 
-hardware. Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
-cui:tern:osdi10, kendo:asplos09,
-dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} caused by 
-contentions in inter-thread resources (\eg, global memory and locks) and systems 
-resources (\eg, network ports) can easily cause program execution states to 
-diverge across replicas and compute wrong outputs to clients.
+% However, to practically replicate general server programs, only enforcing same 
+% inputs is often not enough. An automated, efficient output checking mechanism 
+% that can improve the assurance on ``replicas run in sync" is still missing in 
+% existing SMR 
+% systems~\cite{calvin:sigmod12,rex:eurosys14,crane:sosp15,dare:hpdc15}. 
+% Most server programs use multithreading to harness the power of multi-core 
+% hardware. Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
+% cui:tern:osdi10, kendo:asplos09,
+% dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} caused by 
+% contentions in inter-thread resources (\eg, global memory and locks) and systems 
+% resources (\eg, network ports) can easily cause program execution states to 
+% diverge across replicas and compute wrong outputs to clients.
+% 
+% To tackle nondeterminism, SMR systems either use deterministic multithreading 
+% and replay approaches~\cite{rex:eurosys14,crane:sosp15,ddos:asplos13}, or they 
+% rely on manually annotating share states in program code to detect execution 
+% divergence~\cite{eve:osdi12}. These approaches fall short in performance 
+% or automation.
 
-To tackle nondeterminism, SMR systems either use deterministic multithreading 
-and replay approaches~\cite{rex:eurosys14,crane:sosp15,ddos:asplos13}, or they 
-rely on manually annotating share states in program code to detect execution 
-divergence~\cite{eve:osdi12}. These approaches fall short in performance 
-or automation.
 
-On top of its input consensus protocol, \xxx builds an efficient network output 
-checking protocol that occasionally checks output divergence across replicas. 
-This checking protocol works by first computing an accumulated hash by 
-intercepting a server program's outbound socket calls (\eg, \send), it then 
-occasionally invokes an output consensus and collects hashes carried in other 
-replicas' consensus replies for the leader. \xxx then provides an optional 
-rollback/restore mechanism to make an effort to restore the diverged replicas. 
-Because hash computation is efficient and output consensus is invoked rarely, 
-this output checking protocol introduced negligible performance impact in our 
-evaluation.
 
 % This 
 % protocol automatically, efficiently checks the fine-grained network outputs 
@@ -348,16 +368,18 @@ RDMA architecture. \xxx intercepts POSIX outbound socket operations (\eg,
 \send) to invoke the output checking protocol. This simple, deployable 
 interface design makes \xxx support general server programs without modifying 
 them. To recover or add new replicas, \xxx leverages \criu~\cite{criu} to 
-perform checkpoint and restore on general server programs.
+perform checkpoint/restore for general server programs on one non-leader 
+replica, introducing little performance impact in normal case.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
-We evaluated \xxx on \nprog widely used or studied server programs, including 
-\nkvprog key-value stores (\redis~\cite{redis}, \memcached~\cite{memcached}, 
-\ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), one SQL 
-server \mysql~\cite{mysql}, one anti-virus server \clamav~\cite{clamav}, one 
-multimedia storage server 
-\mediatomb~\cite{mediatomb}, one LDAP server \openldap~\cite{openldap}, and one 
-advanced transactional database 
+We compared \xxx with five popular \paxos-like implementations: libPaxos, 
+Zookeeper, Crane, SPaxos, and DARE. We also evaluated \xxx on \nprog widely 
+used or studied server programs, including \nkvprog key-value stores 
+(\redis~\cite{redis}, \memcached~\cite{memcached}, \ssdb~\cite{ssdb}, and 
+\mongodb~\cite{mongodb}), one SQL server \mysql~\cite{mysql}, one anti-virus 
+server \clamav~\cite{clamav}, one multimedia storage 
+server \mediatomb~\cite{mediatomb}, one LDAP server \openldap~\cite{openldap}, 
+and one advanced transactional database 
 \calvin~\cite{calvin:sigmod12} (with \zookeeper~\cite{zookeeper} as its SMR 
 protocol). Our evaluation shows that
 
