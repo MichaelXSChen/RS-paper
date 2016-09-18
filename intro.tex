@@ -372,35 +372,48 @@ perform checkpoint/restore for general server programs on one non-leader
 replica, introducing little performance impact in normal case.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
-We compared \xxx with five popular \paxos-like implementations: 
-\libpaxos~\cite{libpaxos}, \zookeeper~\cite{zookeeper}, 
-\crane~\cite{crane:sosp15}, \spaxos~\cite{spaxos}, and 
-\dare~\cite{dare:hpdc15}. We also evaluated \xxx on \nprog widely used or 
-studied server programs, including \nkvprog key-value stores 
-(\redis~\cite{redis}, \memcached~\cite{memcached}, \ssdb~\cite{ssdb}, and 
-\mongodb~\cite{mongodb}), one SQL server \mysql~\cite{mysql}, one anti-virus 
-server \clamav~\cite{clamav}, one multimedia storage server 
-\mediatomb~\cite{mediatomb}, one LDAP server \openldap~\cite{openldap}, and one 
-advanced transactional database 
+We compared \xxx with five popular, open source \paxos-like implementations, 
+including four traditional ones (\libpaxos~\cite{libpaxos}, 
+\zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and 
+\spaxos~\cite{spaxos}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). \spaxos 
+is designed to achieve scalable throughput when more replicas are added. We 
+also evaluated \xxx on \nprog widely used or studied server programs, including 
+\nkvprog key-value stores (\redis~\cite{redis}, \memcached~\cite{memcached}, 
+\ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), one SQL server 
+\mysql~\cite{mysql}, one anti-virus server \clamav~\cite{clamav}, one multimedia 
+storage server \mediatomb~\cite{mediatomb}, one LDAP server 
+\openldap~\cite{openldap}, and one advanced transactional database 
 \calvin~\cite{calvin:sigmod12} (with \zookeeper~\cite{zookeeper} as its SMR 
 protocol). Our evaluation shows that
 
 \begin{tightenum}
-\item \xxx is general. For all evaluated programs, \xxx ran them without any 
-modification except \calvin (we added a \nlinescalvin-line patch to make 
+\item \xxx achieves both one order of magnitude better scalability and one 
+order of magnitude faster consensus latency than literature. \xxx's consensus 
+latency was faster than four popular \paxos implimentations by \comptradlow to 
+\comptradhigh on three to nine replicas. \xxx is faster than \dare by 
+\fasterDARElow to \fasterDARE. When increasing the replica group size from 
+three to 105 (35x), \xxx's consensus latency increases merely from 
+\xxxlatencythree to \xxxlatencyonezerofive (\xxxscalability, a sub-linear 
+increase).
+
+\item \xxx is general. For all \nprog evaluated programs, \xxx ran them without 
+any modification except \calvin (we added a \nlinescalvin-line patch to make 
 \calvin's client and server communicate with sockets).
 
-\item \xxx is fast. Compared to servers' own unreplicated executions, 
-\xxx incurred merely \tputoverhead overhead on throughput and \latencyoverhead 
-on response time in average. \xxx's consensus latency is \fasterthanzookeeper 
-faster than \calvin's SMR service \zookeeper.
+\item \xxx incurs low overhead on \nprog widely used server programs. 
+With nine replicas, compared to servers' own unreplicated executions, \xxx 
+incurred merely \tputoverhead overhead on throughput and \latencyoverhead on 
+response time in average.
 
-\item \xxx is scalable to replica group size. \xxx achieved a similar 
-consensus latency of 9.9$\sim$11.0 \us on a replica group size of three to 
-seven.
+\item \xxx is robust. On \paxos leader failures, \xxx's leader election 
+latency was reasonable and scalable.
 
-\item \xxx is robust. \xxx efficiently detected and recovered execution 
-divergence caused by output nondeterminism in \clamav.
+% \xxx's consensus latency is \fasterthanzookeeper 
+% faster than \calvin's SMR service \zookeeper.
+
+
+
+
 
 % \item \xxx is extensible. To extend optimization on read-only requests, XX 
 % lines of code in our two provided APIs, \xxx is able to avoid the read-only 
@@ -415,11 +428,19 @@ divergence caused by output nondeterminism in \clamav.
 % makes % system calls go beyond single machine).
 % New design space. comprehensive model. many applications: other replications, 
 % parallel analysis, datacenter OS.
-Our major conceptual contribution is a fast, scalable \paxos consensus 
-algorithm. \xxx has the potential to largely improve the adoption of SMR. \xxx 
-can also be applied to broad areas, including other replication protocols (\eg, 
-byzantine fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}), distributed 
-program analyses, and future datacenter operating systems (\S\ref{sec:apps}). 
+Our major conceptual contribution is the simple yet powerful idear of pure 
+remote-memory consensus, which enables \xxx, a fast, scalable \paxos runtime 
+system. \xxx has the potential to largely improve the scale and speed of 
+existing \paxos services. For instance, now Scatter can deploy one order of 
+magnitude more replicas in each of its \paxos group with much faster consensus 
+latency. Moreover, a general and deployable service, \xxx may promote the 
+deployments of \paxos and improve the fault-tolerance and consistency of various 
+systems.
+
+% \xxx 
+% can also be applied to broad areas, including other replication protocols (\eg, 
+% byzantine fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}), distributed 
+% program analyses, and future datacenter operating systems (\S\ref{sec:apps}). 
 % All \xxx source code, benchmarks, and evaluation results are 
 % available at \github. 
 % In addition, a fast, general SMR service has been long persued as a fundamental 
@@ -444,8 +465,8 @@ program analyses, and future datacenter operating systems (\S\ref{sec:apps}).
 The remaining of this paper is organized as follows. 
 \S\ref{sec:background} introduces background on \paxos and RDMA features. 
 \S\ref{sec:overview} gives an overview of our \xxx system. \S\ref{sec:input} 
-presents our input consensus protocol. \S\ref{sec:output} describes the output 
-checking protocol. \S\ref{sec:discuss} discusses \xxx's current limitations and 
-its broad applications in other areas. \S\ref{sec:evaluation} presents 
-evaluation results, \S\ref{sec:related} discusses related work, and 
-\S\ref{sec:conclusion} concludes.   
+presents \xxx's consensus protocol and its runtime system. \S\ref{sec:output} 
+describes the output checking protocol. \S\ref{sec:discuss} compares \dare with 
+\xxx, and discusses \xxx's current limitations and applications in other areas. 
+\S\ref{sec:evaluation} presents evaluation results, \S\ref{sec:related} 
+discusses related work, and \S\ref{sec:conclusion} concludes.   
