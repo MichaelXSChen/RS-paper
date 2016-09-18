@@ -25,29 +25,28 @@
 % consensus rapidly in parallel. Leveraging this protocol, \xxx presents a fast 
 % network output checking protocol to check whether replicas run in sync.
 
-Distributed consensus protocol (typically, \paxos) enforce a strongly 
-consistent order of inputs for the same program running on a group of machines 
-(or replicas), tolerating various hardware or software failures. Therefore, 
-\paxos is widely deployed in numerous systems, including ordering or 
-fault-tolerance services. Unfortunately, despite much effort, the consensus 
-group size of traditional \paxos protocol hardly goes to a dozen, because 
-the consensus of traditional \paxos protocols run on TCP/IP, and the consensus 
-latency will increase almost linearly to the replica group size.
-% Our 
-% study on four popular traditional \paxos protocols show that \systemcostlow to 
-% \systemcosthigh increased consensus latency were spent in the OS kernel.
+Consensus protocol (typically, \paxos) enforce a strongly consistent order of 
+inputs for the same program replicated on a group of machines (or replicas), 
+tolerating various failures. Therefore, \paxos is widely 
+served in numerous systems, including ordering and fault-tolerance services. 
+Unfortunately, despite much effort, the group size of traditional \paxos 
+protocols can hardly go up to a dozen, because traditionally consensus messages 
+go throught TCP/IP and thus consensus latency will increase almost linearly to 
+the replica group size. This paper presents \xxx, a fast, scalable \paxos 
+runtime system by fully exploiting Remote Direct Memory Access (RDMA) features. 
+Our key idea to achieve scalability is making \paxos replicas receive consensus 
+messages \emph{purely on local memory}, just like making threads communicate 
+with other threads efficiently via bare memory.
 
-This paper presents \xxx, a fast, scalable \paxos-compatible system by 
-leveraging Remote Direct Memory Access (RDMA). \xxx's key to achieve 
-scalability is making \paxos replicas receive consensus messages \emph{purely 
-on local memory}, just like a thread communicating with other threads 
-via bare shared-memory. Evaluation shows that \xxx outperforms four popular 
-traditional \paxos implimentations by \comptradlow to \comptradhigh. When 
+\xxx is the first work to achieve both high \paxos scalability (100+ replicas) 
+and low latency. Evaluation shows that the \xxx's consensus latency was faster 
+than four popular \paxos implimentations by \comptradlow to \comptradhigh. When 
 increasing the replica group size from three to 105, \xxx's consensus latency 
-increases merely from \xxxlatencythree to \xxxlatencyonezerofive. \xxx's 
-consensus latency is faster than DARE, a recent RDMA \paxos implementation, by 
-\fasterDARE. All \xxx source code, benchmarks, and raw evaluation results are 
-available at \github.
+increases merely from \xxxlatencythree to \xxxlatencyonezerofive. \xxx is faster 
+than a recent RDMA-based \paxos protocol by up to \fasterDARE. It was 
+able to support 9 widely used, unmodified server programs (\eg, \redis and 
+\mysql) with low overhead. All \xxx source code, benchmarks, and raw
+evaluation results are available at \github.
 
 % \xxx's key to achieve scalability is making \paxos replicas receive consensus 
 % messages \emph{purely on local memory}, creating an ilusion that these replicas 
