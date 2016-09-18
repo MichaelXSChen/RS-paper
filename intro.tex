@@ -388,13 +388,13 @@ protocol). Our evaluation shows that
 
 \begin{tightenum}
 \item \xxx achieves both one order of magnitude better scalability and one 
-order of magnitude faster consensus latency than literature. \xxx's consensus 
-latency was faster than four popular \paxos implimentations by \comptradlow to 
-\comptradhigh on three to nine replicas. \xxx is faster than \dare by 
-\fasterDARElow to \fasterDARE. When increasing the replica group size from 
-three to 105 (35x), \xxx's consensus latency increases merely from 
-\xxxlatencythree to \xxxlatencyonezerofive (\xxxscalability, a sub-linear 
-increase).
+order of magnitude faster consensus latency than literature. 
+Figure~\ref{fig:summary} shows a summary. \xxx's consensus latency was faster 
+than four popular \paxos implimentations by \comptradlow to \comptradhigh on 
+three to nine replicas. \xxx is faster than \dare by \fasterDARElow to 
+\fasterDARE. When increasing the replica group size from three to 105 (a 35x 
+increase), \xxx's consensus latency increases merely from \xxxlatencythree to 
+\xxxlatencyonezerofive (a \xxxscalability, sub-linear increase).
 
 \item \xxx is general. For all \nprog evaluated programs, \xxx ran them without 
 any modification except \calvin (we added a \nlinescalvin-line patch to make 
@@ -428,13 +428,14 @@ latency was reasonable and scalable.
 % makes % system calls go beyond single machine).
 % New design space. comprehensive model. many applications: other replications, 
 % parallel analysis, datacenter OS.
-Our major conceptual contribution is the simple yet powerful idear of pure 
-remote-memory consensus, which enables \xxx, a fast, scalable \paxos runtime 
-system. \xxx has the potential to largely improve the scale and speed of 
-existing \paxos services. For instance, now Scatter can deploy one order of 
-magnitude more replicas in each of its \paxos group with much faster consensus 
-latency. Moreover, a general and deployable service, \xxx may promote the 
-deployments of \paxos and improve the fault-tolerance and consistency of various 
+Our major contribution is the idea of pure remote-memory consensus. This simple 
+yet effective idea leads to \xxx, a fast, scalable \paxos runtime system. \xxx 
+has the potential to largely improve the scale and speed of existing \paxos 
+services. For instance, previously Scatter deployed 8 to 12 replicas in each 
+\paxos group~\cite{scatter:sosp11}, now it can deploy one order of magnitude 
+more replicas in each group with much faster consensus latency. Moreover, a 
+general and deployable service, \xxx may largely promote the deployments of 
+\paxos and provide strong fault-tolerance and consistency to various 
 systems.
 
 % \xxx 
