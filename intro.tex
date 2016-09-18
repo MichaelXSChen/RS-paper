@@ -3,18 +3,31 @@
 %P1: SMR difinition; traditional network message passing; reliable; attractive 
 % for general servers. Agree-execute: must reach consensus and then execute a 
 % request. Emphasis ordering services, Scatter, 8~12 nodes.
-State machine replication (SMR) runs the same program on a 
-number of replicas and uses a distributed consensus protocol (\eg, 
-\paxos~\cite{crane:sosp15}) to enforce the same inputs among 
-replicas. Typically, \paxos assigns a replica as the leader to propose 
+Consensus protocols (typically, 
+\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex}) plays a core 
+role in datacenters and distributed systems, including ordering 
+services~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}, leader 
+election~\cite{zookeeper}, lock services~\cite{chubby:osdi}, and 
+fault-tolerance~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}. A \paxos service 
+runs the same program on a group of replicas and can enforce a strongly 
+consistent order of requests for this program as long as a quorum (typically, 
+majority) of replicas still behave normally.
+
+Due to this strong consistency and fault-tolerance, \paxos is widely served in 
+numerous systems. For instance, a DHT system Scatter~\cite{scatter:sosp11} 
+assigns distinct key ranges to \paxos groups and runs 8 to 12 replicas 
+in each group to agree on requests for each key range. Moreover, recent state 
+machine replication systems~\cite{ crane:sosp15, eve:osdi12, rex:eurosys14} use 
+\paxos to greatly improve the availability of general server programs.
+
+
+
+Typically, \paxos assigns a replica as the leader to propose 
 consensus requests, and the other replicas agree or reject requests. 
 An input consensus can achieve as long as a majority of replicas 
 agree, thus SMR can tolerate various faults such as minor replica failures.
 
-Due to this strong fault-tolerance, recently, several SMR 
-systems~\cite{chubby:osdi, zookeeper, crane:sosp15, eve:osdi12, rex:eurosys14} 
-have been built to greatly improve the availability of server programs, 
-because these programs need to serve requests at all time.
+
 
 % P2: Performance too slow. Agree first and then execute. Even three nodes, one 
 % round-trip (~400 us). Not for performance critical servers such as key-value.
