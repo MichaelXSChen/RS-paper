@@ -372,14 +372,16 @@ perform checkpoint/restore for general server programs on one non-leader
 replica, introducing little performance impact in normal case.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
-We compared \xxx with five popular \paxos-like implementations: libPaxos, 
-Zookeeper, Crane, SPaxos, and DARE. We also evaluated \xxx on \nprog widely 
-used or studied server programs, including \nkvprog key-value stores 
+We compared \xxx with five popular \paxos-like implementations: 
+\libpaxos~\cite{libpaxos}, \zookeeper~\cite{zookeeper}, 
+\crane~\cite{crane:sosp15}, \spaxos~\cite{spaxos}, and 
+\dare~\cite{dare:hpdc15}. We also evaluated \xxx on \nprog widely used or 
+studied server programs, including \nkvprog key-value stores 
 (\redis~\cite{redis}, \memcached~\cite{memcached}, \ssdb~\cite{ssdb}, and 
 \mongodb~\cite{mongodb}), one SQL server \mysql~\cite{mysql}, one anti-virus 
-server \clamav~\cite{clamav}, one multimedia storage 
-server \mediatomb~\cite{mediatomb}, one LDAP server \openldap~\cite{openldap}, 
-and one advanced transactional database 
+server \clamav~\cite{clamav}, one multimedia storage server 
+\mediatomb~\cite{mediatomb}, one LDAP server \openldap~\cite{openldap}, and one 
+advanced transactional database 
 \calvin~\cite{calvin:sigmod12} (with \zookeeper~\cite{zookeeper} as its SMR 
 protocol). Our evaluation shows that
 
