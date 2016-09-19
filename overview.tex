@@ -107,13 +107,19 @@ QPs.
 
 To ensure a remote replica is alive and a WRITE succeeds, a common RDMA 
 practice is that after a WRITE is pushed to a QP, the local replica polls
-for an ACK from the associated CQ before it continues (the so called 
-\emph{signaling}). However, depending on local algorithm logic, the local 
-replica sometimes can do \emph{selective signaling}~\cite{herd:sigcomm14}: it 
-only checks for an ACK after pushing a number of WRITEs (previous WRITEs may 
-already succeed before this ACK-checking starts). To achieve scalability, 
-\xxx's protocol uses selective signaling and eliminates ACK checkings on every 
-consensus round.
+for an fixed-sized ACK from the associated CQ before it continues (the so 
+called \emph{signaling}). Polling ACK is time consuming. We collected the time 
+taken in polling ACKs in DARE~\cite{dare:hpdc15}, a recent RDMA-based \paxos 
+protocol, and we found that: if the CQ was empty, it took 61 to 79 \us; if the 
+CQ has one or more ACKs, it took 260 to 410 \us. If the number of polling ACK 
+operations is linear to the replica group size, a \paxos protocol will incur 
+scalability bottlenecks when the size is large (\S\ref{sec:evaluation}).
+
+Fortunately, depending on the application logic, we can do \emph{selective 
+signaling}~\cite{herd:sigcomm14}: it only checks for an ACK after pushing a 
+number of WRITEs (previous WRITEs may already succeed before this ACK-checking 
+starts). To achieve scalability, \xxx's protocol uses selective signaling and 
+eliminates ACK pollings on every consensus round.
 
 % To 
 % perform RDMA operations, the process and the remote process establishes a 
