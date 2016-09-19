@@ -127,8 +127,8 @@ group size, polling ACKs become a major scalability bottleneck
 Fortunately, depending on the application logic, we can do \emph{selective 
 signaling}~\cite{herd:sigcomm14}: it only checks for an ACK after pushing a 
 number of WRITEs (previous WRITEs may already succeed before this ACK-checking 
-starts). To achieve scalability, \xxx's protocol uses selective signaling and 
-eliminates ACK pollings on every consensus round.
+starts). Because \xxx's protocol semantic does not rely on RDMA ACKs, it uses 
+selective signaling to occasionally clean up ACKs.
 
 % To 
 % perform RDMA operations, the process and the remote process establishes a 

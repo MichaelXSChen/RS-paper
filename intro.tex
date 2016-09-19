@@ -149,7 +149,7 @@ approximately linearly consensus latency: DARE's consensus latency increased by
 % should allow leader to process requests pure on memory. Leader and replica 
 % % join % consensus; have stable storage with this benefit.
 % Why is this idea fast. Mulithreading.
-% We: heavily exploiting memory semantic of RDMA.
+% We: heavily exploiting memory semantic of RDMA. Use more CPUs; save ACKs.
 Our key idea is that we should make all \paxos replicas receive consensus 
 messages purely on their local memory. By doing so, both the leader and 
 non-leaders can receive consensus messages purely on their local memory, 
