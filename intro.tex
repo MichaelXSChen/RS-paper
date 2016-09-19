@@ -38,9 +38,10 @@ programs.
 % round-trip (~400 us). Not for performance critical servers such as key-value.
 % Batching: addressed throughput but not latency.
 Unfortunately, despite these great advances, the high consensus latency of 
-traditional \paxos protools still makes many systems suffer. To achieve a total 
-order of inputs efficiently, typicall \paxos deployments use a leader replica 
-to determine this order. To agree on an input, at least one message round-trip 
+traditional \paxos protools still makes many systems suffer. For efficiency, 
+\paxos typically assigns one replica work as the leader which invokes consensus 
+requests, and the other replicas work as backups to agree on or reject these 
+requests. To agree on an input, at least one message round-trip 
 is required between the leader and a non-leader. Given that a \v{ping} in 
 Ethernet takes hundreds of \us, a server program running in an SMR 
 system with three replicas must wait at least this time before processing an 
