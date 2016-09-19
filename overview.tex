@@ -108,12 +108,19 @@ QPs.
 To ensure a remote replica is alive and a WRITE succeeds, a common RDMA 
 practice is that after a WRITE is pushed to a QP, the local replica polls
 for an fixed-sized ACK from the associated CQ before it continues (the so 
-called \emph{signaling}). Polling ACK is time consuming. We collected the time 
-taken in polling ACKs in DARE~\cite{dare:hpdc15}, a recent RDMA-based \paxos 
-protocol, and we found that: if the CQ was empty, it took 61 to 79 \us; if the 
-CQ has one or more ACKs, it took 260 to 410 \us. If the number of polling ACK 
-operations is linear to the replica group size, a \paxos protocol will incur 
-scalability bottlenecks when the size is large (\S\ref{sec:evaluation}).
+called \emph{signaling}). Polling ACK is time consuming as it involves 
+synchronization between the NICs on both sides of a CQ. We collected the time 
+taken in polling ACKs in a recent RDMA-based \paxos protocol~\cite{dare:hpdc15}, 
+and we found that, although this protocol has been carefully optimized (its 
+leader maintains one global CQ to receive backups' ACKs in batches), polling 
+ACKs still became a scalability bottleneck: when the CQ was empty, it took 61 to 
+79 \us; when the CQ has one or more ACKs randomly arrived from other replicas, 
+it took 260 to 410 \us.
+
+% If the 
+% number of polling ACK operations is linear to the replica group size, a \paxos 
+% protocol will incur scalability bottlenecks when the size is large 
+% (\S\ref{sec:evaluation}).
 
 Fortunately, depending on the application logic, we can do \emph{selective 
 signaling}~\cite{herd:sigcomm14}: it only checks for an ACK after pushing a 
