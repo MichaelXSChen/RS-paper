@@ -58,26 +58,26 @@ whether the diverged execution states propagate to network outputs. Eve and
 
 % Two DARE limitations: first, no stable storage. second, old leader may 
 % % unsafely writes to remote logs and thought it has reached a consensus.
-The second category includes DARE~\cite{dare:hpdc15}, a coordination protocol 
-that also uses RDMA to reduce latency. Part of \xxx's implementation was 
-inspired by DARE. \xxx differs from DARE in two major aspects.
-
-The first difference is in a reliability model level. DARE's model is different 
-from standard \paxos's: DARE assumes that a replica's memory is still accessible 
-to remote replicas even if this replica's CPU fails, so that DARE's leader can 
-still write to remote backups. With this reliability model, DARE requires four 
-one-sided RDMA writes in each consensus round between the leader and a backup. 
-DARE's paper shows that the MTTF (mean time to failure) of memory and CPU are 
-similar.
-
-\xxx's reliability model complies with standard \paxos's: memory 
-and CPU may fail, thus consensus requests must be written to stable storage. 
-\xxx requires two one-sided RDMA writes and two SSD writes on a consensus 
-round between the leader and a backup. DARE reported a $\sim$15 \us consensus 
-latency for write requests and $\sim$7 \us for read requests on a 64-byte 
-payload. \xxx's consensus latency is compatible with DARE's on a similar 
-payload size (\eg, \xxx's consensus latency for \ssdb was 14.6 \us in 
-Table~\ref{tab:consensus-latency}).
+% The second category includes DARE~\cite{dare:hpdc15}, a coordination protocol 
+% that also uses RDMA to reduce latency. Part of \xxx's implementation was 
+% inspired by DARE. \xxx differs from DARE in two major aspects.
+% 
+% The first difference is in a reliability model level. DARE's model is different 
+% from standard \paxos's: DARE assumes that a replica's memory is still accessible 
+% to remote replicas even if this replica's CPU fails, so that DARE's leader can 
+% still write to remote backups. With this reliability model, DARE requires four 
+% one-sided RDMA writes in each consensus round between the leader and a backup. 
+% DARE's paper shows that the MTTF (mean time to failure) of memory and CPU are 
+% similar.
+% 
+% \xxx's reliability model complies with standard \paxos's: memory 
+% and CPU may fail, thus consensus requests must be written to stable storage. 
+% \xxx requires two one-sided RDMA writes and two SSD writes on a consensus 
+% round between the leader and a backup. DARE reported a $\sim$15 \us consensus 
+% latency for write requests and $\sim$7 \us for read requests on a 64-byte 
+% payload. \xxx's consensus latency is compatible with DARE's on a similar 
+% payload size (\eg, \xxx's consensus latency for \ssdb was 14.6 \us in 
+% Table~\ref{tab:consensus-latency}).
 
 % Second, in a protocol level, DARE does pure-leader consensus in normal case 
 % for efficiency. The leader writes a consensus request to remote replicas' 
@@ -106,9 +106,9 @@ Table~\ref{tab:consensus-latency}).
 % first compares its own view ID with the view ID in a consensus request, it then 
 % agrees or rejects this request.
 
-The second difference is in an application level. DARE's evaluation used a 
-335-line, single-threaded key-value store. \xxx aims to support general 
-programs.
+% The second difference is in an application level. DARE's evaluation used a 
+% 335-line, single-threaded key-value store. \xxx aims to support general 
+% programs.
 
 % Various paxos protocols. Ours is complementary. Can be plugged into our 
 % system.
