@@ -1,26 +1,45 @@
-% \section{Runtime} \label{sec:runtime}
-% 
-% \subsection{Wrappers for Servers} \label{sec:wrapper}
-% 
-% TBD.
-
-
-% TBD.
-
 \section{Implementation Details} \label{sec:impl}
 
-\subsection{Read-only Optimization} \label{sec:readopt}
+This section first presents our parallel input logging mechanism 
+(\S\ref{sec:logging}) for storing inputs efficiently, and then our 
+checkpoint/restore mechanism for recovering and adding replicas 
+(\S\ref{sec:checkpoint}).
 
-% TBD. Two APIs. isReadOnly(char*buf); Or just one API? Let client hooked by 
-% LD_PRELOAD, marked 'r' and reply size 'sz'.
+\subsection{Parallel Input Logging} \label{sec:logging}
 
-% Can use the example in overview section as example.
+TBD.
 
-\subsection{RDMA Queue Pairs Management} \label{sec:qp}
+\subsection{Checkpoint and Restore} \label{sec:checkpoint}
 
-% Sync every 8K bytes.?
+We proactively design our checkpoint mechanisms to have little performance 
+impact in normal case. TBD.
 
-\subsection{\paxos NOP requests} \label{sec:qp}
+% Regularly: periodically checkpoint. Contain both process state and file 
+% system state, so that we do not need to check output to file system.
+A guard process is running on each replica to checkpoint and restore the local 
+server program. The guard does two tasks. First, \xxx assigns one backup 
+replica's guard to checkpoint the local server program's process state and file 
+system state of current working directory within a physical duration 
+\tcheckpoint (one hour in \xxx).
 
-% For close(), send a NOP.
+Such a checkpoint operation and its duration are not sensitive to \xxx's 
+performance because the other backups can still reach quorum rapidly. Each 
+checkpoint is associate with a last committed socket call viewstamp of the 
+server program. After each checkpoint, the backup dispatches the checkpoint zip 
+file to the other replicas.
+
+Specifically, \xxx leverages CRIU, a popular, open source process checkpoint 
+tool, to checkpoint a server program's process state (\eg, CPU registers and 
+memory). Since CRIU does not support checkpointing RDMA connections, \xxx's 
+guard first sends a ``close RDMA QP" request to an \xxx internal thread, lets 
+this thread closes all remote RDMA QPs, and then invokes CRIU to do the 
+checkpoint.
+
+The second task for guards is that all guards in all alive replicas handle 
+rollback requests once divergence is detected (\S\ref{sec:output-workflow}). 
+According to the rollback workflow, a backup guard which receives a rollback 
+request from the leader guard will kill the local server process and roll back 
+to a previous checkpoint before the last successful hash check.
+
+
 

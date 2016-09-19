@@ -1,35 +1,46 @@
 \section{Output Checking Protocol} \label{sec:output}
 
+Most server programs are multithreaded and they may run into nondeterminism 
+(\eg, concurrency errors~\cite{lu:concurrency-bugs}), which may cause replicas 
+to diverge. \xxx provides a fast output checking protocol for a practical 
+purpose: improving \xxx deployers' assurance on whether replicas run in sync. If 
+diverged replicas are detected, deployers can restore the 
+them (\S\ref{sec:checkpoint}).
+
 % TBD. Motivation of this approach. Make replicas follow consistent execution 
 % states. Recover from bugs that diverge executions. 
-This section presents \xxx's output checking protocol for detecting and 
-recovering from replicas' execution divergence. This section first introduces 
-how \xxx computes and compares network outputs among replicas 
-(\S\ref{sec:output-workflow}), and then introduces its checkpoint and rollback 
-mechanism to deal with divergence (\S\ref{sec:checkpoint}).
-
-\subsection{Checking Network Outputs} \label{sec:output-workflow}
+% This section presents \xxx's output checking protocol for detecting and 
+% recovering from replicas' execution divergence. This section first introduces 
+% how \xxx computes and compares network outputs among replicas 
+% (\S\ref{sec:output-workflow}), and then introduces its checkpoint and rollback 
+% mechanism to deal with divergence (\S\ref{sec:checkpoint}).
+% 
+% \subsection{Checking Network Outputs} \label{sec:output-workflow}
 
 % Main issue. Output timings are pretty miscellaneous.
-One main issue is that network outputs and their physical timings are pretty 
-miscellaneous. For example, when we ran \redis simply on pure SET workloads, we 
-found that different replicas reply the numbers of ``OK" replies for SET 
-operations randomly: one replica may send four of them in one \send call, while 
-another replica may only send one of them in each \send call. Therefore, 
-comparing outputs on each \send call among replicas may not only yield wrong 
-results, but may slow down server programs among replicas.
+A main technical issue for comparing outputs across replicas is that network 
+outputs and their physical timings are miscellaneous. For example, when we ran 
+\redis simply on pure SET workloads, we found that different replicas reply the 
+numbers of ``OK" replies for SET operations randomly: one replica may send four 
+of them in one \send call, while another replica may only send one of them in 
+each \send call. Therefore, comparing outputs on each \send call among replicas 
+may not only yield wrong results, but may slow down server programs among 
+replicas.
 
 % Two variables. Tckpt (checkpoint periods) and Tcmp (comparison periods).
-To overcome this timing issue, \xxx presents a bucket-based hash computation 
+To tackle this issue, \xxx presents a bucket-based hash computation 
 mechanism. When a server calls a \send call, \xxx puts the sent bytes into a 
 local, per-connection bucket with 1.5KB (MTU size). Whenever a bucket 
 is full, \xxx computes a new CRC64 hash on a union of the current hash and this 
 bucket. Such a hash computation mechanism encodes accumulated network outputs. 
-Then, after every \thashcomp (by default, 1000 in \xxx) local hash values are 
-generated, \xxx invokes an output checking protocol to check this hash across 
-replicas. The index of this hash in the generated sequence is consistent across 
-replicas because each replica runs the same mechanism to generate the hash 
-sequence.
+Then, for every \thashcomp (by default, 10K in \xxx) local hash values 
+are generated, \xxx invokes the output checking protocol once to check this 
+hash across replicas. Because this protocol is invoked rarely, it did not incur 
+observable performance lost in our evaluation.
+
+% The index of this hash in the generated sequence is consistent across 
+% replicas because each replica runs the same mechanism to generate the hash 
+% sequence.
 
 % TBD. Briefly describe why using our input coordination protocol for output 
 % checking is good. Simply the whole system, reliable (tolerate packet 
@@ -39,9 +50,11 @@ sequence.
 To compare a hash across replicas, \xxx's output checking protocol runs the 
 same as the input coordination protocol (\S\ref{sec:normal}) except that the 
 follower thread on each backup replica carries this hash value in the \v{reply} 
-written back into the leader's corresponding log entry. To make an effort to 
-collect more remote hash values, \xxx waits for \twait (by default, 20 \us) 
-and then starts to detect divergence on hash values.
+written back into the leader's corresponding log entry.
+
+% To make an effort to 
+% collect more remote hash values, \xxx waits for \twait (by default, 20 \us) 
+% and then starts to detect divergence on hash values.
 
 % This output protocol starts by letting a leader thread invoke a consensue 
 % request on this hash comparison for its own client connection. The leader also 
@@ -54,20 +67,20 @@ and then starts to detect divergence on hash values.
 % a complete hash values, \xxx waits for \twait (by default, 20 \us) and then 
 % starts to detect divergence on hash values.
 
-Figure~\ref{fig:divergence} shows the workflow on how the leader checks 
-present replies and handles divergence, which includes four shaded cases: 
-(1) all hashes are the same; (2) leader's hash equals a majority of replicas, 
-but minor replicas' hashes diverge; (3) leader's hash diverges from a majority 
-of replicas'; and (4) no majority has the same hash value. The first three 
-cases should be the normal case unless a program tends to frequently compute 
-outputs on random functions (\eg, a scientific simulator).
-
-Currently \xxx has not incorporated an input re-planing approach (\eg, 
-Eve~\cite{eve:osdi12} sequentially re-executes requests after detecting a 
-execution divergence) because we found that re-execution already empirically
-avoided divergence. Previous work~\cite{lu:concurrency-bugs,pres:sosp09} 
-also confirmed that it was extremely unlikely to trigger a concurrency bug 
-twice in two consecutive executions.
+% Figure~\ref{fig:divergence} shows the workflow on how the leader checks 
+% present replies and handles divergence, which includes four shaded cases: 
+% (1) all hashes are the same; (2) leader's hash equals a majority of replicas, 
+% but minor replicas' hashes diverge; (3) leader's hash diverges from a majority 
+% of replicas'; and (4) no majority has the same hash value. The first three 
+% cases should be the normal case unless a program tends to frequently compute 
+% outputs on random functions (\eg, a scientific simulator).
+% 
+% Currently \xxx has not incorporated an input re-planing approach (\eg, 
+% Eve~\cite{eve:osdi12} sequentially re-executes requests after detecting a 
+% execution divergence) because we found that re-execution already empirically
+% avoided divergence. Previous work~\cite{lu:concurrency-bugs,pres:sosp09} 
+% also confirmed that it was extremely unlikely to trigger a concurrency bug 
+% twice in two consecutive executions.
 
 % Even so, we can 
 % leverage prior approaches to hook these 
@@ -92,45 +105,18 @@ twice in two consecutive executions.
 % When divergence is detected, spawn the mechanism, show workflow.
 
 % Strawmen approach? Necessary?
+% 
+% \begin{figure}[t]
+% \centering
+% \vspace{-.10in}
+% \includegraphics[width=.5\textwidth]{figures/output-divergence}
+% \vspace{-.50in}
+% \caption{{\em Workflow to Handle Network Output Divergence.}} 
+% \label{fig:divergence}
+% \vspace{-.20in}
+% \end{figure}
 
-\begin{figure}[t]
-\centering
-\vspace{-.10in}
-\includegraphics[width=.5\textwidth]{figures/output-divergence}
-\vspace{-.50in}
-\caption{{\em Workflow to Handle Network Output Divergence.}} 
-\label{fig:divergence}
-\vspace{-.20in}
-\end{figure}
 
-\subsection{Checkpoint and Restore Implementations} \label{sec:checkpoint}
-
-% Regularly: periodically checkpoint. Contain both process state and file 
-% system state, so that we do not need to check output to file system.
-A guard process is running on each replica to checkpoint and restore the local 
-server program. The guard does two tasks. First, \xxx assigns one backup 
-replica's guard to checkpoint the local server program's process state and file 
-system state of current working directory within a physical duration 
-\tcheckpoint (one hour in \xxx).
-
-Such a checkpoint operation and its duration are not sensitive to \xxx's 
-performance because the other backups can still reach quorum rapidly. Each 
-checkpoint is associate with a last committed socket call viewstamp of the 
-server program. After each checkpoint, the backup dispatches the checkpoint zip 
-file to the other replicas.
-
-Specifically, \xxx leverages CRIU, a popular, open source process checkpoint 
-tool, to checkpoint a server program's process state (\eg, CPU registers and 
-memory). Since CRIU does not support checkpointing RDMA connections, \xxx's 
-guard first sends a ``close RDMA QP" request to an \xxx internal thread, lets 
-this thread closes all remote RDMA QPs, and then invokes CRIU to do the 
-checkpoint.
-
-The second task for guards is that all guards in all alive replicas handle 
-rollback requests once divergence is detected (\S\ref{sec:output-workflow}). 
-According to the rollback workflow, a backup guard which receives a rollback 
-request from the leader guard will kill the local server process and roll back 
-to a previous checkpoint before the last successful hash check.
 % Suppose the 
 % viewstamp associated with the 
 % % previous checkpoint is $vs_{ckpt}$, and the viewstamp of the last matching 
