@@ -239,10 +239,10 @@ We have adopted this idea in \xxx,\footnote{We name our system after
 falcon, one of the astest birds.} a fast, scalable \paxos protocol and its 
 runtime system. Similar to general replication
 systems~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}, \xxx is designed to 
-support general server programs: within \xxx, a program just runs as is, and 
-\xxx automatically deploys this program on replicas of machines. It intercepts 
-inputs from a server program's inbound socket calls (\eg, \recv) and invokes our 
-\paxos protocol to efficiently enforce same inputs across 
+support general, unmodified server programs: within \xxx, a program just runs 
+as is, and \xxx automatically deploys this program on replicas of machines. It 
+intercepts inputs from a server program's inbound socket calls (\eg, \recv) and 
+invokes our \paxos protocol to efficiently enforce same inputs across 
 replicas.
 
 To practically improve the assurance that replicas run in sync, on top of 
