@@ -115,7 +115,9 @@ and we found that, although this protocol has been carefully optimized (its
 leader maintains one global CQ to receive backups' ACKs in batches), polling 
 ACKs still became a scalability bottleneck: when the CQ was empty, it took 61 to 
 79 \us; when the CQ has one or more ACKs randomly arrived from other replicas, 
-it took 260 to 410 \us.
+it took 260 to 410 \us. As the number of ACKs is propotional to the replica 
+group size, polling ACKs become a major scalability bottleneck 
+(\S\ref{sec:evaluation}).
 
 % If the 
 % number of polling ACK operations is linear to the replica group size, a \paxos 
