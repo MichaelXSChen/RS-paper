@@ -112,6 +112,7 @@ poorly~\cite{ellis:thesis,scatter:sosp11}.
 % \memcached, and \mysql) that seek for fault-tolerance in some degree.
 
 % P4.0: opportunity, RDMA. We argue that, network layers are not inherent.
+% Memory semantic.
 Fortunately, as Remote Direct Access Memory (RDMA) becomes increasing 
 commonplace, it becomes a possible solution to tackle the \paxos's consensus 
 latency, because it not only provides the option to bypass the OS kernel, but 
@@ -127,21 +128,22 @@ $\sim$3 \us in an evaluation~\cite{pilaf:usenix14}.
 
 % A strawman approach: DARE. RDMA communication primitives themselves have 
 % scalability issues.
-However, due to the unrichness of RDMA primitives, it's technically challenging 
-to build a \paxos runtime system that fully exploits RDMA speed. For 
+% DARE weaken memory semantic. Need to come up with a reason.
+However, due to the unrichness of RDMA primitives, fully exploiting RDMA 
+speed in software systems is considered technically challenging by the 
+community~\cite{pilaf:usenix14,herd:sigcomm14,dare:hpdc15,farm:sosp15}. For 
 instance, one-sided RDMA operations eliminate remote replicas' participations, 
 but traditional \paxos protocols require non-leader replicas to examine the 
 leader's consensus requests. To overcome this issue, DARE~\cite{dare:hpdc15}, a 
 recent RDMA-based \paxos protocol, proposes a sole-leader, two-round protocol. 
-First, the leader uses RDMA to write the consensus requests to all 
-replicas and polls RDMA ACKs to check whether the writes succeed. Second, for 
-the successful writes, the leader does another round of RDMA writes to 
-mark the writes as successful on other replicas, and poll ACKs on these writes. 
-One a majority of successful writes in the second round, DARE reaches a 
-consensus. Our evaluation shows that both the polling of RDMA ACKs and the 
-two-round consensus incurred approximately linearly consensus latency: DARE's 
-consensus latency increased by \darescalability as replica group size increased 
-by 35x (\S\ref{evaluation}).
+First, the leader uses RDMA to write the consensus requests to all replicas and 
+polls RDMA ACKs to check whether the writes succeed. Second, for the successful 
+writes, the leader does another round of RDMA writes to mark the writes as 
+successful on other replicas, and poll ACKs on these writes. One a majority of 
+successful writes in the second round, DARE reaches a consensus. Our evaluation 
+shows that both the polling of RDMA ACKs and the two-round consensus incurred 
+approximately linearly consensus latency: DARE's consensus latency increased by 
+\darescalability as replica group size increased by 35x (\S\ref{evaluation}).
 
 % Our key idea: pure remote-memory consensus. A fully scalable RDMA Paxos 
 % should allow leader to process requests pure on memory. Leader and replica 
