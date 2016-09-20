@@ -11,48 +11,62 @@ areas (\S\ref{sec:apps}).
 \vspace{-.5in}
 \includegraphics[width=.35\textwidth]{figures/dare}
 \vspace{-.6in}
-\caption{{\em \dare's RDMA-based consensus protocol.} \dare is a sole-leader, 
-two-round protocol with three steps: (1) leader WRITEs a consensus request to 
-all replicas' consensus logs and wait for ACKs to check which WRITEs succeed; 
-(2) \dare does WRITEs to update tail pointer of replicas that succeed in (1), 
-and wait for ACKs; and (3) one majority ACKs of (2), a consensus is reached, 
-\dare does WRITEs to notify the committed request without needing to wait 
-ACKs.} 
+\caption{{\em \dare's RDMA-based protocol.} This is a sole-leader, 
+two-round protocol with three steps: (1) the leader WRITEs a consensus request 
+to all backups' consensus logs and waits for ACKs to check if they succeed; 
+(2) for the successful backups in (1), leader does WRITEs to update tail 
+pointer of their consensus logs; and (3) on receiving a majority of ACKs in (2), 
+a consensus is reached, leader does WRITEs to notify backups without needing to 
+wait ACKs.}
 \label{fig:dare}
 \vspace{-.20in}
 \end{figure}
 
 We highly appreciate \dare~\cite{dare:hpdc15}, the first RDMA-based, 
-\paxos-like protocol. It is designed to run with a few replicas to tolerate 
-single point of program failures. Therefore, \dare is most relevant to \xxx. 
-Figure~\ref{fig:dare} shows \dare's consensus protocol in normal case. It is a 
-sole-leader protocol (backups do not participate in consensus) with two rounds. 
-In the first round, the leader uses RDMA to write the consensus requests to all 
-replicas and polls RDMA ACKs to check whether the writes succeed. Second, for 
-the successful writes, the leader does another round of RDMA writes to mark the 
-writes as successful on other replicas, and poll ACKs on these writes. Once a 
-majority of successful writes in the second round, DARE reaches a consensus.
+\paxos-like protocol. It is most relevant to \xxx. To tolerate single point of 
+program failures, \dare is designed to run with a small (three to five) replica 
+group. Under this design choice, \dare's protocol is sole-leader (backups do 
+not participate in consensus): the leader only needs to do two-round WRITEs and 
+check the ACKs of these WRITEs for a consensus. Figure~\ref{fig:dare} shows 
+\dare's protocol.
 
-\dare is well optimized for low latency with two technical choices. First, to 
+% 
+% logic uses two rounds to  wait for RDMA ACKs from backups. Our evaluation 
+% shows that this protocol is fast when replica group size is small (three to 
+% five), but both the ACK pollings and two-round
+
+% It is a 
+% sole-leader protocol (backups do not participate in consensus) with two rounds. 
+% In the first round, the leader uses RDMA to write the consensus requests to all 
+% replicas and polls RDMA ACKs to check whether the writes succeed. Second, for 
+% the successful writes, the leader does another round of RDMA writes to mark the 
+% writes as successful on other replicas, and poll ACKs on these writes. Once a 
+% majority of successful writes in the second round, DARE reaches a consensus.
+
+To further improve performance, \dare makes two technical choices. First, to 
 avoid delays caused by polling ACKs, \dare uses a global RDMA CQ (Completion 
 Queue) for all replicas, making it possible to collect multiple ACKs each poll 
 operation. Second, this protocol does not incorporate a persistent storage or 
 checkpoint/restore design. Therefore, \dare lacks durability 
-(\S\ref{sec:background}), an important guarantee in \paxos practice. With these 
-two choices, \dare runs slightly faster than \xxx on three replicas.
+(\S\ref{sec:background}), an important guarantee in traditional \paxos 
+protocols and in \xxx.
 
-Unlike \xxx, \dare is not designed for high scalability. Our evaluation shows 
-that, despite these two technical choices, both \dare's ACK pollings and its 
-two-round consensus incurred scalability bottle approximately linearly consensus 
-latency: DARE's consensus latency increased by \darescalability as replica group 
+% With these 
+% two choices, \dare runs slightly faster than \xxx on three replicas.
+
+However, \dare is not designed to scale to a large replica group. Our 
+evaluation shows that both \dare's ACK pollings and its two-round consensus 
+incurred scalability bottle approximately linearly consensus latency: DARE's 
+consensus latency increased by \darescalability as replica group 
 size increased by 35x (\S\ref{evaluation}).
 
 Overall, \xxx differs from \dare in three aspects. First, \xxx is a one-round 
-protocol, while \dare has two rounds. To achieve one-round consensus, \xxx 
-requires backups to poll from its local memory to agree on requests, so \xxx 
-consumes more CPU than \dare. Second, \xxx has shown toscale well on 100+ nodes, 
-while \dare did not discuss or evaluate scalability in their paper. Third, to 
-ensure durability, \xxx's protocol includes a persistent storage.
+protocol, while \dare has two rounds. To achieve one-round consensus, \xxx's 
+backups poll from its local memory to receive consensus requests, so \xxx 
+consumes more CPU than \dare on backlups. Second, \xxx has shown to scale well
+(sub-linearly) on 100+ nodes (\S\ref{sec:comp-dare}), while \dare did not 
+discuss their scalability in paper. Third, to ensure durability, \xxx's 
+protocol includes a persistent storage.
 
 \subsection{\xxx Limitations}\label{sec:limits}
 
