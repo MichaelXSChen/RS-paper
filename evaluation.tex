@@ -91,22 +91,20 @@ The rest of this section focuses on these questions:
 
 \begin{tightenum}
 
-\item[\S\ref{sec:ease-of-use}:] Is it easy to run general server programs 
-in \xxx?
+\item[\S\ref{sec:eval-traditional}:] What is \xxx's consensus latency compared 
+to traditional \paxos protocols?
 
-\item[\S\ref{sec:overhead}:] What is \xxx's performance compared to the 
-unreplicated executions? What is the consensus latency of \xxx's \paxos 
-protocol?
+\item[\S\ref{sec:eval-dare}:] What is \xxx's consensus latency compared 
+to a recent RDMA-based \paxos protocol?
 
-\item[\S\ref{sec:compare}:] What is \xxx's performance compared to existing 
-SMR systems?
+\item[\S\ref{sec:overhead}:] What is the performance overhead of running \xxx 
+with general server programs?
 
+% \item[\S\ref{sec:scalability}:] How scalable is \xxx on different replica group 
+% sizes?
 
-\item[\S\ref{sec:scalability}:] How scalable is \xxx on different replica group 
-sizes?
-
-\item[\S\ref{sec:robust}:] How fast can \xxx checkpoint and recover replicas 
-when output divergence is detected?
+\item[\S\ref{sec:robust}:] How fast is \xxx on handling checkpoints and 
+electing a new leader?
 
 % \item[\S\ref{sec:race}:] If some \xxx users care about data races much, how 
 % does \xxx tolerate the slowdown of data race detector by deploying it on a 
@@ -118,7 +116,105 @@ when output divergence is detected?
 \end{tightenum}
 
 
-\subsection{Ease of Use} \label{sec:ease-of-use}
+
+
+\subsection{Comparing with Traditional \paxos} 
+\label{sec:eval-traditional}
+
+We compared \xxx with \calvin's SMR system because \calvin's input consensus 
+uses \zookeeper, one of the most widely used coordination service built on 
+TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional 
+database server in \xxx as the server program, and we compared throughputs and 
+the consensus latency with \calvin's consensus protocol \zookeeper.
+
+As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved 
+19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K 
+transactions/s with a 12.5 \us consensus latency. The throughput in \calvin 
+was 13.1\% higher than that in \xxx because \calvin puts transactions in a 
+batch with a 10 \ms timeout, it then invokes \zookeeper for consensus on 
+this batch. The average number of bytes in \calvin's batches is 18.8KB, and 
+the average number of input bytes in each \xxx consensus (one for each \myread 
+call) is 93 bytes. Batching helps \calvin achieve good throughput. \xxx 
+currently has not incorporated a batching technique because its latency is 
+already reasonable (\S\ref{sec:overhead}).
+
+Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
+to \xxx's RDMA-accelerated consensus protocol, although we ran \calvin's 
+\zookeeper consensus on IPoIB. A prior SMR evaluation~\cite{dare:hpdc15} also 
+reports a similar 320 \us consensus latency in \zookeeper. Two other recent SMR 
+systems Crane~\cite{crane:sosp15} and Rex~\cite{rex:eurosys14} may incur 
+similar 
+consensus latency as \zookeeper's because all their consensus protocols are 
+based on TCP/IP. Overall, this \xxx-\calvin comparison suggests that \calvin 
+will be better if clients prefer high throughput, and \xxx will be better if 
+clients demand short latency.
+% TBD: rerun \redis micro events; it is too small, so we can not use it here.
+
+\begin{table}[h]
+\footnotesize
+\centering
+\vspace{.05in}
+\begin{tabular}{lrrrr}
+{\bf Protocol-\# Replica} & {\bf First} & {\bf Major} & {\bf Process} 
+& {\bf Systems}\\
+\hline\\[-2.3ex]
+\libpaxos-3 & 123.x  & 42.x & 11.x & 57.x\\
+\libpaxos-9 & 123.x  & 42.x & 11.x & 57.x\\
+
+\hline\\[-2.3ex]
+\zookeeper-3 & 123.x  & 42.x & 11.x & 57.x\\
+\zookeeper-9 & 123.x  & 42.x & 11.x & 57.x\\
+
+\hline\\[-2.3ex]
+\crane-3 & 123.x  & 42.x & 11.x & 57.x\\
+\crane-9 & 123.x  & 42.x & 11.x & 57.x\\
+
+\hline\\[-2.3ex]
+\spaxos-3 & 123.x  & 42.x & 11.x & 57.x\\
+\spaxos-9 & 123.x  & 42.x & 11.x & 57.x\\
+
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Scalability bottleneck analysis in traditional \paxos protocols.} 
+The ``Protocol-\#Replica" column means the protocol name and replica group 
+size; ``First" means the latency of its first ACK; ``Major" means the 
+latency of its majority ACK; ``Process" means the time spent in 
+processing majority ACKs; and ``Systems" means the time spent in OS kernel, 
+networking libraries, and JVM. All times are in \us.} 
+\label{tab:consensus-latency}
+\end{table}
+
+
+\subsection{Comparing with \dare} 
+\label{sec:eval-dare}
+
+
+
+
+Because we had only three RDMA machines in the evaluation time, we 
+picked \redis as the testing program and ran five to seven \xxx instances on 
+three machines: one machine held the leader instance, and each of the other two 
+machines held two to three backups.
+
+Table~\ref{tab:scalability} shows the Scalability results. Given the same 
+workload, \xxx's five-replica setting had a 17.9K requests/s and 10.1 
+\us consensus latency, and its seven-replica setting had a 17.4K requests/s and 
+11.0 \us consensus latency. Compared to the three-replica setting, \xxx 
+achieved a similar consensus latency from three to seven replicas, because a 
+\xxx consensus latency mainly contains two SSD stores and one WRITE round-trip 
+(see Table~\ref{tab:consensus-latency}).
+
+We didn't consider these initial scalability results general; we found them 
+promising. Given that each RDMA NIC hardware port supports up to 16 outbound 
+RDMA WRITEs with peak performance~\cite{herd:sigcomm14}, and our NIC has dual 
+ports, we anticipate that our algorithm may scale up to around 32 replicas 
+under current hardware techniques. We plan to buy more servers and verify 
+whether \xxx's scalability is bounded by RDMA NIC capacity.
+
+
+\subsection{Performance Overhead} \label{sec:overhead}
+
+% \subsection{Ease of Use} \label{sec:ease-of-use}
 
 \xxx is able to run all \nprog evaluated programs without modifying them except 
 \calvin. \calvin integrates its client program and server program within the 
@@ -126,8 +222,6 @@ same process and uses local memory to let these two programs communicate. To
 make \calvin's client and server communicate with POSIX sockets so that \xxx 
 can intercept the server's inputs, we wrote a \nlinescalvin-line patch for 
 \calvin.
-
-\subsection{Performance Overhead} \label{sec:overhead}
 
 Figure~\ref{fig:tput} shows \xxx's throughput and Figure~\ref{fig:latency} 
 response time. We varied the number of concurrent client connections for each 
@@ -212,81 +306,27 @@ datacenter network, \xxx may still achieve acceptable overhead on many programs
 clients in LAN 
 or WAN).
 
-\subsection{Comparison with Other SMR systems} \label{sec:compare}
-
-We compared \xxx with \calvin's SMR system because \calvin's input consensus 
-uses \zookeeper, one of the most widely used coordination service built on 
-TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional 
-database server in \xxx as the server program, and we compared throughputs and 
-the consensus latency with \calvin's consensus protocol \zookeeper.
-
-As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved 
-19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K 
-transactions/s with a 12.5 \us consensus latency. The throughput in \calvin 
-was 13.1\% higher than that in \xxx because \calvin puts transactions in a 
-batch with a 10 \ms timeout, it then invokes \zookeeper for consensus on 
-this batch. The average number of bytes in \calvin's batches is 18.8KB, and 
-the average number of input bytes in each \xxx consensus (one for each \myread 
-call) is 93 bytes. Batching helps \calvin achieve good throughput. \xxx 
-currently has not incorporated a batching technique because its latency is 
-already reasonable (\S\ref{sec:overhead}).
-
-Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due 
-to \xxx's RDMA-accelerated consensus protocol, although we ran \calvin's 
-\zookeeper consensus on IPoIB. A prior SMR evaluation~\cite{dare:hpdc15} also 
-reports a similar 320 \us consensus latency in \zookeeper. Two other recent SMR 
-systems Crane~\cite{crane:sosp15} and Rex~\cite{rex:eurosys14} may incur similar 
-consensus latency as \zookeeper's because all their consensus protocols are 
-based on TCP/IP. Overall, this \xxx-\calvin comparison suggests that \calvin 
-will be better if clients prefer high throughput, and \xxx will be better if 
-clients demand short latency.
-
-\begin{table}[t]
-\footnotesize
-\centering
+% \begin{table}[t]
+% \footnotesize
+% \centering
+% % \vspace{-.2in}
+% \begin{tabular}{lrr}
+% {\bf Performance metric} & {\bf \zookeeper} & {\bf \xxx}\\
+% \hline\\[-2.3ex]
+% Throughput (requests/s) & 19,925   & 17,614 \\
+% Consensus latency (\us) & 511.9  & 12.5\\
+% \end{tabular}
+% \vspace{-.1in}
+% \caption{{\em Comparison with \calvin's \zookeeper replication.}} 
 % \vspace{-.2in}
-\begin{tabular}{lrr}
-{\bf Performance metric} & {\bf \zookeeper} & {\bf \xxx}\\
-\hline\\[-2.3ex]
-Throughput (requests/s) & 19,925   & 17,614 \\
-Consensus latency (\us) & 511.9  & 12.5\\
-\end{tabular}
-\vspace{-.1in}
-\caption{{\em Comparison with \calvin's \zookeeper replication.}} 
-\vspace{-.2in}
-\label{tab:compare}
-\end{table}
+% \label{tab:compare}
+% \end{table}
 
 
 
 
 
 % Comparison with Crane. Run Crane. TBD
-
-
-\subsection{Scalability on Replica Group Size} \label{sec:scalability}
-
-% TBD: rerun \redis micro events; it is too small, so we can not use it here.
-
-Because we had only three RDMA machines in the evaluation time, we 
-picked \redis as the testing program and ran five to seven \xxx instances on 
-three machines: one machine held the leader instance, and each of the other two 
-machines held two to three backups.
-
-Table~\ref{tab:scalability} shows the Scalability results. Given the same 
-workload, \xxx's five-replica setting had a 17.9K requests/s and 10.1 
-\us consensus latency, and its seven-replica setting had a 17.4K requests/s and 
-11.0 \us consensus latency. Compared to the three-replica setting, \xxx 
-achieved a similar consensus latency from three to seven replicas, because a 
-\xxx consensus latency mainly contains two SSD stores and one WRITE round-trip 
-(see Table~\ref{tab:consensus-latency}).
-
-We didn't consider these initial scalability results general; we found them 
-promising. Given that each RDMA NIC hardware port supports up to 16 outbound 
-RDMA WRITEs with peak performance~\cite{herd:sigcomm14}, and our NIC has dual 
-ports, we anticipate that our algorithm may scale up to around 32 replicas 
-under current hardware techniques. We plan to buy more servers and verify 
-whether \xxx's scalability is bounded by RDMA NIC capacity.
 
 
 % For seven nodes 
@@ -338,14 +378,13 @@ replicas.
 \footnotesize
 \centering
 % \vspace{-.05in}
-\begin{tabular}{lrrr}
-{\bf Performance metric} & {\bf Three} & {\bf Five} & {\bf Seven}\\
+\begin{tabular}{lrrrrr}
+{\bf \# Replicas} & {\bf 3} & {\bf 5} & {\bf 7} & {\bf 9} & {\bf 11}\\
 \hline\\[-2.3ex]
-Throughput (requests/s) & 18,054   & 17,890  & 17,410\\
-Consensus latency (\us) & 9.9  & 10.9 & 11.0\\
+Election latency (\us) & 9.9  & 10.9 & 11.0 & 11.x & 12.x\\
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em \xxx's scalability on replica group size.}} 
+\caption{{\em \xxx's scalability on leader election.}} 
 \vspace{-.3in}
 \label{tab:scalability}
 \end{table}
