@@ -46,7 +46,7 @@ set yrange [7:50]
 set ytics ("25" 25, "50" 50)
 set logscale y
 # plot upper
-plot 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 5, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 6
+plot 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 5, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 2
 
 
 set border 2+4+8
@@ -59,7 +59,7 @@ unset xlabel
 unset ylabel
 unset xtics
 set ytics 250
-plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libpaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "zookeeper" ls 2, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "crane" ls 3, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 4, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "DARE",'traditional_paxos_latency.dat' using 1:7 with linespoints title "Falcon"
+plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libpaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "zookeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "crane" ls 3, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 4, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "DARE" ls 5,'traditional_paxos_latency.dat' using 1:7 with linespoints title "Falcon" ls 2
 
 unset yrange
 unset ytics
