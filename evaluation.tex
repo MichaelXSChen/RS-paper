@@ -155,30 +155,30 @@ clients demand short latency.
 \centering
 \vspace{.05in}
 \begin{tabular}{lrrrrr}
-{\bf Proto-\#Rep} & {\bf Latency} & {\bf First} & {\bf Major} & {\bf 
+{\bf Proto-\#Rep} & {\bf Latency} & {\bf First} & {\bf Major} & {\bf
 Process}
 & {\bf Sys}\\
 \hline\\[-2.3ex]
-\libpaxos-3 & x & 74  & 81 & 2 & 0\\
-\libpaxos-9 & x & 145  & 127 & 12 & 51\\
+\libpaxos-3 & 81.6 & 74.0  & 81.6 & 2.5 & 5.1\\
+\libpaxos-9 & 208.3 & 145.0  & 208.3 & 12.0 & 51.3\\
 
 \hline\\[-2.3ex]
-\zookeeper-3 & x & 67  & 99 & 0.84 & 31\\
-\zookeeper-9 & x & 76  & 128 & 3.6 & 49\\
+\zookeeper-3 & 99.0 & 67.0  & 99.0 & 0.84 & 30.3\\
+\zookeeper-9 & 129.0 & 76.0  & 128.0 & 3.6 & 49.4\\
 
 \hline\\[-2.3ex]
 \crane-3 & x & 69  & 69 & 13 & 0\\
 \crane-9 & x & 83  & 142 & 30 & 35\\
 
 \hline\\[-2.3ex]
-\spaxos-3 & x & 846  & 846 & 20 & 0\\
-\spaxos-9 & x & 545  & 731 & 35 & 159\\
+\spaxos-3 & 865.1 & 846.0  & 846.0 & 20.0 & 0\\
+\spaxos-9 & 739.1 & 545.0  & 731.0 & 35.0 & 159.1\\
 
 \end{tabular}
 \vspace{-.05in}
 \caption{{\em Scalability bottleneck analysis in traditional \paxos protocols.}
 The ``Proto-\#Rep" column means the \paxos protocol name and replica group
-size; ``Latency" means the consensus latency; ``First" means the latency 
+size; ``Latency" means the consensus latency; ``First" means the latency
 of its first ACK; ``Major" means the
 latency of its majority ACK; ``Process" means time spent in
 processing a majority of ACKs; and ``Sys" means time spent in OS

@@ -54,11 +54,11 @@ protocols and in \xxx.
 % With these 
 % two choices, \dare runs slightly faster than \xxx on three replicas.
 
-However, \dare is not designed to scale to a large replica group. Our 
-evaluation shows that both \dare's ACK pollings and its two-round consensus 
-incurred scalability bottle approximately linearly consensus latency: DARE's 
-consensus latency increased by \darescalability as replica group 
-size increased by 35x (\S\ref{evaluation}).
+However, \dare is not designed to scale to a large replica group because its 
+leader does all the consensus work. Our evaluation shows that both \dare's ACK 
+pollings and its two-round consensus incurred scalability bottle approximately 
+linearly consensus latency: DARE's consensus latency increased by 
+\darescalability as replica group size increased by 35x (\S\ref{evaluation}).
 
 Overall, \xxx differs from \dare in three aspects. First, \xxx is a one-round 
 protocol, while \dare has two rounds. To achieve one-round consensus, \xxx's 
