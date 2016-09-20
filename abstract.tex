@@ -33,8 +33,8 @@ protocols can hardly go up to a dozen, because traditional consensus messages
 go throught TCP/IP, thus the consensus latency will increase almost 
 linearly to the group size. This paper presents \xxx, a new RDMA-based \paxos 
 protocol and its runtime system. \xxx achieves scalability by: (1) carefully 
-dividing consensus load among replicas; and (2) making replicas receive 
-consensus messages purely on local memory, just like making threads 
+dividing RDMA workloads among replicas; and (2) making all replicas 
+receive consensus messages purely on local memory, just like making threads 
 receive other threads' data efficiently on bare memory.
 
 \xxx is the first to achieve low \paxos consensus latency on over 100 replicas. 
