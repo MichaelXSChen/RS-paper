@@ -128,13 +128,13 @@ database server in \xxx as the server program, and we compared throughputs and
 the consensus latency with \calvin's consensus protocol \zookeeper.
 
 As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved
-19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 17.6K
-transactions/s with a 12.5 \us consensus latency. The throughput in \calvin
-was 13.1\% higher than that in \xxx because \calvin puts transactions in a
+19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 18.9K
+transactions/s with a 19.5 \us consensus latency. The throughput in \calvin
+was 5.3\% higher than that in \xxx because \calvin puts transactions in a
 batch with a 10 \ms timeout, it then invokes \zookeeper for consensus on
 this batch. The average number of bytes in \calvin's batches is 18.8KB, and
 the average number of input bytes in each \xxx consensus (one for each \myread
-call) is 93 bytes. Batching helps \calvin achieve good throughput. \xxx
+call) is 128 bytes. Batching helps \calvin achieve good throughput. \xxx
 currently has not incorporated a batching technique because its latency is
 already reasonable (\S\ref{sec:overhead}).
 
