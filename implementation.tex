@@ -7,12 +7,29 @@ checkpoint/restore mechanism for recovering and adding replicas
 
 \subsection{Parallel Input Logging} \label{sec:logging}
 
-TBD.
+To handle replica failovers, a standard \paxos protocol should provide a 
+persistent input logging storage. \xxx uses the \paxos viewstamp of each input 
+as key and its payload as value. \xxx stores this key-value pair in a Berkely 
+DB (BDB) with BTree access method~\cite{berkeleydb} because found this method 
+fastest in BerkelyDB.
+
+However, once more inputs are inserted, we found the height of the BTree 
+will increase, which caused the key-value insertion time to significantly 
+increase. To handle this issue, we Implementated a thread-safe, parallel 
+logging approach~\cite{para-log:atc10}: instead of maintaining a single BDB 
+storage, we maintain an array of BDB stores. We use an index to indicate the 
+current active store and insert new inputs, and once the number of insertions 
+reach a threshold, we move the index to the next, empty store in the array and 
+recycle the previous stores. This parallal logging approach kept our input 
+logging latency around 3 to 7 \us, and efficient and stable range 
+(\S\ref{sec:overhead}).
 
 \subsection{Checkpoint and Restore} \label{sec:checkpoint}
 
 We proactively design our checkpoint mechanisms to have little performance 
-impact in normal case. TBD.
+impact in normal case. In short, a checkpoint operation is invoked periodically 
+in one backup replica, so the leader and other backups can still reach 
+consensus on new inputs efficiently.
 
 % Regularly: periodically checkpoint. Contain both process state and file 
 % system state, so that we do not need to check output to file system.
