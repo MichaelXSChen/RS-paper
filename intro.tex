@@ -247,16 +247,14 @@ other several technical challenges such as messsage atomiciy
 (\S\ref{sec:normal}), efficient logging (\S\ref{sec:logging}), and failure 
 recovery (\S\ref{sec:checkpoint}).
 
-Similar to general replication 
-systems~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}, \xxx's design supports 
-general server programs: within \xxx, a program just runs as is, and \xxx 
-automatically deploys this program on replicas of machines. It intercepts inputs 
-from a server program's inbound socket calls (\eg, \recv) and invokes our \paxos 
-protocol to efficiently enforce same inputs across replicas.
+Similar to general SMR systems~\cite{rex:eurosys14,crane:sosp15}, 
+\xxx's design supports general, unmodified server programs: within \xxx, a 
+program just runs as is, and \xxx automatically deploys this program on replicas 
+of machines. It intercepts inputs from a server program's inbound socket calls 
+(\eg, \recv) and invokes our \paxos protocol to enforce same inputs 
+across replicas.
 
-To practically improve the assurance that replicas run in sync, on top of 
-\xxx's \paxos protocol, it also provides an efficient network output checking 
-protocol, a useful feature that could promote \xxx's deployments. 
+
 
 % \xxx then provides an optional 
 % rollback/restore mechanism to make an effort to restore the diverged replicas. 
@@ -374,12 +372,12 @@ protocol, a useful feature that could promote \xxx's deployments.
 % P8: implementation. POSIX. support checkpoint.
 We implemented \xxx in Linux. \xxx intercepts POSIX inbound socket calls 
 (\eg, \accept and \recv) to coordinate inputs using the Infiniband 
-RDMA architecture. \xxx intercepts POSIX outbound socket operations (\eg, 
-\send) to invoke the output checking protocol. This simple, deployable 
-interface design makes \xxx support general server programs without modifying 
-them. To recover or add new replicas, \xxx leverages \criu~\cite{criu} to 
-perform checkpoint/restore for general server programs on one non-leader 
-replica, introducing little performance impact in normal case.
+RDMA architecture. To improve the assurance that replicas run in sync, on top 
+of \xxx's \paxos protocol, it also provides an efficient network output 
+checking protocol, a practical feature that may promote \xxx's deployments. To 
+recover or add new replicas, \xxx leverages \criu~\cite{criu} to periodically a 
+program on one backup, so it does not affect other replicas to reach consensus 
+efficiently.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
 We compared \xxx with five popular, open source \paxos-like implementations, 
