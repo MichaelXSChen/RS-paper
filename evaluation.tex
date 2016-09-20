@@ -186,20 +186,28 @@ kernel, network libraries, and JVM. All times are in \us.}
 \label{tab:consensus-latency}
 \end{table}
 
-
-\subsection{Comparing with \dare}
-\label{sec:eval-dare}
-
-\begin{figure}[t]
+\begin{table}[h]
+\footnotesize
 \centering
-\vspace{-.5in}
-\includegraphics[width=.35\textwidth]{figures/dare_comparison}
-\vspace{-.6in}
-\caption{{\em \xxx and \dare performance comparison.}}
-\label{fig:comp-dare}
-\vspace{-.20in}
-\end{figure}
+\vspace{.05in}
+\begin{tabular}{lrrrrr}
 
+{\bf Proto} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
+\hline\\[-2.3ex]
+\xxx & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
+
+\hline\\[-2.3ex]
+\dare (update-heavy) & 8.8 & 12.0  & 32.5 & 64.0 & 102.5 \\
+
+\hline\\[-2.3ex]
+\dare (read-heavy) & 5.8 & 7.2 & 16.8 & 29.2 & 45.1 \\
+
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Raw data of FALCON and DARE.} The read-heavy workload 
+consist of 95\% reads. The update-heavy workload consist of 50\% writes.}
+\label{tab:consensus-latency}
+\end{table}
 
 Because we had only three RDMA machines in the evaluation time, we
 picked \redis as the testing program and ran five to seven \xxx instances on
