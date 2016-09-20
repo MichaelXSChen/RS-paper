@@ -27,8 +27,10 @@ We highly appreciate \dare~\cite{dare:hpdc15}, the first RDMA-based,
 program failures, \dare is designed to run with a small (three to five) replica 
 group. Under this design choice, \dare's protocol is sole-leader (backups do 
 not participate in consensus): the leader only needs to do two-round WRITEs and 
-check the ACKs of these WRITEs for a consensus. Figure~\ref{fig:dare} shows 
-\dare's protocol.
+check the ACKs of these WRITEs for a consensus. Both rounds are essential 
+because \dare's leader needs the second round to indicate the latest (tail) 
+undergoing consensus request on remote replicas for a future new leader. 
+Figure~\ref{fig:dare} shows \dare's protocol.
 
 % 
 % logic uses two rounds to  wait for RDMA ACKs from backups. Our evaluation 
