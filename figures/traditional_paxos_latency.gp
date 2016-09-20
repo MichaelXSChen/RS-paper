@@ -6,7 +6,7 @@ set style line 3 lt 3 lw 2 pt 9 ps 2 lc rgb "#000000"
 set style line 4 lt 4 lw 2 pt 7 ps 2 lc rgb "#208418"
 set style line 5 lt 5 lw 2 pt 8 ps 2 lc rgb "#000000"
 set style line 6 lt 1 lw 2 pt 5 ps 2 lc rgb "#000000"
-set style line 7 lt 7 lw 2 pt 11 ps 1 lc rgb "#000000"
+set style line 7 lt 7 lw 2 pt 11 ps 2 lc rgb "#000000"
 #set style line 8 lt 8 lw 2 pt 11 ps 1 lc rgb "#d97c19"
 #set style line 9 lt 9 lw 15 pt 11 ps 1 lc rgb "#d97c19"
 
