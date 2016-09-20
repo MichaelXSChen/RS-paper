@@ -11,7 +11,13 @@ areas (\S\ref{sec:apps}).
 \vspace{-.5in}
 \includegraphics[width=.35\textwidth]{figures/dare}
 \vspace{-.6in}
-\caption{{\em \dare's RDMA-based consensus protocol.}} 
+\caption{{\em \dare's RDMA-based consensus protocol.} \dare is a sole-leader, 
+two-round protocol with three steps: (1) leader WRITEs a consensus request to 
+all replicas' consensus logs and wait for ACKs to check which WRITEs succeed; 
+(2) \dare does WRITEs to update tail pointer of replicas that succeed in (1), 
+and wait for ACKs; and (3) one majority ACKs of (2), a consensus is reached, 
+\dare does WRITEs to notify the committed request without needing to wait 
+ACKs.} 
 \label{fig:dare}
 \vspace{-.20in}
 \end{figure}
