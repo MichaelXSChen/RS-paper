@@ -60,13 +60,13 @@ pollings and its two-round consensus incurred scalability bottle approximately
 linearly consensus latency: DARE's consensus latency increased by 
 \darescalability as replica group size increased by 35x (\S\ref{evaluation}).
 
-Overall, \xxx differs from \dare in three aspects. First, \xxx is a one-round 
-protocol, while \dare has two rounds. To achieve one-round consensus, \xxx's 
-backups poll from its local memory to receive consensus requests, so \xxx 
-consumes more CPU than \dare on backlups. Second, \xxx has shown to scale well
-(sub-linearly) on 100+ nodes (\S\ref{sec:comp-dare}), while \dare did not 
-discuss their scalability in paper. Third, to ensure durability, \xxx's 
-protocol includes a persistent storage.
+Overall, \xxx differs from \dare in three aspects. First, \xxx's protocol has 
+only one RDMA round (Figure~\ref{figures/consensus}), while \dare has two 
+rounds. To achieve one-round consensus, \xxx's backups poll from its local 
+memory to receive consensus requests, so \xxx consumes more CPU than \dare on 
+backlups. Second, \xxx has shown to scale well (sub-linearly) on 100+ nodes 
+(\S\ref{sec:comp-dare}), while \dare did not discuss their scalability in paper. 
+Third, to ensure durability, \xxx's protocol includes a persistent storage.
 
 \subsection{\xxx Limitations}\label{sec:limits}
 
