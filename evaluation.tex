@@ -304,7 +304,7 @@ performance because each backup stores the proposed socket call in local SSD and
 then WRITEs a consensus reply to the leader.
 
 By summing these two time columns, overall, a \xxx input consensus took only
-9.9 \us (\redis) to 39.6 \us (\mongodb). This consensus latency mainly depends
+9.1 \us (\redis) to 22.4 \us (\mediatomb). This consensus latency mainly depends
 on the ``Input" column: the average number of data bytes received in socket
 calls (\eg, \mongodb has the largest received bytes). \xxx's small consensus
 latency makes \xxx achieve reasonable throughputs in Figure~\ref{fig:tput} and
