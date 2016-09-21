@@ -300,9 +300,9 @@ requests only involve one-round consensus (does RDMA reads to fetch all
 replicas's \paxos view IDs~\cite{paxos:practical} and check if a majority of 
 them match the leader's). We also ran \dare with a read-heavy workload 
 (Table~\ref{tab:consensus-latency}) and its consensus latency was about 50\% 
-slower than \xxx on large replica groups. Overall, given that \xxx has a 
-durable input storage, and \dare is a volatile protocol, we considered \xxx 
-faster than \dare, espeically on large replica groups.
+slower than \xxx on large replica groups. Note that \xxx has a durable input 
+storage, and \dare is a volatile protocol. Overall, we considered \xxx faster 
+and more scalable than \dare.
 
 % Table~\ref{tab:consensus-latency} shows the Scalability results. Given the same
 % workload, \xxx's five-replica setting had a 17.9K requests/s and 10.1
@@ -322,10 +322,10 @@ faster than \dare, espeically on large replica groups.
 
 \subsection{Performance Overhead} \label{sec:overhead}
 
-To stress \xxx, we used a replica group size of 9 to run all server 
-programs. We spawned up to 32 concurrent connections, and then we measured both 
-response time and throughput. We also measured \xxx's bare consensus latency. 
-Each performance data point in the evaluation is taken from the mean value of 
+To stress \xxx, we used a large SMR group size of 9 to run all server programs. 
+We spawned up to 32 concurrent connections, and then we measured both response 
+time and throughput. We also measured \xxx's bare consensus latency. Each 
+performance data point in the evaluation is taken from the mean value of 
 10 repeated executions.
 
 % \subsection{Ease of Use} \label{sec:ease-of-use}
@@ -407,19 +407,17 @@ SSD write (the ``SSD time" column in Table~\ref{tab:consensus-latency}) and an
 performance because each backup stores the proposed socket call in local SSD and
 then WRITEs a consensus reply to the leader.
 
-By summing these two time columns, overall, a \xxx input consensus took only
-9.1 \us (\redis) to 22.4 \us (\mediatomb). 
-% This consensus latency mainly depends on the ``Input" column: the average 
-% number of data bytes received in socket calls (\eg, \mongodb has the largest 
-% received bytes).
-\xxx's small consensus latency makes \xxx achieve reasonable throughputs in 
-Figure~\ref{fig:tput} and response times Figure~\ref{fig:latency}.
+By adding the last two columns in Table~\ref{tab:consensus-latency}, a 
+\xxx input consensus took only 9.1 \us (\redis) to 22.4 \us (\mediatomb). This 
+consensus latency mainly depends on the ``Input" column: the average number of 
+data bytes received in socket calls (\eg, \mongodb has the largest received 
+bytes). \xxx's small consensus latency makes \xxx achieve reasonable throughputs 
+in Figure~\ref{fig:tput} and response times Figure~\ref{fig:latency}.
 
-This small latency suggests that, even if clients are deployed within the same
-datacenter network, \xxx may still achieve acceptable overhead on many programs
-(although \xxx's deployment model is running server replicas in a datacenter and
-clients in LAN
-or WAN).
+% This small latency suggests that, even if clients are deployed within the same
+% datacenter network, \xxx may still achieve acceptable overhead on many programs
+% (although \xxx's deployment model is running server replicas in a datacenter and
+% clients in LAN or WAN).
 
 % \begin{table}[t]
 % \footnotesize
