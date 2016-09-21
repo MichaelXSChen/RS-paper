@@ -4,7 +4,7 @@
 % for general servers. Agree-execute: must reach consensus and then execute a
 % request. Emphasis ordering services, Scatter, 8~12 nodes.
 
-\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex}) plays a core
+\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex} plays a core
 role in datacenters and distributed systems, including ordering
 services~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11},
 leader election~\cite{zookeeper, chubby:osdi}, and
@@ -18,8 +18,9 @@ Due to this strong fault-tolerance, \paxos is widely served in many systems.
 For instance, Scatter~\cite{scatter:sosp11} runs 8$\sim$12 replicas in each
 \paxos group to order client requests, and it lets replicas respond requests
 in parallel. A bigger group size will improve Scatter throughput. 
-Moreover, recent state machine replication (SMR) systems~\cite{ crane:sosp15,
-eve:osdi12, rex:eurosys14} use \paxos to greatly improve the availability of
+Moreover, recent state machine replication (SMR) 
+systems~\cite{eve:osdi12,rex:eurosys14,crane:sosp15} use \paxos to greatly 
+improve the availability of
 general server programs.
 
 
@@ -34,7 +35,7 @@ general server programs.
 % P2: Performance too slow. Agree first and then execute. Even three nodes, one
 % round-trip (~400 us). Not for performance critical servers such as key-value.
 % Batching: addressed throughput but not latency.
-Unfortunately, despite these advances, the high \paxos consensus latency makes
+Unfortunately, despite these advances, \paxos's high consensus latency makes
 many systems suffer. For efficiency, \paxos typically assigns one replica as
 the leader to invoke consensus requests, and the other replicas as backups to
 agree on requests. To agree on an input, at least one message round-trip is
