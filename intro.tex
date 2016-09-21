@@ -76,11 +76,11 @@ was in OS kernel.
 
 Another scalability approach is maintaining multiple instances of \paxos, 
 including batching requests~\cite{calvin:sigmod12}, partitioning program 
-states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus 
+states~\cite{scatter:sosp11,ssmr:dsn14,ellis:thesis}, splitting consensus 
 leadership~\cite{mencius:osdi08,spaxos:srds12}, and hierarchical 
-replication architecture~\cite{manos:hotdep10,scatter:sosp11}. These systems 
-have improved throughput. However, the core of these systems, \paxos, 
-still has an unscalable consensus latency. Previous
+replication architecture~\cite{manos:hotdep10,scatter:sosp11}. 
+These systems have improved throughput. However, the core of these systems, 
+\paxos, still has an unscalable consensus latency. Previous
 work~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10} explicitly desires to 
 have a \paxos protocol with a more scalable consensus latency.
 
