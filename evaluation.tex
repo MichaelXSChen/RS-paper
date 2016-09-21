@@ -339,7 +339,7 @@ performance data point in the evaluation is taken from the mean value of
 
 % \subsection{Ease of Use} \label{sec:ease-of-use}
 
-\xxx is able to run all \nprog evaluated programs without modifying them except
+\xxx ran with \nprog evaluated programs without modifying them except
 \calvin. \calvin integrates its client program and server program within the
 same process and uses local memory to let these two programs communicate. To
 make \calvin's client and server communicate with POSIX sockets so that \xxx
@@ -365,11 +365,13 @@ scalability. \xxx scaled almost as well as the unreplicated executions.
 
 \xxx achieves such a low overhead in both throughput and response time mainly
 because of two reasons. First, for each \recv call in a server, \xxx's input
-coordination protocol only contains two one-sided RDMA writes and two SSD writes
-between each leader and backup. A parallel SSD write
-approach~\cite{Bessani:usenix13} may further improve \xxx's SSD performance.
-Second, \xxx's output checking protocol invokes occasionally
-(\S\ref{sec:output-workflow}).
+coordination protocol only contains two one-sided RDMA writes and two efficient 
+local writes (\S\ref{sec:logging}) for the leader and each backup.
+
+% A parallel SSD write
+% approach~\cite{Bessani:usenix13} may further improve \xxx's SSD performance.
+% Second, \xxx's output checking protocol invokes occasionally
+% (\S\ref{sec:output-workflow}).
 
 \begin{table}[h]
 \footnotesize
