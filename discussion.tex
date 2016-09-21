@@ -1,8 +1,8 @@
 \section{Discussions}\label{sec:discuss}
 % 
 This section compares \xxx and \dare's protocols (\S\ref{sec:compare}), and 
-discusses \xxx's limitations (\S\ref{sec:limits}) and its broad application 
-areas (\S\ref{sec:apps}).
+discusses \xxx's limitations (\S\ref{sec:limits}) and broad applications 
+(\S\ref{sec:apps}).
 
 \subsection{Comparing \xxx and \dare}\label{sec:compare}
 
@@ -25,12 +25,12 @@ wait ACKs.}
 We highly appreciate \dare~\cite{dare:hpdc15}, the first RDMA-based, 
 \paxos-like protocol. It is most relevant to \xxx. To tolerate single point of 
 program failures, \dare is designed to run with a small (three to five) replica 
-group. Under this design choice, \dare's protocol is sole-leader (backups do 
-not participate in consensus): the leader only needs to do two-round WRITEs and 
-check the ACKs of these WRITEs for a consensus. Both rounds are essential 
-because \dare's leader needs the second round to indicate the latest (tail) 
-undergoing consensus request on remote replicas for a future new leader. 
-Figure~\ref{fig:dare} shows \dare's protocol.
+group. Under this design choice, \dare's protocol is sole-leader (leader 
+does all the consensus work; backups do nothing): the leader only needs to do 
+two-round WRITEs and check the ACKs of these WRITEs for a consensus. Both 
+rounds are essential because \dare's leader needs the second round to indicate 
+the latest (tail) undergoing consensus request on remote replicas for a future 
+new leader. Figure~\ref{fig:dare} shows \dare's protocol.
 
 % 
 % logic uses two rounds to  wait for RDMA ACKs from backups. Our evaluation 
@@ -58,8 +58,8 @@ protocols and in \xxx.
 
 However, \dare is not designed to scale to a large replica group because its 
 leader does all the consensus work. Our evaluation shows that both \dare's ACK 
-pollings and its two-round consensus incurred scalability bottle approximately 
-linearly consensus latency: DARE's consensus latency increased by 
+pollings and its two-round consensus incurred scalability bottlenecks and had a
+approximately linear consensus latency: DARE's consensus latency increased by 
 \darescalability as replica group size increased by 35x 
 (\S\ref{sec:evaluation}).
 
@@ -69,8 +69,9 @@ rounds. To achieve one-round consensus, \xxx's backups poll from its local
 memory to receive consensus requests, so \xxx consumes more CPU than \dare on 
 backlups. Second, \xxx has shown to scale well (sub-linearly) on 100+ nodes 
 (\S\ref{sec:comp-dare}), while \dare did not discuss their scalability in paper. 
-Third, to ensure durability, \xxx's protocol includes a persistent storage. 
-\S\ref{sec:eval-dare} quantitatively compares \xxx and \dare performance.
+Third, although \xxx's protocol includes a persistent storage to ensure 
+durability, which \dare lacks, \xxx was faster than \dare by about 
+\fasterDARE. \S\ref{sec:eval-dare} analyzes \xxx and \dare performance.
 
 \subsection{\xxx Limitations}\label{sec:limits}
 
