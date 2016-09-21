@@ -241,14 +241,14 @@ execution.}}
 \label{fig:tput}
 \end{figure*}
 
-We first compared \xxx and \dare~\cite{dare:hpdc15} with the key-value 
-stores. \xxx uses a widely used one, \redis; \dare uses 335-line key-value 
-store written by their authors. To thoroughly analyze their latency with 
-scalability, we run more replicas than the nine physical machines (\ie, each 
-machine runs several replicas). Since our RDMA NIC bandwidth is 40Gpbs, we 
-didn't find network a bottleneck when running more replicas on a machine; from 9 
-to 105 replicas for both protocols, each RDMA round-trip increased merely from 
-2.6$\sim$4.4 \us.
+We first compared \xxx and \dare~\cite{dare:hpdc15} on key-value 
+stores, same key and data lengths (64 bytes). \xxx used a widely used one, 
+\redis; \dare used 335-line key-value store written by their authors. To 
+thoroughly analyze their latency with scalability, we run more replicas than the 
+nine physical machines (\ie, each machine runs several replicas). Since our RDMA 
+NIC bandwidth is 40Gpbs, we didn't find network a bottleneck when running more 
+replicas on a machine; from 9 to 105 replicas for both protocols, each RDMA 
+round-trip increased merely from 2.6$\sim$4.4 \us.
 
 Table~\ref{tab:rdma-latency} shows the consensus latency of \xxx and 
 \dare on the same update-heavy workload, which contains half GETs and half 
