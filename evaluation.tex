@@ -284,8 +284,8 @@ requests only involve one-round consensus (does RDMA reads to fetch all
 replicas' \paxos view IDs~\cite{paxos:practical} and check if a majority of 
 them match the leader's). We also ran \dare with a read-heavy workload 
 (Table~\ref{tab:rdma-latency}) and its consensus latency was about 50\% 
-slower than \xxx on large replica groups. Note that \xxx has a durable input 
-storage, and \dare is a volatile protocol. Overall, we considered \xxx faster 
+slower than \xxx on over 33 replica groups. Note that \xxx is a durable 
+protocol, and \dare is a volatile protocol. Overall, we considered \xxx faster 
 and more scalable than \dare.
 
 \begin{table}[h]
