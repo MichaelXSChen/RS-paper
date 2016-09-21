@@ -95,8 +95,8 @@ unset ytics
 
 # plot E 1-16
 set key right bottom
-set yrange [2000:3100]
-set ytics 250
+set yrange [3000:7000]
+set ytics 1000
 set origin 1.0,0.95
 set size 1.0,0.85
 #set title "(e) MySQL"
