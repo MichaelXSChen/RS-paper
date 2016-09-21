@@ -10,8 +10,8 @@ checkpoint/restore mechanism for recovering and adding replicas
 To handle replica fail-overs, a standard \paxos protocol should provide a 
 persistent input logging storage. \xxx uses the \paxos viewstamp of each input 
 as key and its input data as value. \xxx stores this key-value pair in 
-Berkeley DB (BDB) with a BTree access method~\cite{berkeleydb}, because found 
-this method fastest in our evaluation.
+Berkeley DB (BDB) with a BTree access method~\cite{berkeleydb}, as we 
+found this method fastest in evaluation.
 
 However, if more inputs are inserted, the BTree height 
 will increase, which will cause the key-value insertion latency to 
