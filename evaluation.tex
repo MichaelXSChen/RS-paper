@@ -342,17 +342,18 @@ execution.}}
 \label{fig:latency}
 \end{figure*}
 
-To stress \xxx, we used a large SMR group size of 9 to run all server programs. 
-We spawned up to 32 concurrent connections, and then we measured both response 
+To stress \xxx, we used a large replica group size of 9 to run all server 
+programs. We spawned up to 32 concurrent connections, and then we measured both 
+response 
 time and throughput. We also measured \xxx's bare consensus latency. Each 
-performance data point in the evaluation is taken from the mean value of 
+performance data point was taken from a mean value of 
 10 executions.
 
 % \subsection{Ease of Use} \label{sec:ease-of-use}
 
 \xxx ran with \nprog evaluated programs without modifying them except
 \calvin. \calvin integrates its client program and server program within the
-same process and uses local memory to let these two programs communicate. To
+same process and uses local memory to let these two programs talk. To
 make \calvin's client and server communicate with POSIX sockets so that \xxx
 can intercept the server's inputs, we wrote a \nlinescalvin-line patch for
 \calvin.
@@ -378,7 +379,7 @@ scalability. \xxx scaled almost as well as the unreplicated executions.
 \xxx achieves such a low overhead in both throughput and response time mainly
 because of two reasons. First, for each \recv call in a server, \xxx's input
 coordination protocol only contains two one-sided RDMA writes and two efficient 
-local writes (\S\ref{sec:logging}) for the leader and each backup.
+local SSD writes (\S\ref{sec:logging}) for the leader and each backup.
 
 % A parallel SSD write
 % approach~\cite{Bessani:usenix13} may further improve \xxx's SSD performance.
