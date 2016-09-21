@@ -122,11 +122,11 @@ Such a RDMA round-trip takes only about 3 \us~\cite{pilaf:usenix14}.
 However, due to the unrichness of RDMA primitives, fully exploiting RDMA
 speed in software systems is widely
 considered challenging~\cite{pilaf:usenix14,herd:sigcomm14,
-farm:sosp15,dare:hpdc15}. For instance, DARE~\cite{dare:hpdc15} presents a
-sole-leader, RDMA-based \paxos protocol, which lets the leader does all
-RDMA workloads and backups do nothing. This protocol was fast with 3$\sim$5 
-replicas. However, our evaluation shows that, as the group grows, the 
-leader met scalability bottlenecks (\eg, polling ACKs), and its consensus 
+farm:sosp15,dare:hpdc15}. For instance, \dare~\cite{dare:hpdc15} presents a
+two-round, RDMA-based \paxos protocol that has a sole-leader: leader does all 
+RDMA workloads and backups do nothing. \dare was fast with 3 or 5 
+replicas. However, our evaluation shows that, as replica group grows, the 
+leader met scalability bottlenecks (\eg, polling ACKs). Its consensus 
 latency increased by \darescalability as the group grows by 35x
 (\S\ref{sec:evaluation}).
 
@@ -147,14 +147,16 @@ latency increased by \darescalability as the group grows by 35x
 % Why is this idea fast. Mulithreading.
 % We: heavily exploiting memory semantic of RDMA. Use more CPUs; save ACKs.
 Our key observation is that we should carefully separate RDMA workloads among
-the leader and backups, especially in such a scalability-sensitive RDMA 
-context. For instance, we should let both leader and backups
-do RDMA writes directly on desination replicas' memory, and let all
-replicas poll their own local memory to receive messages. Although doing 
-so will consume more CPU resources than a sole-leader approach, it brings two 
-benefits. First, the leader has less workloads.
+the leader and backups, especially in such a scalability-sensitive 
+context. Intuitively, we can let both leader and backups do RDMA writes 
+directly on desination replicas' memory, and let all replicas poll their own 
+local memory to receive messages.
 
-Second, both leader and backups participate in consensus; they can get rid of 
+Although doing so will consume more CPU resources than a sole-leader 
+protocol~\cite{dare:hpdc15}, it brings two major benefits. First, the leader 
+has less workloads. Second, both leader and backups participate in consensus, 
+which makes it possible to reach consensus with only one 
+round~\cite{paxos:practical}. Furthermore, all replicas can get rid of 
 the expensive RDMA ACK polling and just receive consensus messages on their 
 bare, local memory. An analogy is threads receiving other threads' data via 
 bare memory, a fast and scalable computation pattern.
