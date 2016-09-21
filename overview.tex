@@ -162,9 +162,11 @@ selective signaling to occasionally clean up ACKs.
 % TBD. Input coordinator and output checker. Components.
 
 % System model. Replicas. RDMA. LAN. Clients.
-\xxx runs replicas of a server program in a datacenter. Replicas connect with 
-each other using RDMA QPs. Client programs located in LAN or WAN networks. The 
-leader handles client requests and runs our RDMA-accelerated \paxos protocol to 
+\xxx follows a typical \paxos runtime system 
+deployment~\cite{scatter:sosp11,eve:osdi12,rex:eurosys14,crane:sosp15, 
+dare:hpdc15}. It runs replicas of a server program in a datacenter. Replicas 
+connect with each other using RDMA QPs. Client programs located in LAN or WAN. 
+The leader handles client requests and runs our RDMA-based \paxos protocol to 
 coordinate inputs among replicas.
 % If a backup receives client 
 % requests, it deny the requests and reply the leader's IP.
