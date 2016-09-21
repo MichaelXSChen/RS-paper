@@ -42,7 +42,8 @@ because each replica does logging locally.
 The consensus latency of traditional \paxos protocols is notoriously high and 
 unscalable. As datacenters incorporate increasingly faster networking hardware 
 and more CPU cores, traditional 
-\paxos protocols~\cite{libpaxos,spaxos,crane,rex:eurosys14,zookeeper} are 
+\paxos 
+protocols~\cite{libpaxos,spaxos:srds12,crane:sosp15,rex:eurosys14,zookeeper} are 
 having fewer performance bottlenecks on network bandwith and CPU resources. 
 However, these protocols still run on TCP/IP and have to go through various 
 software layers such as network stack and OS kernel. 

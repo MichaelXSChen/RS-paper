@@ -18,12 +18,12 @@ will increase, which will cause the key-value insertion latency to
 largely increase.
 
 To handle this issue, we implementated a thread-safe, 
-parallel logging approach~\cite{para-log:atc10}: instead of maintaining a single 
-BDB store, we maintain an array of BDB stores. We use an index to indicate 
-the current active store and insert new inputs. Once the number of insertions 
-reach a threshold, we move the index to the next empty store in the array and 
-recycle the preceding stores. This Implementation efficiently kept our input 
-logging latency within 2.8$\sim$8.7 \us (\S\ref{sec:overhead}).
+parallel logging approach~\cite{Bessani:usenix13}: instead of maintaining a 
+single BDB store, we maintain an array of BDB stores. We use an index to 
+indicate the current active store and insert new inputs. Once the number of 
+insertions reach a threshold, we move the index to the next empty store in the 
+array and recycle the preceding stores. This Implementation efficiently kept our 
+input logging latency within 2.8$\sim$8.7 \us (\S\ref{sec:overhead}).
 
 \subsection{Checkpoint and Restore} \label{sec:checkpoint}
 

@@ -57,8 +57,9 @@ latency (it is only affected by the RDMA network among replicas).
 We compared \xxx with five popular, open source \paxos-like implementations,
 including four traditional ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
-\spaxos~\cite{spaxos}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). \spaxos
-is designed to achieve scalable throughput when more replicas are added. 
+\spaxos~\cite{spaxos:srds12}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). 
+\spaxos is designed to achieve scalable throughput when more replicas are 
+added. 
 
 We evaluated \xxx on \nprog widely used or studied server programs, including
 \nkvprog key-value stores \redis, \memcached, \ssdb, \mongodb; \mysql, a SQL
