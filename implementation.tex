@@ -37,8 +37,7 @@ consensus on new inputs rapidly.
 A guard process is running on each replica to checkpoint and restore the 
 local server program. It assigns one backup 
 replica's guard to checkpoint the local server program's process state and file 
-system state of current working directory within a duration 
-\tcheckpoint (one minute by default).
+system state of current working directory within a one-minute duration.
 
 Such a checkpoint operation and its duration are not sensitive to normal case
 performance because the other backups can still reach quorum rapidly. Each 

@@ -28,8 +28,9 @@ group. Under this design choice, \dare's protocol is sole-leader (leader
 does all the consensus work; backups do nothing): the leader only needs to do 
 two-round WRITEs and check the ACKs of these WRITEs for a consensus. Both 
 rounds are essential because \dare's leader needs the second round to indicate 
-the latest (tail) undergoing consensus request on remote replicas for a future 
-new leader. Figure~\ref{fig:dare} shows \dare's protocol.
+the latest (tail) undergoing consensus request on remote replicas to in case 
+they become a new leader. Figure~\ref{fig:dare} shows \dare's protocol. 
+Figure~\ref{fig:consensus} shows \xxx's protocol.
 
 % 
 % logic uses two rounds to  wait for RDMA ACKs from backups. Our evaluation 
