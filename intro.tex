@@ -376,12 +376,11 @@ same inputs across replicas.
 % P8: implementation. POSIX. support checkpoint.
 We implemented \xxx in Linux. \xxx intercepts POSIX inbound socket calls
 (\eg, \accept and \recv) to coordinate inputs using the Infiniband
-RDMA architecture~\cite{infiniband}. To improve the assurance that replicas run 
-in sync, on top of \xxx's \paxos protocol, it also provides an efficient 
-network output checking protocol, a practical feature that may promote \xxx's 
-deployments. To recover or add new replicas, \xxx leverages \criu~\cite{criu} 
-to periodically a program on one backup, so it does not affect other replicas 
-to reach consensus efficiently.
+RDMA architecture~\cite{infiniband}. To help deployers inspect whether replicas 
+run in sync, on top of \xxx's \paxos protocol, \xxx provides an efficient 
+network output checking protocol. To recover or add new replicas, \xxx 
+leverages \criu~\cite{criu} to automatically checkpoint a program on one 
+backup, so it does not affect other replicas to reach consensus rapidly.
 
 % \spaxos
 % is designed to achieve scalable throughput when more replicas are added. 
@@ -391,13 +390,13 @@ We compared \xxx with five popular, open source \paxos-like implementations,
 including four traditional ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
 \spaxos~\cite{spaxos}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). We
-also evaluated \xxx on \nprog widely used or studied server programs, including
+evaluated \xxx on \nprog widely used or studied server programs, including
 \nkvprog key-value stores (\redis~\cite{redis}, \memcached~\cite{memcached},
-\ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), one SQL server
-\mysql~\cite{mysql}, one anti-virus server \clamav~\cite{clamav}, one multimedia
-storage server \mediatomb~\cite{mediatomb}, one LDAP server
-\openldap~\cite{openldap}, and one transactional database
-\calvin~\cite{calvin:sigmod12}. Our evaluation shows that
+\ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), a SQL server
+\mysql~\cite{mysql}, a anti-virus server \clamav~\cite{clamav}, a multimedia
+server \mediatomb~\cite{mediatomb}, an LDAP server \openldap~\cite{openldap}, 
+and a transactional database \calvin~\cite{calvin:sigmod12}. Evaluation shows 
+that
 
 \begin{tightenum}
 \item \xxx achieves one order of magnitude higher scalability and one
@@ -450,8 +449,10 @@ improve both the scale and performance of existing \paxos
 services~\cite{scatter:sosp11,manos:hotdep10,crane:sosp15,rex:eurosys14}. For
 instance, Scatter~\cite{scatter:sosp11} previously deploys 8$\sim$12 replicas in
 each \paxos group, and now it can deploy hundreds of replicas in each group and 
-achieves much higher throughput. Moreover, a general and deployable service, 
-\xxx may largely promote \paxos deployments and improve the 
+achieves much higher throughput. Existing \paxos-based scalable replication 
+systems~\cite{scatter:sosp11,dssmr,ssmr,mencius:osdi08,spaxos,manos:hotdep10,
+scatter:sosp11} can scale even better with \xxx. Overall, a general and 
+deployable service, \xxx may largely promote \paxos deployments and improve the 
 consistency and fault-tolerance of various systems in datacenters.
 
 % \xxx
@@ -484,7 +485,7 @@ available at \github. The remaining of this paper is organized as follows.
 \S\ref{sec:background} introduces background on \paxos and RDMA.
 \S\ref{sec:overview} gives an overview of \xxx. \S\ref{sec:input} presents 
 \xxx's consensus protocol with its runtime system. \S\ref{sec:output} describes 
-the output checking protocol.  \S\ref{sec:impl} presents implementation 
+the output checking protocol. \S\ref{sec:impl} presents implementation 
 details. \S\ref{sec:discuss} compares \dare with \xxx and discusses \xxx's 
 current limitations. \S\ref{sec:evaluation} presents evaluation results, 
 \S\ref{sec:related} discusses related work, and \S\ref{sec:conclusion} 
