@@ -382,8 +382,9 @@ We implemented \xxx in Linux. \xxx intercepts POSIX inbound socket calls
 RDMA architecture~\cite{infiniband}. To help deployers inspect whether replicas 
 run in sync, on top of \xxx's \paxos protocol, \xxx provides an efficient 
 network output checking protocol. To recover or add new replicas, \xxx 
-leverages \criu~\cite{criu} to automatically checkpoint a program on one 
-backup, so it does not affect other replicas to reach consensus rapidly.
+leverages \criu~\cite{criu} to automatically, efficiently checkpoint a program.
+% on one backup replica.
+% , so it does not affect other replicas to reach consensus rapidly.
 
 % \spaxos
 % is designed to achieve scalable throughput when more replicas are added. 
@@ -392,8 +393,8 @@ backup, so it does not affect other replicas to reach consensus rapidly.
 We compared \xxx with five popular, open source \paxos-like implementations,
 including four traditional ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
-\spaxos~\cite{spaxos}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). We
-evaluated \xxx on \nprog widely used or studied server programs, including
+\spaxos~\cite{spaxos:srds12}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). 
+We evaluated \xxx on \nprog widely used or studied server programs, including
 \nkvprog key-value stores (\redis~\cite{redis}, \memcached~\cite{memcached},
 \ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), a SQL server
 \mysql~\cite{mysql}, a anti-virus server \clamav~\cite{clamav}, a multimedia
