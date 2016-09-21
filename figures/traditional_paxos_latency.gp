@@ -13,7 +13,7 @@ set style line 7 lt 7 lw 2 pt 11 ps 2 lc rgb "#000000"
 bm = 0.15
 lm = 0.12
 rm = 0.95
-gap = 0.03
+gap = 0.05
 size = 0.75
 kk = 0.5 # relative height of bottom plot
 y1 = 0.0; y2 = 15.0; y3 = 180.0; y4 = 220.0
@@ -33,18 +33,18 @@ set key spacing 3
 
 set xrange [0:98]
 #set for [i=0:5] xtics (0,3**i)
-set xtics ("3" 0,"5" 14,"7" 28, "9" 42, "33" 70, "66" 84, "105" 98)
+set xtics ("3" 0,"5" 11,"7" 22, "9" 33, "33" 60, "66" 75, "105" 98)
 
-set ylabel "latency (us)" offset -1,6 font ",25"
-set xlabel "number of nodes" offset 0.5,0 font ",25"
+set ylabel "consensus latency (us)" offset -1,6 font ",25"
+set xlabel "number of replicas" offset 0.5,0 font ",25"
 set key right top
 set xrange [0:98]
-set yrange [7:50]
+set yrange [5:50]
 
 #set origin 0.0,1.85
 #set ytics 50
 set ytics ("25" 25, "50" 50)
-set logscale y
+#set logscale y
 # plot upper
 set xtics nomirror
 plot 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 4, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 2
@@ -60,7 +60,7 @@ unset xlabel
 unset ylabel
 unset xtics
 set ytics ("300" 300, "750" 750 ,"1200" 1200)
-plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libPaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "ZooKeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "Crane" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 5, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "DARE" ls 4,'traditional_paxos_latency.dat' using 1:7 with linespoints title "Falcon" ls 2
+plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libPaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "ZooKeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "Crane" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 5, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "DARE" ls 4,'traditional_paxos_latency.dat' using 1:7 with linespoints title "FALCON" ls 2
 
 unset yrange
 unset ytics
