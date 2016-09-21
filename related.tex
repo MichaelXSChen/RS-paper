@@ -150,16 +150,16 @@ hardware, so it is easier to deploy and support general programs.
 
 Speculative Paxos~\cite{specpaxos:nsdi15} and NOPaxos~\cite{nopaxos:osdi16} 
 leverage the synchrony feature of datacenter topology to order requests, so 
-they can eliminate consensus rounds if requests are not reordered or lost. 
-Moreover, NOPaxos assigns a global sequence ID to requests so that it can 
+they can eliminate consensus rounds if packets are not reordered or lost. 
+Moreover, NOPaxos assigns a global sequence ID to packets so that it can 
 proactively detect reordered or lost packets. If packets are lost or 
 reordered, they invoke consensus to rescue. These two systems are not designed 
-for scalability because when replica group becomes large, the probability that 
-replicas incur ordered or lost requests may increase. Moreover, their consensus 
-modules go through TCP/IP layers and incur high round-trip latency, 
-and \xxx can be integrated into these two systems.
+for scalability because when replica group and the datacenter network 
+become big, the probability that replicas incur reordered or lost packets will 
+increase. Moreover, these two systems' consensus modules go through TCP/IP 
+layers and incur high round-trip latency. \xxx can help them.
 
-\para{RDMA-based techniques.} RDMA techniques have been implemented in various 
+\para{RDMA-based systems.} RDMA techniques have been implemented in various 
 architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
 iWRAP~\cite{iwrap}. RDMA have been leveraged in many systems to improve 
 application-specific latency and throughput, including high performance 
