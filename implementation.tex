@@ -7,17 +7,17 @@ checkpoint/restore mechanism for recovering and adding replicas
 
 \subsection{Parallel Input Logging} \label{sec:logging}
 
-To handle replica failovers, a standard \paxos protocol should provide a 
+To handle replica fail-overs, a standard \paxos protocol should provide a 
 persistent input logging storage. \xxx uses the \paxos viewstamp of each input 
 as key and its input data as value. \xxx stores this key-value pair in 
-Berkely DB (BDB) with a BTree access method~\cite{berkeleydb}, because found 
+Berkeley DB (BDB) with a BTree access method~\cite{berkeleydb}, because found 
 this method fastest in our evaluation.
 
 However, if more inputs are inserted, the BTree height 
 will increase, which will cause the key-value insertion latency to 
 largely increase.
 
-To handle this issue, we implementated a thread-safe, 
+To handle this issue, we implemented a thread-safe, 
 parallel logging approach~\cite{Bessani:usenix13}: instead of maintaining a 
 single BDB store, we maintain an array of BDB stores. We use an index to 
 indicate the current active store and insert new inputs. Once the number of 

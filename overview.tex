@@ -16,7 +16,7 @@ well known for tolerating various faults, including minor replica failures
 and packet losses due to hardware or program errors. If the leader replica
 fails, \paxos elects a new leader from the backups.
 
-To cope with replica failovers, \paxos replicas must log inputs in local 
+To cope with replica fail-overs, \paxos replicas must log inputs in local 
 stable storage. When a new input comes, the \paxos leader writes this input in 
 local stable storage. The leader then starts a new consensus round among 
 replicas. A backup also writes the received consensus request in local storage 
@@ -44,7 +44,7 @@ unscalable. As datacenters incorporate increasingly faster networking hardware
 and more CPU cores, traditional 
 \paxos 
 protocols~\cite{libpaxos,spaxos:srds12,crane:sosp15,rex:eurosys14,zookeeper} are 
-having fewer performance bottlenecks on network bandwith and CPU resources. 
+having fewer performance bottlenecks on network bandwidth and CPU resources. 
 However, these protocols still run on TCP/IP and have to go through various 
 software layers such as network stack and OS kernel. 
 Arrakis~\cite{arrakis:osdi14} reported that a \v{ping} program spent over 70\% 
@@ -82,7 +82,7 @@ DPDK~\cite{dpdk}).
 
 RDMA has three types of communication primitives, from fastest to 
 slowest: one-sided read/write operations, two sided send/recv operations, and 
-IPoIB (IP over Infiniband). One-sided operations is about 2X faster than 
+IPoIB (IP over Infiniband). One-sided operations is about 2x faster than 
 two-sided operations because two-sided operations actually consist of two 
 one-sided operations~\cite{pilaf:usenix14}. A one-sided RDMA read/write 
 operation can directly write from one replica's memory to a remote replica's 

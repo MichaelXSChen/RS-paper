@@ -76,10 +76,11 @@ Another scalability approach is maintaining multiple instances of \paxos,
 including batching requests~\cite{calvin:sigmod12}, partitioning program 
 states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus 
 leadership~\cite{mencius:osdi08,spaxos:srds12}, and hierarchical 
-replication~\cite{manos:hotdep10,scatter:sosp11}. These systems have
-improved systems throughput, however, the core of these systems, \paxos, still
-faces an unsalable 
-consensus latency~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10}.
+replication architecture~\cite{manos:hotdep10,scatter:sosp11}. These systems 
+have improved throughput. However, the core of these systems, \paxos, 
+still has an poorly salable consensus latency. 
+Prior work~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10} explicitly desires 
+to have a \paxos protocol with a more scalable consensus latency.
 
 %  advanced
 % replication
@@ -122,14 +123,14 @@ Such a RDMA round-trip takes only about 3 \us~\cite{pilaf:usenix14}.
 % A strawman approach: DARE. RDMA communication primitives themselves have
 % scalability issues.
 % DARE weaken memory semantic. Need to come up with a reason.
-However, due to the unrich types of RDMA primitives, fully exploiting RDMA
-speed in software systems is widely
-considered challenging~\cite{pilaf:usenix14,herd:sigcomm14,
+However, due to the unrich RDMA primitive types, fully exploiting RDMA
+speed in software systems is widely considered 
+challenging by the community~\cite{pilaf:usenix14,herd:sigcomm14,
 farm:sosp15,dare:hpdc15}. For instance, \dare~\cite{dare:hpdc15} presents a
-two-round, RDMA-based \paxos protocol that has a sole-leader: leader does all 
+two-round, RDMA-based \paxos protocol in a sole-leader manner: leader does all 
 RDMA workloads and backups do nothing. \dare was fast with 3 or 5 
 replicas. However, our evaluation shows that, as replica group grows, the 
-leader met scalability bottlenecks (\eg, polling ACKs). Its consensus 
+leader met scalability bottlenecks (\eg, polling ACKs). \dare's consensus 
 latency increased by \darescalability as the group grows by 35x
 (\S\ref{sec:evaluation}).
 
