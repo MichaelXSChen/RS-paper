@@ -1,8 +1,7 @@
 \section{Background}\label{sec:background}
 
-This section introduces the background of two key techniques in \xxx, the 
-\paxos consensus protocol (\S\ref{sec:paxos}) and RDMA features 
-(\S\ref{sec:rdma}).
+This section introduces \paxos
+(\S\ref{sec:paxos}) and RDMA (\S\ref{sec:rdma}).
 
 \subsection{\paxos}\label{sec:paxos}
 % \paxos background. Keys:
@@ -72,7 +71,7 @@ was spent in OS kernels and networking libraries. Therefore, existing systems
 % UC and RC.
 % RC Need an ACK. But can also do selective signaling.
 RDMA architecture such as Infiniband~\cite{infiniband} or RoCE~\cite{roce} 
-recently becomes commonplace in datacenters due to its extreme low latency, 
+recently becomes common in datacenters due to its ultra low latency, 
 high throughput, and its decreasing prices. The ultra low latency of RDMA not 
 only comes from its kernel bypassing feature, but also its dedicated network 
 stack implemented in hardware. Therefore, RDMA is considered the fastest kernel 
@@ -107,17 +106,17 @@ QPs.
 
 To ensure a remote replica is alive and a WRITE succeeds, a common RDMA 
 practice is that after a WRITE is pushed to a QP, the local replica polls
-for an fixed-sized ACK from the associated CQ before it continues (the so 
+an ACK from the associated CQ before it continues (the so 
 called \emph{signaling}). Polling ACK is time consuming as it involves 
 synchronization between the NICs on both sides of a CQ. We collected the time 
-taken in polling ACKs in a recent RDMA-based \paxos protocol~\cite{dare:hpdc15}, 
-and we found that, although this protocol has been carefully optimized (its 
-leader maintains one global CQ to receive backups' ACKs in batches), polling 
-ACKs still became a scalability bottleneck: when the CQ was empty, it took 61 to 
-79 \us; when the CQ has one or more ACKs randomly arrived from other replicas, 
-it took 260 to 410 \us. As the number of ACKs is propotional to the replica 
-group size, polling ACKs become a major scalability bottleneck 
-(\S\ref{sec:evaluation}).
+taken in polling ACKs in a recent RDMA-based \paxos protocol 
+\dare~\cite{dare:hpdc15}, and we found that, although \dare has been 
+carefully optimized (its leader maintains one global CQ to receive backups' ACKs 
+in batches), polling ACKs still became a scalability bottleneck: when the CQ was 
+empty, it took 61$\sim$79 \us; when the CQ has one or more ACKs randomly 
+arrived from other replicas, it took 260$\sim$410 \us. As the number of ACKs is 
+linear to the replica group size, polling ACKs is a major scalability 
+bottleneck (\S\ref{sec:evaluation}).
 
 % If the 
 % number of polling ACK operations is linear to the replica group size, a \paxos 
