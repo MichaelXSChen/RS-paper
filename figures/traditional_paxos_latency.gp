@@ -1,7 +1,7 @@
 set terminal postscript eps enhanced "NimbusSanL-Regu, 20" fontfile "/usr/share/fonts/type1/texlive-fonts-recommended/uhvr8a.pfb"
 
 set style line 1 lt 1 lw 2 pt 2 ps 2 linecolor rgb "#000000"
-set style line 2 lt 2 lw 2 pt 12 ps 2 lc rgb "#072c76"
+set style line 2 lt 1 lw 3 pt 12 ps 2 lc rgb "#072c76"
 set style line 3 lt 3 lw 2 pt 9 ps 2 lc rgb "#000000"
 set style line 4 lt 4 lw 2 pt 7 ps 2 lc rgb "#208418"
 set style line 5 lt 5 lw 2 pt 8 ps 2 lc rgb "#000000"
