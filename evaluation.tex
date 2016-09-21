@@ -358,6 +358,10 @@ make \calvin's client and server communicate with POSIX sockets so that \xxx
 can intercept the server's inputs, we wrote a \nlinescalvin-line patch for
 \calvin.
 
+We turned on and off the output checking (\S\ref{sec:output}) and didn't 
+observe difference in \xxx performance. Only three programs (\mediatomb, 
+\mysql, and \openldap) have different output hashes cause by physical times.
+
 Figure~\ref{fig:tput} shows \xxx's throughput and Figure~\ref{fig:latency}
 response time. We varied the number of concurrent client connections for each
 server program by from one to 32 threads. For \calvin, we only collected the
@@ -367,7 +371,7 @@ to serve client requests.
 Overall, compared to these server programs' unreplicated executions, \xxx 
 merely incurred a mean throughput overhead of \tputoverhead (note that in 
 Figure~\ref{fig:tput}, the Y-axises of most programs start from a large 
-number). \xxx's mean overhead on response time was merely \latencyoverhead.
+number). \xxx's mean overhead on response time was \latencyoverhead.
 
 As the number of threads increases, all programs' unreplicated executions
 got a performance improvement except \memcached. A prior
@@ -389,7 +393,7 @@ local SSD writes (\S\ref{sec:logging}) for the leader and each backup.
 \begin{table}[h]
 \footnotesize
 \centering
-\vspace{.25in}
+% \vspace{.25in}
 \begin{tabular}{lrrrr}
 {\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time}
 & {\bf Quorum time}\\
@@ -408,14 +412,14 @@ local SSD writes (\S\ref{sec:logging}) for the leader and each backup.
 \ssdb & 10,016  & 47.0 & 3.0 \us & 6.2 \us\\
 \calvin & 10,002  & 128.0 & 8.7 \us  & 10.8 \us\\
 \end{tabular}
-% \vspace{-.05in}
+\vspace{-.1in}
 \caption{{\em Leader's input consensus events per 10K requests, 8 threads.}
 The ``\# Calls" column means the number of socket calls that went through \xxx
 input consensus; ``Input" means average bytes of a server's inputs received in
 these calls; ``SSD time" means the average time spent on storing these calls to
 stable storage; and ``Quorum time" means the average time spent on waiting
 quorum for these calls.}
-\vspace{-.1in}
+\vspace{-.2in}
 \label{tab:consensus-latency}
 \end{table}
 
