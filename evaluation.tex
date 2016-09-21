@@ -70,7 +70,7 @@ is designed to achieve scalable throughput when more replicas are added.
 
 We evaluated \xxx on \nprog widely used or studied server programs, including
 \nkvprog key-value stores \redis, \memcached, \ssdb, \mongodb; \mysql, a SQL
-server; \clamav, a anti-virus server that scans files and delete malicious ones;
+server; \clamav, an anti-virus server that scans files and delete malicious ones;
 \mediatomb, a multimedia storage server that stores and transcodes video and
 audio files; \openldap, an LDAP server; \calvin, a widely studied transactional
 database system. All these programs are multithreaded except \redis (but it can 
@@ -231,7 +231,7 @@ kernel, network libraries, and JVM. All times are in \us.}
 \vspace{.05in}
 \begin{tabular}{lrrrrr}
 
-{\bf Proto} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
+{\bf \# Replicas} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
 \hline\\[-2.3ex]
 \xxx & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
 
