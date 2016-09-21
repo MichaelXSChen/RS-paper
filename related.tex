@@ -1,36 +1,52 @@
 \section{Related Work} \label{sec:related}
 
 
-\para{Software-based consensus.} SMR is a powerful, but 
-complex fault-tolerance technique. The literature has developeed a rich set of
-\paxos 
-algorithms~\cite{paxos:practical,paxos,paxos:simple,paxos:complex,epaxos:sosp13}
-and implementations~\cite{paxos:live,paxos:practical,chubby:osdi}. \paxos is 
-notoriously difficult to be fast and scalable~\cite{ellis:thesis}. To improve 
-speed and scalability, various advanced replication models have been 
-developed~\cite{epaxos:sosp13,mencius:osdi08,scatter:sosp11,manos:hotdep10}. 
-Since consensus protocols play a core role in 
-datacenters~\cite{matei:hotcloud11, mesos:nsdi11, datacenter:os} and distributed 
-systems~\cite{spanner:osdi12,mencius:osdi08}, a variety of study have been 
-conducted to improve different aspects of consensus protocols, including 
-performance~\cite{epaxos:sosp13,paxos:fast,dare:hpdc15}, 
+\para{Software-based consensus.} There are a rich set of
+\paxos algorithms~\cite{paxos:practical,paxos,paxos:simple,paxos:complex,
+epaxos:sosp13} and 
+implementations~\cite{paxos:live,paxos:practical,chubby:osdi,crane:sosp15}. 
+\paxos is notoriously difficult to be fast and 
+scalable~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}. Since consensus 
+protocols play a core role in datacenters~\cite{matei:hotcloud11, mesos:nsdi11, 
+datacenter:os} and worldwide 
+distributed systems~\cite{spanner:osdi12,mencius:osdi08}, a variety of study 
+have been conducted to improve specific aspects of consensus protocols, 
+including order commutativity~\cite{epaxos:sosp13}, 
 understandability~\cite{raft:usenix14,paxos}, and verifiable reliability 
-rules~\cite{modist:nsdi09,demeter:sosp11}. Although \xxx tightly integrates 
-RDMA features in \paxos, its implementation mostly complies with a popular, 
-practical approach~\cite{paxos:practical} for reliability. Other \paxos 
-approaches can also be leveraged in \xxx.
+rules~\cite{modist:nsdi09,demeter:sosp11}.
 
-Five systems aim to provide SMR or similar fault-tolerance guarantees to server 
-programs and thus they are the most relevant to \xxx. They can be divided into 
-two categories depending on whether their protocols run on TCP/IP or RDMA. 
-The first category runs on TCP/IP, including Eve~\cite{eve:osdi12}, 
-Rex~\cite{rex:eurosys14}, Calvin~\cite{calvin:sigmod12}, and 
-Crane~\cite{crane:sosp15}. Evaluation in these systems shows that SMR 
-services incur modest overhead on server programs' throughput compared to their 
-unreplicated executions. However, for some other programs (\eg, key-value 
-stores) demanding a short response time, \xxx is more suitable because these 
-systems' consensus latency is at least 10X slower than 
-\xxx's (\S\ref{sec:compare}).
+% Although \xxx tightly integrates 
+% RDMA features in \paxos, its implementation mostly complies with a popular, 
+% practical approach~\cite{paxos:practical} for reliability. Other \paxos 
+% approaches can also be leveraged in \xxx.
+
+
+To make \paxos's throughput scalable (\ie, more replicas, higher throughput), 
+various systems leverage \paxos as a core building block to develop advanced 
+replication approaches, including partitioning program 
+states~\cite{scatter:sosp11,dssmr,ssmr}, splitting consensus 
+leadership~\cite{mencius:osdi08,spaxos}, and hieratical 
+replication~\cite{manos:hotdep10,scatter:sosp11}. Theses approaches have shown 
+to largely improve throughput. However, the core of these systems, 
+\paxos, still faces an unscalable consensus 
+latency~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10}. By using \xxx as a 
+building block, these system can scale even better.
+
+% arious advanced replication models have been 
+% developed~\cite{epaxos:sosp13,mencius:osdi08,scatter:sosp11,manos:hotdep10}. 
+
+
+
+Three state machine replication (SMR) systems, Eve~\cite{eve:osdi12}, 
+Rex~\cite{rex:eurosys14}, and Crane~\cite{crane:sosp15}, build traditional 
+\paxos protocols to improve the availability of general server programs. 
+Evaluation in these systems shows that SMR services incur modest overhead on 
+server programs' throughput compared to their unreplicated executions. \xxx's 
+consensus latency is one order of magnitude faster than traditional protocols 
+(\S\ref{sec:eval-traditional}).
+% If programs (\eg, key-value 
+% stores) demand short request latency, \xxx  
+% \xxx's (\S\ref{sec:compare}).
 % These systems can leverage \xxx's general, 
 % RDMA-accelerated protocol to improve latency.
 
@@ -48,13 +64,13 @@ systems' consensus latency is at least 10X slower than
 % Two systems Calvin and Crane, we ran them with Calvin's database; we are XX 
 % times faster.
 
-Notably, Eve~\cite{eve:osdi12} presents an execution state checking approach 
-based on their \paxos coordination service. Eve's completeness on detecting 
-execution divergence relies on whether developers have manually annotated all 
-thread-shared states in program code. \xxx's output checking approach is 
-automated (no manual code annotation is needed), and its completeness depends on 
-whether the diverged execution states propagate to network outputs. Eve and 
-\xxx's checking approaches are complementary and can be integrated.
+% Notably, Eve~\cite{eve:osdi12} presents an execution state checking approach 
+% based on their \paxos coordination service. Eve's completeness on detecting 
+% execution divergence relies on whether developers have manually annotated all 
+% thread-shared states in program code. \xxx's output checking approach is 
+% automated (no manual code annotation is needed), and its completeness depends on 
+% whether the diverged execution states propagate to network outputs. Eve and 
+% \xxx's checking approaches are complementary and can be integrated.
 
 % Two DARE limitations: first, no stable storage. second, old leader may 
 % % unsafely writes to remote logs and thought it has reached a consensus.
@@ -122,7 +138,25 @@ whether the diverged execution states propagate to network outputs. Eve and
 % TCP, and needs annotation.
 
 
-\para{Hardware- or Network- assisted consensus.} 
+\para{Hardware- or Network- assisted consensus.}  Three recent
+systems~\cite{specpaxos:nsdi15,nopaxos:osdi16,hardware:paxos:nsdi16} leverage 
+augmented network hardware or topology to improve \paxos consensus latency. 
+``Consensus in a Box"~\cite{hardware:paxos:nsdi16} implemented \zookeeper's 
+consensus protocol in FPGA and intensively modify its hardware TCP/IP stack for 
+fast latency. It implemented a key-value store in hardware and showed similar 
+consensus latency to \xxx on 3 or 5 replicas. It did not discuss or evaluate 
+its scalability. Compared to this protocol, \xxx does not need to modify 
+hardware, so it is easier to deploy and support general programs.
+
+Speculative Paxos~\cite{specpaxos:nsdi15} and NOPaxos~\cite{nopaxos:osdi16} 
+leverage the synchrony feature of datacenter topology to order requests, so 
+they can eliminate consensus rounds if requests are not reordered or lost. 
+Moreover, NOPaxos assigns a global sequence ID to requests so that it can 
+proactively detect reordered or lost packets. If packets are lost or 
+reordered, they invoke consensus to rescue. These two systems are not designed 
+for scalability because when replica group becomes large, the probability that 
+replicas incur ordered or lost requests may increase. Moreover, their consensus 
+modules go through TCP/IP and have high round-trip latency, which \xxx can help.
 
 \para{RDMA-based techniques.} RDMA techniques have been implemented in various 
 architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
