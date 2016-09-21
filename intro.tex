@@ -159,10 +159,10 @@ destination replicas' memory, and let all replicas poll their local memory to
 receive messages.
 
 Although doing so will consume more CPU resources than a sole-leader 
-protocol~\cite{dare:hpdc15}, it brings two major benefits. First, the leader 
+protocol~\cite{dare:hpdc15}, it has three major benefits. First, the leader 
 has less workloads. Second, both leader and backups participate in consensus, 
 which makes it possible to reach consensus with only one 
-round~\cite{paxos:practical}. Furthermore, all replicas can get rid of 
+round~\cite{paxos:practical}. Third, all replicas can get rid of 
 the expensive RDMA ACK polling and just receive consensus messages on their 
 bare, local memory. An analogy is threads receiving other threads' data via 
 bare memory, a fast and scalable computation pattern.
@@ -177,8 +177,8 @@ bare memory, a fast and scalable computation pattern.
 
 % Why is this idea feasible. Paxos can already handle unreliability.
 % Tech challenge? data integrity. Storage. Checkpoints? Others?
-This observation may raise reliability issues because now the leader has no 
-clue on whether the remote writes succeed. Fortunately, \paxos's protocol 
+This observation may raise reliability concerns because now the leader has no 
+clue on whether remote writes succeed. Fortunately, \paxos's protocol 
 already tolerates various reliability issues, including message losses caused by
 hardware or program failures.
 
