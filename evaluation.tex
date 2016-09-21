@@ -261,22 +261,23 @@ changing replica group size from 3 to 105 (a 35x increase), \xxx's consensus
 latency merely increased by \xxxscalability, and \dare increased by 
 \darescalability.
 
-\xxx scales better than \dare for two main reasons. First, in a protocol level, 
-\xxx's protocol carefully separate the RDMA workloads across leader and 
+\xxx scales better than \dare due to two main reasons. First, in a protocol 
+level, \xxx's protocol carefully separate the RDMA workloads across leader and 
 backups, and it is a one-round protocol (\S\ref{sec:normal}). \dare lets its 
 leader do all the consensus work and backups do nothing, and it is a two-round 
-protocol (\S\ref{sec:compare}). \dare involves approximately 2x more RDMA 
-communications than \xxx.
+protocol (\S\ref{sec:compare}). Therefore, \dare involves approximately 2x more 
+RDMA communications than \xxx.
 
-Second, in a RDMA communication primitive level, \xxx lets all replicas receive 
-consensus messages on their bare, local memory. \dare frequently polls 
+Second, in an RDMA communication primitive level, \xxx lets all replicas 
+receive consensus messages on their bare, local memory. \dare frequently polls 
 RDMA ACKs from a RDMA Completion Queue (CQ) in each consensus round. An ACK 
 polling or insertion operation on the CQ involves synchronization between 
 RDMA NICs among replicas. We found that \dare's ACK mechanism is 
-already highly optimized with a global CQ, so that it can poll more ACKs at 
-one time. However, we found that ACKs arrived randomly, and each polling in 
-\dare took up to 0.042 \us (\S\ref{sec:background}). The more replicas, the 
-more ACK polling operations were needed.
+already highly optimized with a global CQ (it can poll more ACKs at 
+one time). However, we found that ACKs arrived randomly in, and each 
+polling in \dare took up to 0.042 \us (\S\ref{sec:background}). The 
+number of ACK pollings in \dare is linear to replica group 
+size (\S\ref{sec:compare}), causing a linearly increased consensus latency.
 
 \xxx does the same consensus round on all types of requests. \dare does two 
 special handling on GET requests. First, it batches GET requests for consensus, 
@@ -345,7 +346,7 @@ To stress \xxx, we used a large SMR group size of 9 to run all server programs.
 We spawned up to 32 concurrent connections, and then we measured both response 
 time and throughput. We also measured \xxx's bare consensus latency. Each 
 performance data point in the evaluation is taken from the mean value of 
-10 repeated executions.
+10 executions.
 
 % \subsection{Ease of Use} \label{sec:ease-of-use}
 
