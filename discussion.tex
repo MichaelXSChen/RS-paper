@@ -1,8 +1,7 @@
 \section{Discussions}\label{sec:discuss}
 % 
 This section compares \xxx and \dare's protocols (\S\ref{sec:compare}), and 
-discusses \xxx's limitations (\S\ref{sec:limits}) and broad applications 
-(\S\ref{sec:apps}).
+discusses \xxx's limitations (\S\ref{sec:limits}).
 
 \subsection{Comparing \xxx and \dare}\label{sec:compare}
 
@@ -108,13 +107,15 @@ results among replicas.
 % of view, such bugs do not matter. Moreover, \xxx already checkpoints file 
 % system state to mitigate this issue.
 
-Currently \xxx has not incorporated read-only optimization~\cite{eve:osdi12} 
-because its performance overhead compared to the evaluated programs' 
-unreplicated executions is already reasonable (\S\ref{sec:overhead}). However, 
-\xxx can be extended to support read-only optimization if two conditions are 
-met: (1) whether the semantic an operation is read-only is clear in a server 
-program; and (2) the number of output bytes for this operation is fixed. GET 
-requests in key-value stores often meet these two conditions.
+Like recent systems~\cite{dare:hpdc15,crane:sosp15}, \xxx totally orders all 
+types of requests and it has not incorporated 
+read-only optimization~\cite{eve:osdi12}, because its performance overhead 
+compared to the evaluated programs' unreplicated executions is already 
+reasonable (\S\ref{sec:overhead}). However, \xxx can be extended to 
+support read-only optimization if two conditions are met: (1) whether the 
+semantic an operation is read-only is clear in a server program; and (2) the 
+number of output bytes for this operation is fixed. GET requests in key-value 
+stores often meet these two conditions.
 
 We use GET requests to present a design. \xxx intercepts a client program's 
 outbound socket calls (\eg, \send), compares the first three bytes in each call 
@@ -150,13 +151,6 @@ outputs across replicas diverge.
 
 
 
-\subsection{\xxx Has Broad Applications}\label{sec:apps}
-
-In addition to greatly improving \paxos scalability of many systems in 
-datacenters, we envision that \xxx can be applied in broad areas, and here we 
-elaborate three. First, \xxx's RDMA-accelerated \paxos protocol and its 
-implementation could be a template for other replication protocols (\eg, 
-byzantine fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}). 
 
 % Another promising direction is three-phase commit (3PC): 3PC is often 
 % blamed by its intolerance on network partitions and asynchronour 
@@ -170,20 +164,7 @@ byzantine fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}).
 % Parallel program analysis. Such a short coordination time can make replicas 
 % run almost as fast as each other, support many time-critical analyses 
 % such as race detection and security defenses.
-Second, by efficiently constructing multiple, equivalent executions for the 
-same program, \xxx can benefit distributed program analysis techniques. Bounded 
-by the limited computing resources on single machine, recent advanced 
-program analysis frameworks become 
-distributed~\cite{decouple:usenix08, speck:asplos08, 
-shadowreplica:ccs13, wester:parallelizing:asplos13,repframe:apsys15} in order to 
-offload analyses on multiple machines. \xxx can be leveraged in these 
-frameworks so that developers of analysis tools can just focus on their own 
-analysis logic, while \xxx's general replication architecture handles the rest.
 
-Moreover, program analyses developers can tightly integrate their tools with 
-\xxx. For instance, they can proactively diversify the orders of socket calls 
-in \xxx's consensus logs among replicas to improve replicas' tolerance on 
-security attacks~\cite{con:hotpar12}.
 
 % TBD: use \xxx to detect software bugs by checking outputs, even in 
 % real-world deployments. XXX make program % inputs strongly consistent across 
@@ -200,11 +181,48 @@ security attacks~\cite{con:hotpar12}.
 % of computing resources and data. Used in scheduling framework (Mesos) because 
 % its latency is almost compatible with context switches of processes (sub 
 % milli seconds).
-Third, \xxx can be a core building block in the emerging datacenter operating 
-systems~\cite{matei:hotcloud11, mesos:nsdi11, datacenter:os}. As a 
-datacenter continuously emerges a computer, an OS may be increasingly needed for 
-such a giant computer. \xxx's fast, scalable coordination service is especially 
-suitable for such an OS's scheduler to maintain a consistent, reliable view on 
-both computing resources and data in a datacenter. For instance, \xxx's 
-latency is about 30 \us even with over 100 replicas, smaller than a 
-process context switch (tens to hundreds of \us).
+
+
+
+
+
+% \subsection{\xxx Has Broad Applications}\label{sec:apps}
+% 
+% In addition to greatly improving \paxos scalability of many systems in 
+% datacenters, we envision that \xxx can be applied in broad areas, and here we 
+% elaborate three. First, \xxx's RDMA-accelerated \paxos protocol and its 
+% implementation could be a template for other replication protocols (\eg, 
+% byzantine fault-tolerance~\cite{zyzzyva:sosp07,pbft:osdi99}). 
+
+
+
+
+
+% Second, by efficiently constructing multiple, equivalent executions for the 
+% same program, \xxx can benefit distributed program analysis techniques. 
+% Bounded 
+% by the limited computing resources on single machine, recent advanced 
+% program analysis frameworks become 
+% distributed~\cite{decouple:usenix08, speck:asplos08, 
+% shadowreplica:ccs13, wester:parallelizing:asplos13,repframe:apsys15} in order 
+% to 
+% offload analyses on multiple machines. \xxx can be leveraged in these 
+% frameworks so that developers of analysis tools can just focus on their own 
+% analysis logic, while \xxx's general replication architecture handles the 
+% rest.
+% 
+% Moreover, program analyses developers can tightly integrate their tools with 
+% \xxx. For instance, they can proactively diversify the orders of socket calls 
+% in \xxx's consensus logs among replicas to improve replicas' tolerance on 
+% security attacks~\cite{con:hotpar12}.
+
+
+
+% Third, \xxx can be a core building block in the emerging datacenter operating 
+% systems~\cite{matei:hotcloud11, mesos:nsdi11, datacenter:os}. As a 
+% datacenter continuously emerges a computer, an OS may be increasingly needed for 
+% such a giant computer. \xxx's fast, scalable coordination service is especially 
+% suitable for such an OS's scheduler to maintain a consistent, reliable view on 
+% both computing resources and data in a datacenter. For instance, \xxx's 
+% latency is about 30 \us even with over 100 replicas, smaller than a 
+% process context switch (tens to hundreds of \us).
