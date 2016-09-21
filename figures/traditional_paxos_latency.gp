@@ -52,13 +52,13 @@ plot 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 4, '
 set border 2+4+8
 set bmargin at screen bm + size * kk + gap
 set tmargin at screen bm + size + gap
-set yrange [250:1600]
+set yrange [250:1300]
 
 unset logscale y
 unset xlabel
 unset ylabel
 unset xtics
-set ytics 500
+set ytics ("300" 300, "750" 750 ,"1200" 1200)
 plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libPaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "ZooKeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "Crane" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 5, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "DARE" ls 4,'traditional_paxos_latency.dat' using 1:7 with linespoints title "Falcon" ls 2
 
 unset yrange
