@@ -112,12 +112,12 @@ have a \paxos protocol with a more scalable consensus latency.
 % Memory semantic.
 Fortunately, Remote Direct Access Memory (RDMA) becomes a possible scalability 
 solution as it becomes common in datacenters. RDMA not only bypasses OS 
-kernel, but it also provides dedicated network hardware to achieve fast 
+kernel, but it also provides dedicated network hardware to achieve a fast 
 round-trip. For instance, the fastest RDMA operation allows a process to 
 directly write to a remote replica's process without involving the remote OS 
 kernel or CPU (``one-sided" operation). To ensure an RDMA write successfully 
-resides in the remote memory, local process polls an ACK sent from remote NIC. 
-Such a RDMA round-trip takes only about 3 \us~\cite{pilaf:usenix14}.
+resides in the remote memory, local process polls an RDMA ACK from remote 
+NIC. Such a RDMA round-trip takes only about 3 \us~\cite{pilaf:usenix14}.
 
 
 % A strawman approach: DARE. RDMA communication primitives themselves have
@@ -132,7 +132,7 @@ RDMA workloads and backups do nothing. \dare was fast with 3 or 5
 replicas. However, our evaluation shows that, as replica group grows, the 
 leader met scalability bottlenecks (\eg, polling ACKs). \dare's consensus 
 latency increased by \darescalability as the group grows by 35x
-(\S\ref{sec:evaluation}).
+(\S\ref{sec:eval-dare}).
 
 % For
 % instance, one-sided RDMA operations eliminate remote replicas' participations,
@@ -151,10 +151,10 @@ latency increased by \darescalability as the group grows by 35x
 % Why is this idea fast. Mulithreading.
 % We: heavily exploiting memory semantic of RDMA. Use more CPUs; save ACKs.
 Our key observation is that we should carefully separate RDMA workloads among
-the leader and backups, especially in such a scalability-sensitive 
-context. Intuitively, we can let both leader and backups do RDMA writes 
-directly on destination replicas' memory, and let all replicas poll their 
-local memory to receive messages.
+the leader and backups, especially in a scalability-sensitive context. 
+Intuitively, we can let both leader and backups do RDMA writes directly on 
+destination replicas' memory, and let all replicas poll their local memory to 
+receive messages.
 
 Although doing so will consume more CPU resources than a sole-leader 
 protocol~\cite{dare:hpdc15}, it brings two major benefits. First, the leader 
@@ -178,9 +178,11 @@ bare memory, a fast and scalable computation pattern.
 This observation may raise reliability issues because now the leader has no 
 clue on whether the remote writes succeed. Fortunately, \paxos's protocol 
 already tolerates various reliability issues, including message losses caused by
-hardware or program failures. Now one just needs a runtime system to 
-efficiently ensure the atomicity of remote writes among replicas 
-(\S\ref{sec:normal}).
+hardware or program failures.
+
+% Now one just needs a runtime system to 
+% efficiently ensure the atomicity of remote writes among replicas 
+% (\S\ref{sec:normal}).
 
 
 
@@ -257,10 +259,9 @@ and failure recovery (\S\ref{sec:checkpoint}).
 
 Similar to general SMR systems~\cite{rex:eurosys14,crane:sosp15},
 \xxx's design supports general, unmodified server programs. Within \xxx, a
-program runs as is. \xxx automatically deploys this program on replicas
-of machines, intercepts inputs from a server program's 
-inbound socket calls (\eg, \recv), and invokes its \paxos protocol to enforce 
-same inputs across replicas.
+program runs as is. \xxx automatically deploys this program on replicas, 
+intercepts inputs from a server program's inbound socket calls (\eg, \recv), and 
+invokes its \paxos protocol to enforce same inputs across replicas.
 
 
 
@@ -382,8 +383,9 @@ We implemented \xxx in Linux. \xxx intercepts POSIX inbound socket calls
 (\eg, \accept and \recv) to coordinate inputs using the Infiniband
 RDMA architecture~\cite{infiniband}. To help people inspect whether replicas 
 run in sync, on top of \xxx's \paxos protocol, \xxx provides an efficient 
-network output checking protocol. To recover or add new replicas, \xxx 
-leverages \criu~\cite{criu} to automatically, efficiently checkpoint a program.
+network output checking protocol. To recover or add replicas, \xxx 
+leverages \criu~\cite{criu} to automatically, efficiently checkpoint a program 
+without perturbing consensus in normal case.
 % on one backup replica.
 % , so it does not affect other replicas to reach consensus rapidly.
 
@@ -394,8 +396,9 @@ leverages \criu~\cite{criu} to automatically, efficiently checkpoint a program.
 We compared \xxx with five popular, open source \paxos-like implementations,
 including four traditional ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
-\spaxos~\cite{spaxos:srds12}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). 
-We evaluated \xxx on \nprog widely used or studied server programs, including
+\spaxos~\cite{spaxos:srds12}), and an RDMA-based one 
+(\dare~\cite{dare:hpdc15}). We evaluated \xxx on \nprog widely used or studied 
+server programs, including
 \nkvprog key-value stores (\redis~\cite{redis}, \memcached~\cite{memcached},
 \ssdb~\cite{ssdb}, and \mongodb~\cite{mongodb}), a SQL server
 \mysql~\cite{mysql}, a anti-virus server \clamav~\cite{clamav}, a multimedia
@@ -408,11 +411,10 @@ that
 order of magnitude faster latency than the literature 
 (Figure~\ref{fig:scalability}). \xxx's consensus latency outperforms 4 
 popular \paxos implementations by \comptradlow to \comptradhigh on 3 to 
-9 replicas. \xxx is faster than \dare by about \fasterDARE. When changing the 
+9 replicas. \xxx is faster than \dare by up to \fasterDARE. When changing the 
 replica group size from 3 to 105 (a 35x
 increase), \xxx's consensus latency increases merely from \xxxlatencythree \us 
-to
-\xxxlatencyonezerofive \us (a \xxxscalability, sub-linear increase).
+to \xxxlatencyonezerofive \us (a \xxxscalability, sub-linear increase).
 
 \item \xxx is general and easy to use. For all \nprog evaluated programs, \xxx 
 ran them without any modification except \calvin.
