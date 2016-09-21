@@ -61,22 +61,25 @@ As replica group size grows, \paxos consensus latency increases
 drastically~\cite{scatter:sosp11} due to the linearly increasing number of 
 consensus messsages. To improve scalability,
 one approach is introducing parallel techniques such as 
-multithreading~\cite{zookeeper, spaxos} or asynchrous IO~\cite{crane:sosp15, 
-libpaxos}. However, the high latency of TCP/IP round-trips still exist, and 
-the synchronizations in these techniques
+multithreading~\cite{zookeeper, spaxos:srds12} or asynchrous 
+IO~\cite{crane:sosp15, libpaxos}. However, the high latency of TCP/IP 
+round-trips still exist, and the synchronizations in these techniques
 frequently involve expensive OS events such as context switches. We ran four
-\paxos-like protocols~\cite{zookeeper, crane:sosp15, spaxos, libpaxos} on 40Gbps
-network with only one client sending consensus requests, and we found that: when
-replica group size increased from 3 to 9, the consensus latency of these
-protocols increased by \tradlatencyincreaselow to \tradlatencyincreasehigh, and
-\systemcostlow to \systemcosthigh of the increase was in OS kernel.
+\paxos-like protocols~\cite{zookeeper, crane:sosp15, spaxos:srds12, libpaxos} on 
+40Gbps network with only one client sending consensus requests, and we found 
+that: when replica group size increased from 3 to 9, the consensus latency of 
+these protocols increased by \tradlatencyincreaselow to 
+\tradlatencyincreasehigh, and \systemcostlow to \systemcosthigh of the increase 
+was in OS kernel.
 
 Another scalability approach is maintaining multiple instances of \paxos, 
-including partitioning program states~\cite{scatter:sosp11,dssmr,ssmr},
-splitting consensus leadership~\cite{mencius:osdi08,spaxos}, and hieratical
-replication~\cite{manos:hotdep10,scatter:sosp11}. However, the core of
-these systems, \paxos, still
-scales poorly~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10}.
+including batching requests~\cite{calvin:sigmod12}, partitioning program 
+states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus 
+leadership~\cite{mencius:osdi08,spaxos:srds12}, and hieratical 
+replication~\cite{manos:hotdep10,scatter:sosp11}. These systems have
+improved systems throughtput, however, the core of these systems, \paxos, still
+faces an unscable 
+consensus latency~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10}.
 
 %  advanced
 % replication
@@ -149,7 +152,7 @@ latency increased by \darescalability as the group grows by 35x
 Our key observation is that we should carefully separate RDMA workloads among
 the leader and backups, especially in such a scalability-sensitive 
 context. Intuitively, we can let both leader and backups do RDMA writes 
-directly on desination replicas' memory, and let all replicas poll their own 
+directly on desination replicas' memory, and let all replicas poll their 
 local memory to receive messages.
 
 Although doing so will consume more CPU resources than a sole-leader 
@@ -480,8 +483,9 @@ consistency and fault-tolerance of various systems in datacenters.
 % benchmarks, and raw evaluation results at \github.
 
 % P11: Remaining of paper.
-\xxx is deployable: all source code, benchmarks, and raw evaluation results are 
-available at \github. The remaining of this paper is organized as follows.
+% \xxx is deployable: all source code, benchmarks, and raw evaluation results are 
+% available at \github. 
+The remaining of this paper is organized as follows.
 \S\ref{sec:background} introduces background on \paxos and RDMA.
 \S\ref{sec:overview} gives an overview of \xxx. \S\ref{sec:input} presents 
 \xxx's consensus protocol with its runtime system. \S\ref{sec:output} describes 
