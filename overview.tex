@@ -91,13 +91,13 @@ operation contain two one-sided operations~\cite{pilaf:usenix14}. \xxx
 uses one-sided operations, and the rest of this paper denotes such a operation 
 as ``WRITE".
 
-RDMA communications between a local network interface card (NIC) and remote NIC 
+RDMA communications between a local NIC and a remote NIC 
 requires setting up a Queue Pair (QP), including a send queue and a receive 
 queue. Each QP associates with a Completion Queue (CQ) to store ACKs. A QP 
 belongs to a type of ``XY": X can be R (reliable) or U (unreliable), and Y can 
 be C (connected) or U (unconnected). HERD~\cite{herd:sigcomm14} reported that 
-WRITEs on RC and UC OPs incur negligible difference in latency, so \xxx uses RC 
-QPs.
+WRITEs on RC and UC OPs incur almost the same latency, so \xxx 
+uses RC QPs.
 
 % \xxx's implementations mainly use RC QPs, because such a reliable, connected QP 
 % guarantees in-order, non-corrupted delivery in normal case. However, RC QPs may 
@@ -115,19 +115,18 @@ taken in polling ACKs in a recent RDMA-based \paxos protocol
 \dare~\cite{dare:hpdc15}, and we found that, although \dare has been 
 carefully optimized (its leader maintains one global CQ to receive backups' ACKs 
 in batches), polling ACKs still became a scalability bottleneck: when the CQ was 
-empty, it took 0.039$\sim$0.12 \us; when the CQ has one or more ACKs randomly 
-arrived from other replicas, it took 0.051$\sim$0.42 \us. As the number of ACKs 
-is linear to replica group size, polling ACKs is a major scalability 
-bottleneck (\S\ref{sec:evaluation}).
+empty, it took 0.039$\sim$0.12 \us; when the CQ has one or more ACKs, it took 
+0.051$\sim$0.42 \us. As the number of ACKs is linear to replica group size, 
+polling ACKs is a major scalability bottleneck (\S\ref{sec:evaluation}).
 
 % If the 
 % number of polling ACK operations is linear to the replica group size, a \paxos 
 % protocol will incur scalability bottlenecks when the size is large 
 % (\S\ref{sec:evaluation}).
 
-Fortunately, depending on application logic, one can do \emph{selective 
+Fortunately, depending on protocol logic, one can do \emph{selective 
 signaling}~\cite{herd:sigcomm14}: it only checks for an ACK after pushing a 
-number of WRITEs. Because \xxx's protocol semantic does not rely on RDMA ACKs, 
+number of WRITEs. Because \xxx's protocol logic does not rely on RDMA ACKs, 
 it just occasionally invokes selective signaling to clean up ACKs in its CQs.
 
 % To 
