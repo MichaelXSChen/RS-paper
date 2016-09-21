@@ -18,17 +18,17 @@ them (\S\ref{sec:checkpoint}).
 % \subsection{Checking Network Outputs} \label{sec:output-workflow}
 
 % Main issue. Output timings are pretty miscellaneous.
-A main technical issue for comparing outputs across replicas is that network 
-outputs and their physical timings are miscellaneous. For example, when we ran 
-\redis simply on pure SET workloads, we found that different replicas reply the 
-numbers of ``OK" replies for SET operations randomly: one replica may send four 
-of them in one \send call, while another replica may only send one of them in 
-each \send call. Therefore, comparing outputs on each \send call among replicas 
-may not only yield wrong results, but may slow down server programs among 
-replicas.
+A main technical challenge for comparing outputs across replicas is that 
+network outputs and their physical timings are miscellaneous. For example, when 
+we ran \redis simply on pure SET workloads, we found that different replicas 
+reply the numbers of ``OK" replies for SET operations randomly: one replica may 
+send four of them in one \send call, while another replica may only send one of 
+them in each \send call. Therefore, comparing outputs on each \send call among 
+replicas may not only yield wrong results, but may slow down server programs 
+among replicas.
 
 % Two variables. Tckpt (checkpoint periods) and Tcmp (comparison periods).
-To tackle this issue, \xxx presents a bucket-based hash computation 
+To tackle this challenge, \xxx presents a bucket-based hash computation 
 mechanism. When a server calls a \send call, \xxx puts the sent bytes into a 
 local, per-connection bucket with 1.5KB (MTU size). Whenever a bucket 
 is full, \xxx computes a new CRC64 hash on a union of the current hash and this 

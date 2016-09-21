@@ -206,7 +206,7 @@ connection on backups. A naive approach could be matching a leader connection's
 socket descriptor to the same one on a backup, but backups' servers may return 
 nondeterministic descriptors due contentions on systems resources.
 
-Fortunately, \paxos has already made viewstamps~\cite{paxos:practical} of 
+Fortunately, \paxos already makes viewstamps~\cite{paxos:practical} of 
 socket calls strongly consistent across replicas. For TCP connections, \xxx 
 adds the \v{conn\_vs} field, the viewstamp of the the first socket call in 
 each connection (\ie, \accept) as the connection ID for log entries. Then, \xxx 
