@@ -271,7 +271,7 @@ Second, in a RDMA communication primitive level, \xxx lets all replicas receive
 consensus messages on their bare, local memory. \dare frequently polls 
 RDMA ACKs from a RDMA Completion Queue (CQ) in each consensus round. An ACK 
 polling or insertion operation on the CQ involves synchronization between 
-RDMA NICs among replicas. We found that although \dare's ACK mechanism is 
+RDMA NICs among replicas. We found that \dare's ACK mechanism is 
 already highly optimized with a global CQ, so that it can poll more ACKs at 
 one time. However, we found that ACKs arrived randomly, and each polling in 
 \dare took up to 0.042 \us (\S\ref{sec:background}). The more replicas, the 
