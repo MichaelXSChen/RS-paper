@@ -35,13 +35,14 @@ general server programs.
 % P2: Performance too slow. Agree first and then execute. Even three nodes, one
 % round-trip (~400 us). Not for performance critical servers such as key-value.
 % Batching: addressed throughput but not latency.
-Unfortunately, despite these advances, \paxos's high consensus latency makes
-many systems suffer. For efficiency, \paxos typically assigns one replica as
-the leader to invoke consensus requests, and the other replicas as backups to
-agree on requests. To agree on an input, at least one message round-trip is
-required between the leader and a backup. A round-trip causes big latency as it
-goes through TCP/IP layers such as software network stack and OS kernel. This
-latency could be acceptable for leader election~\cite{chubby:osdi,zookeeper} or
+Unfortunately, despite these great advances, the high consensus latency of 
+\paxos makes systems suffer. For efficiency, \paxos typically assigns one 
+replica as the leader to invoke consensus requests, and the other replicas as 
+backups to agree on requests. To agree on an input, at least one message 
+round-trip is required between the leader and a backup. A round-trip causes big 
+latency as it goes through TCP/IP layers such as software network stack and OS 
+kernel. This latency could be acceptable for leader 
+election~\cite{chubby:osdi,zookeeper} or
 heavyweight transactions~\cite{crane:sosp15,eve:osdi12}, but undesirable for
 key-value stores~\cite{redis,memcached}.
 % To address this challenge,
