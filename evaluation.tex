@@ -44,47 +44,51 @@ execution.}}
 \label{fig:latency}
 \end{figure*}
 
-Our evaluation used three Dell R430 servers as SMR replicas. Each server has
-Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 hyper-threading cores, 64GB
-memory, and 1TB SSD. Each machine has a Mellanox ConnectX-3 Pro Dual Port 40
-Gbps NIC. These NICs are connected using the Infiniband RDMA architecture.
-The \v{ping} latency between every two replicas are 84 \us (the IPoIB
+Our evaluation machines include nine RDMA-enabled, Dell R430 servers as \paxos 
+replicas. Each server has Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 
+hyper-threading cores, 64GB memory, and 1TB SSD. All NICs are Mellanox 
+ConnectX-3 Pro Dual Port 40 Gbps, connected via Infiniband~\cite{infiniband}. 
+The \v{ping} latency between every two replicas are 84 \us (the IPoIB 
 round-trip latency).
 %
 % through a Dell S6000 high-performance switch with 32 40Gpbs ports.
 
-To mitigate network latency of public network, all client benchmarks were ran
-in a Dell R320 server (the client machine), with Linux 3.16.0, 2.2GHz Intel
-Xeon 12 hyper-threading cores, 32GB memory, and 160GB SSD. This server
-connects with the server machines with 1Gbps bandwidth LAN. The average
-\v{ping} latency between the client machine and a server machine is 301 \us. A
-larger network latency (\eg, sending client requests from WAN) will further
-mask \xxx's overhead.
+Our evaluation machines also include one Dell R320 server for client programs. 
+It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory, 
+and 160GB SSD. To mitigate latency of client requests, this client machine is 
+located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
+\v{ping} latency between this machine and a RDMA replica is 241 \us.
+% A larger 
+% network latency (\eg, sending client requests from WAN) will further mask 
+% \xxx's overhead.
+
+We compared \xxx with five popular, open source \paxos-like implementations,
+including four traditional ones (\libpaxos~\cite{libpaxos},
+\zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
+\spaxos~\cite{spaxos}) and a RDMA-based one (\dare~\cite{dare:hpdc15}). \spaxos
+is designed to achieve scalable throughput when more replicas are added. 
 
 We evaluated \xxx on \nprog widely used or studied server programs, including
 \nkvprog key-value stores \redis, \memcached, \ssdb, \mongodb; \mysql, a SQL
 server; \clamav, a anti-virus server that scans files and delete malicious ones;
 \mediatomb, a multimedia storage server that stores and transcodes video and
 audio files; \openldap, an LDAP server; \calvin, a widely studied transactional
-database system that leverages \zookeeper as its SMR service. All these programs
-are multithreaded except \redis (but it can serve concurrent requests via
-Libevent). These servers all update or store important data and files, thus the
-strong fault-tolerance of SMR is especially attractive to these programs.
+database system. All these programs are multithreaded except \redis (but it can 
+serve concurrent requests via Libevent). These servers all update or store 
+important data and files, thus the strong \paxos fault-tolerance is especially 
+attractive to these programs.
 
 % Benchmarks table.
 Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. To
-evaluate \xxx's practicality, we used the server developers' own performance
-benchmarks or popular third-party. For benchmark workload settings, we used the
-benchmarks' default workloads whenever available. To perform a stress testing
-on \xxx's input consensus protocol, we chose workloads with significant
-portions of writes, because write operations often contain more input bytes than
-reads (\eg, a key-value SET operation contains more bytes than a GET).
+evaluate \xxx's practicality, we used the protocol or program developers' own 
+performance benchmarks or popular third-party benchmarks. For benchmark 
+workload settings, we used the benchmarks' default workloads whenever 
+available. To perform a stress testing on \xxx's input consensus protocol, we 
+chose workloads with significant portions of writes, because write operations 
+often contain more input bytes than reads (\eg, a key-value SET operation 
+contains more bytes than a GET).
 
-We spawned up to 32 concurrent connections, and then we measured both response
-time and throughput. We also measured \xxx's bare consensus latency. All
-evaluation results were done with a replica group size of three except the
-scalability evaluation (\S\ref{sec:scalability}). Each performance data point in
-the evaluation is taken from the mean value of 10 repeated executions.
+
 
 % evaluation metric. client benchmarks all run in LAN, average latency
 The rest of this section focuses on these questions:
@@ -95,10 +99,10 @@ The rest of this section focuses on these questions:
 to traditional \paxos protocols?
 
 \item[\S\ref{sec:eval-dare}:] What is \xxx's consensus latency compared
-to a recent RDMA-based \paxos protocol?
+to \dare?
 
 \item[\S\ref{sec:overhead}:] What is the performance overhead of running \xxx
-with general server programs?
+with general server programs? How does it scale with concurrent requests?
 
 % \item[\S\ref{sec:scalability}:] How scalable is \xxx on different replica group
 % sizes?
@@ -121,33 +125,68 @@ electing a new leader?
 \subsection{Comparing with Traditional \paxos}
 \label{sec:eval-traditional}
 
-We compared \xxx with \calvin's SMR system because \calvin's input consensus
-uses \zookeeper, one of the most widely used coordination service built on
-TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional
-database server in \xxx as the server program, and we compared throughputs and
-the consensus latency with \calvin's consensus protocol \zookeeper.
+As a common evaluation practice in 
+\paxos systems~\cite{dare:hpdc15,nopaxos:osdi16}, when comparing \xxx with 
+other \paxos protocols, we ran \xxx with a popular key value store \redis. For 
+all six \paxos protocols, we spawned 20 consensus requests, a common high 
+concurrent value in prior 
+evaluation~\cite{zookeeper,crane:sosp15,rex:eurosys14}. Our evaluation also 
+showed that most server programs reached peak performance at this concurrent 
+value (\ref{sec:overhead}).
 
-As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved
-19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 18.9K
-transactions/s with a 19.5 \us consensus latency. The throughput in \calvin
-was 5.3\% higher than that in \xxx because \calvin puts transactions in a
-batch with a 10 \ms timeout, it then invokes \zookeeper for consensus on
-this batch. The average number of bytes in \calvin's batches is 18.8KB, and
-the average number of input bytes in each \xxx consensus (one for each \myread
-call) is 128 bytes. Batching helps \calvin achieve good throughput. \xxx
-currently has not incorporated a batching technique because its latency is
-already reasonable (\S\ref{sec:overhead}).
+We compared \xxx with four traditional protocols, \libpaxos~\cite{libpaxos},
+\zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
+\spaxos~\cite{spaxos}. Figure~\ref{fig:scalability} has already shown the 
+results. Three traditional protocols incurred almost a linear increase of 
+consensus latency except \spaxos. \spaxos batch requests from replicas and it 
+only invoke consensus when a fixed batch is full. More replicas will make this 
+batch be full more quickly, so \spaxos incurred slightly better consensus 
+latency at more nodes. Nevertheless, its consensus latency was over 700 \us. 
+\xxx's consensus latency outperforms these protocols by \comptradlow to 
+\comptradhigh on 3 to 9 replicas. Therefore, we needn't run these traditional 
+protocols on more replicas.
 
-Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due
-to \xxx's RDMA-accelerated consensus protocol, although we ran \calvin's
-\zookeeper consensus on IPoIB. A prior SMR evaluation~\cite{dare:hpdc15} also
-reports a similar 320 \us consensus latency in \zookeeper. Two other recent SMR
-systems Crane~\cite{crane:sosp15} and Rex~\cite{rex:eurosys14} may incur
-similar
-consensus latency as \zookeeper's because all their consensus protocols are
-based on TCP/IP. Overall, this \xxx-\calvin comparison suggests that \calvin
-will be better if clients prefer high throughput, and \xxx will be better if
-clients demand short latency.
+To understand why traditional protocols are unscalable, we ran 
+only one client with them and inspect the micro events in their protocols, 
+shown in Table~\ref{tab:consensus-latency}. Three protocols had scalable 
+latency on the arrival of their first consensus reply (the ``First" column), 
+which means that network bandwith is not a scalability bottleneck for them.  
+\libpaxos is an exception because its two-round protocol consumed much 
+bandwidth. However, there is a big gap between the arrival of the first 
+consensu reply and the ``majority" reply (the ``Major" column). Given that the 
+reply processing time was not big (the ``Process" column), we can see that the 
+various systems layers, including OS kernels, network libraries, and language 
+runtimes (\eg, JVM) are the scalable bottleneck (the ``Sys" column). This 
+indicates that RDMA is useful to bypass the systems layers for better 
+scalability. 
+
+% We compared \xxx with \calvin's SMR system because \calvin's input consensus
+% uses \zookeeper, one of the most widely used coordination service built on
+% TCP/IP. To conduct a fair comparison, we ran \calvin's own transactional
+% database server in \xxx as the server program, and we compared throughputs and
+% the consensus latency with \calvin's consensus protocol \zookeeper.
+
+% As shown in Table~\ref{tab:compare}, \calvin's \zookeeper replication achieved
+% 19.9K transactions/s with a 511.9 \us consensus latency. \xxx achieved 18.9K
+% transactions/s with a 19.5 \us consensus latency. The throughput in \calvin
+% was 5.3\% higher than that in \xxx because \calvin puts transactions in a
+% batch with a 10 \ms timeout, it then invokes \zookeeper for consensus on
+% this batch. The average number of bytes in \calvin's batches is 18.8KB, and
+% the average number of input bytes in each \xxx consensus (one for each \myread
+% call) is 128 bytes. Batching helps \calvin achieve good throughput. \xxx
+% currently has not incorporated a batching technique because its latency is
+% already reasonable (\S\ref{sec:overhead}).
+% 
+% Notably, \xxx's consensus latency was 40.1X faster than \zookeeper's mainly due
+% to \xxx's RDMA-accelerated consensus protocol, although we ran \calvin's
+% \zookeeper consensus on IPoIB. A prior SMR evaluation~\cite{dare:hpdc15} also
+% reports a similar 320 \us consensus latency in \zookeeper. Two other recent SMR
+% systems Crane~\cite{crane:sosp15} and Rex~\cite{rex:eurosys14} may incur
+% similar
+% consensus latency as \zookeeper's because all their consensus protocols are
+% based on TCP/IP. Overall, this \xxx-\calvin comparison suggests that \calvin
+% will be better if clients prefer high throughput, and \xxx will be better if
+% clients demand short latency.
 % TBD: rerun \redis micro events; it is too small, so we can not use it here.
 
 \begin{table}[h]
@@ -231,6 +270,12 @@ whether \xxx's scalability is bounded by RDMA NIC capacity. \S\ref{sec:comp}
 
 
 \subsection{Performance Overhead} \label{sec:overhead}
+
+To stress \xxx, we used a replica group size of 9 to run all server 
+programs. We spawned up to 32 concurrent connections, and then we measured both 
+response time and throughput. We also measured \xxx's bare consensus latency. 
+Each performance data point in the evaluation is taken from the mean value of 
+10 repeated executions.
 
 % \subsection{Ease of Use} \label{sec:ease-of-use}
 
