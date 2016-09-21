@@ -501,13 +501,13 @@ since their own last checkpoint. \clamav incurred the largest checkpoint time
 (11.6s) because it loaded and scanned files in a \v{/lib} directory.
 
 Checkpoint operations did not affect \xxx's performance in normal case because 
-they were done on only one backup, and the leader and other backups still form 
-majority and reach consensus rapidly.
+they were done on only one backup. The leader and other backups still formed 
+majority and reached consensus rapidly.
 % This indicates \paxos's fault-tolerance strength: a 
 % backup restart or failure does not affect consensus. 
 
 To evaluate \xxx's \paxos recovery feature, we ran \xxx with \redis and 
-manually kill one backup, and we did not observe a performance change in the 
+manually killed one backup, and we did not observe a performance change in the 
 benchmark runs. We then manually killed the \xxx leader and measured the 
 latency of our RDMA-based leader election with three rounds 
 (\S\ref{sec:election}). Figure~\ref{tab:election} shows \xxx's election latency 
