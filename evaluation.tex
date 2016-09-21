@@ -279,10 +279,10 @@ polling in \dare took up to 0.042 \us (\S\ref{sec:background}). The
 number of ACK pollings in \dare is linear to replica group 
 size (\S\ref{sec:compare}), causing a linearly increased consensus latency.
 
-\xxx does the same consensus round on all types of requests. \dare does two 
-special handling on GET requests. First, it batches GET requests for consensus, 
-which may improve throughput but aggravate latency. Second, \dare's GET 
-requests only involve one-round consensus (does RDMA reads to fetch all 
+\xxx does the same consensus round on all types of requests. \dare has two 
+special techniques on GET requests. First, it batches GET requests for 
+consensus, which may improve throughput but aggravate latency. Second, \dare's 
+GET requests only involve one-round consensus (it does RDMA reads to fetch all 
 replicas' \paxos view IDs~\cite{paxos:practical} and check if a majority of 
 them match the leader's). We also ran \dare with a read-heavy workload 
 (Table~\ref{tab:rdma-latency}) and its consensus latency was about 50\% 
