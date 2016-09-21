@@ -8,15 +8,7 @@ leader election (\S\ref{sec:election}), and reliability guarantees
 
 \subsection{Normal Case Algorithm} \label{sec:normal}
 
-\begin{figure}[t]
-\centering
-\begin{minipage}{.5\textwidth}
-\lgrindfile{code/logentry.cpp}
-\end{minipage}
-\vspace{-.1in}
-\caption{{\em \xxx's log entry for each socket call.}} \label{fig:logentry}
-\vspace{-.05in}
-\end{figure}
+
 
 % \subsubsection{The Basic } \label{sec:primitive}
 
@@ -58,20 +50,20 @@ leader thread invokes a consensus request when it calls a socket call with the
 get the actual return values or received data bytes of this call and then 
 replicates them in remote replicas' logs.
 
-\begin{figure}[b]
+\begin{figure}[t]
 \centering
-\vspace{-0.15in}
-\includegraphics[width=.48\textwidth]{figures/consensus}
-\vspace{-.4in}
-\caption{{\em \xxx consensus algorithm in normal case.}} \label{fig:consensus}
-\vspace{-.05in}
+\begin{minipage}{.5\textwidth}
+\lgrindfile{code/logentry.cpp}
+\end{minipage}
+\vspace{-.1in}
+\caption{{\em \xxx's log entry for each socket call.}} \label{fig:logentry}
+\vspace{-.15in}
 \end{figure}
-
 
 The second step (\textbf{L2}) is local preparation, including assigning a 
 global, monotonically increasing viewstamp to locate this entry in the 
 consensus log, building a log entry structure for this call, and writing this 
-entry to its local SSD.
+entry to a local parallel logging storage on SSD (\S\ref{sec:logging}).
 
 The third step (\textbf{L3}) is to WRITE a log entry to remote backups 
 in parallel. Unlike a previous RDMA-based consensus 
@@ -81,6 +73,15 @@ leader and each backup, because \paxos has handled the reliability issues (\eg,
 packet losses) for our WRITEs. In our evaluation, pushing a log entry to local 
 QP took no more than 0.3 \us. Therefore, the WRITEs to all backups are done in 
 parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
+
+\begin{figure}[h]
+\centering
+\vspace{-0.1in}
+\includegraphics[width=.48\textwidth]{figures/consensus}
+\vspace{-.4in}
+\caption{{\em \xxx consensus algorithm in normal case.}} \label{fig:consensus}
+\vspace{-.25in}
+\end{figure}
 
 % Instead, \xxx's leader thread just return 
 % immediately after 
@@ -161,11 +162,11 @@ consensus log.
 
 
 % TBD: should we put the impl here or somewhere else?
-In an implementation level, \xxx stores log entries in local SSD using Berkley 
-DB~\cite{berkeleydb}. Although \xxx's algorithm does not wait every RDMA ACK in 
-order to achieve high scalability, we use selective signaling 
-(\S\ref{sec:background}) to occasionally check and clear ACKs in the CQ 
-associated with the QP, an essential ACK clearing step in RDMA implementations.
+% In an implementation level, \xxx stores log entries in local SSD using Berkley 
+% DB~\cite{berkeleydb}. Although \xxx's algorithm does not wait every RDMA ACK in 
+% order to achieve high scalability, we use selective signaling 
+% (\S\ref{sec:background}) to occasionally check and clear ACKs in the CQ 
+% associated with the QP, an essential ACK clearing step in RDMA implementations.
 
 % On replicas, server programs run as is without being 
 % intercepted. In short, this follower thread runs a high performance loop to 

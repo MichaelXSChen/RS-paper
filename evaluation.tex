@@ -57,8 +57,8 @@ Our evaluation machines also include one Dell R320 server for client programs.
 It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory, 
 and 160GB SSD. To mitigate latency of client requests, this client machine is 
 located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
-\v{ping} latency between this machine and a RDMA replica is 241 \us. Note that 
-which machines to run cilents on do not affect any \paxos protocol's consensus 
+\v{ping} latency between this machine and a RDMA replica is 241 \us. Running 
+cilents on which machine does not affect any \paxos protocol's consensus 
 latency (it is only affected by the RDMA network among replicas).
 
 % A larger 
@@ -369,7 +369,7 @@ Second, \xxx's output checking protocol invokes occasionally
 \begin{table}[h]
 \footnotesize
 \centering
-\vspace{.05in}
+\vspace{-.05in}
 \begin{tabular}{lrrrr}
 {\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time}
 & {\bf Quorum time}\\
@@ -395,6 +395,7 @@ input consensus; ``Input" means average bytes of a server's inputs received in
 these calls; ``SSD time" means the average time spent on storing these calls to
 stable storage; and ``Quorum time" means the average time spent on waiting
 quorum for these calls.}
+\vspace{-.1in}
 \label{tab:consensus-latency}
 \end{table}
 
@@ -511,13 +512,13 @@ its normal case consensus latency, we considered it reasonable.
 \begin{table}[h]
 \footnotesize
 \centering
-% \vspace{-.05in}
+\vspace{-.05in}
 \begin{tabular}{lrrrrr}
 {\bf \# Replicas} & {\bf 3} & {\bf 5} & {\bf 7} & {\bf 9} & {\bf 11}\\
 \hline\\[-2.3ex]
 Election latency (\us) & 10.7  & 12.0 & 12.8 & 13.5 & 14.0\\
 \end{tabular}
-\vspace{-.05in}
+\vspace{-.1in}
 \caption{{\em \xxx's scalability on leader election.}}
 \vspace{-.3in}
 \label{tab:election}
