@@ -24,8 +24,8 @@ rules~\cite{modist:nsdi09,demeter:sosp11}.
 To make \paxos's throughput scalable (\ie, more replicas, higher throughput), 
 various systems leverage \paxos as a core building block to develop advanced 
 replication approaches, including partitioning program 
-states~\cite{scatter:sosp11,dssmr,ssmr}, splitting consensus 
-leadership~\cite{mencius:osdi08,spaxos}, and hieratical 
+states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus 
+leadership~\cite{mencius:osdi08,spaxos:srds12}, and hieratical 
 replication~\cite{manos:hotdep10,scatter:sosp11}. Theses approaches have shown 
 to largely improve throughput. However, the core of these systems, 
 \paxos, still faces an unscalable consensus 
@@ -139,9 +139,9 @@ consensus latency is one order of magnitude faster than traditional protocols
 
 
 \para{Hardware- or Network- assisted consensus.}  Three recent
-systems~\cite{specpaxos:nsdi15,nopaxos:osdi16,hardware:paxos:nsdi16} leverage 
+systems~\cite{specpaxos:nsdi15,nopaxos:osdi16,consensusbox:nsdi16} leverage 
 augmented network hardware or topology to improve \paxos consensus latency. 
-``Consensus in a Box"~\cite{hardware:paxos:nsdi16} implemented \zookeeper's 
+``Consensus in a Box"~\cite{consensusbox:nsdi16} implemented \zookeeper's 
 consensus protocol in FPGA and intensively modify its hardware TCP/IP stack for 
 fast latency. It implemented a key-value store in hardware and showed similar 
 consensus latency to \xxx on 3 or 5 replicas. It did not discuss or evaluate 

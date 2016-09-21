@@ -129,8 +129,8 @@ value (\ref{sec:overhead}).
 
 We compared \xxx with four traditional protocols, \libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
-\spaxos~\cite{spaxos}. Figure~\ref{fig:scalability} has already shown the 
-results. Three traditional protocols incurred almost a linear increase of 
+\spaxos~\cite{spaxos:srds12}. Figure~\ref{fig:scalability} has already shown 
+the results. Three traditional protocols incurred almost a linear increase of 
 consensus latency except \spaxos. \spaxos batch requests from replicas and it 
 only invoke consensus when a fixed batch is full. More replicas will make this 
 batch be full more quickly, so \spaxos incurred slightly better consensus 
