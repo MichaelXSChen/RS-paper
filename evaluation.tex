@@ -57,7 +57,10 @@ Our evaluation machines also include one Dell R320 server for client programs.
 It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory, 
 and 160GB SSD. To mitigate latency of client requests, this client machine is 
 located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
-\v{ping} latency between this machine and a RDMA replica is 241 \us.
+\v{ping} latency between this machine and a RDMA replica is 241 \us. Note that 
+which machines to run cilents on do not affect any \paxos protocol's consensus 
+latency (it is only affected by the RDMA network among replicas).
+
 % A larger 
 % network latency (\eg, sending client requests from WAN) will further mask 
 % \xxx's overhead.
@@ -148,17 +151,23 @@ protocols on more replicas.
 
 To understand why traditional protocols are unscalable, we ran 
 only one client with them and inspect the micro events in their protocols, 
-shown in Table~\ref{tab:consensus-latency}. Three protocols had scalable 
+shown in Table~\ref{tab:traditional-latency}. Three protocols had scalable 
 latency on the arrival of their first consensus reply (the ``First" column), 
 which means that network bandwith is not a scalability bottleneck for them.  
 \libpaxos is an exception because its two-round protocol consumed much 
 bandwidth. However, there is a big gap between the arrival of the first 
 consensu reply and the ``majority" reply (the ``Major" column). Given that the 
-reply processing time was not big (the ``Process" column), we can see that the 
-various systems layers, including OS kernels, network libraries, and language 
-runtimes (\eg, JVM) are the scalable bottleneck (the ``Sys" column). This 
-indicates that RDMA is useful to bypass the systems layers for better 
-scalability. 
+reply CPU processing time was small (the ``Process" column), we can see that 
+the various systems layers, including OS kernels, network libraries, and 
+language runtimes (\eg, JVM) are the scalable bottleneck (the ``Sys" column). 
+This indicates that RDMA is useful to bypass the systems layers for better 
+scalability.
+
+Note that when running with three replicas, \libpaxos and \crane's proposing 
+leader and acceptors are in different threads, so they two had different 
+``First" and ``Major" arrival times. \crane and \spaxos's proposing 
+leader itself is just an accepter, so they two had same ``First" and ``Major" 
+arrival times (\ie, their ``Sys" times were negligible).
 
 % We compared \xxx with \calvin's SMR system because \calvin's input consensus
 % uses \zookeeper, one of the most widely used coordination service built on
@@ -218,11 +227,12 @@ Process}
 \caption{{\em Scalability bottleneck analysis in traditional \paxos protocols.}
 The ``Proto-\#Rep" column means the \paxos protocol name and replica group
 size; ``Latency" means the consensus latency; ``First" means the latency
-of its first ACK; ``Major" means the
-latency of its majority ACK; ``Process" means time spent in
-processing a majority of ACKs; and ``Sys" means time spent in OS
-kernel, network libraries, and JVM. All times are in \us.}
-\label{tab:consensus-latency}
+of its first consensus reply; ``Major" means the
+latency of its the majority reply; ``Process" means time spent in
+processing all replies; and ``Sys" means time spent in systems (OS
+kernel, network libraries, and JVM) between the ``First" and the ``Major" 
+reply. All times are in \us.}
+\label{tab:traditional-latency}
 \end{table}
 
 \begin{table}[h]
@@ -236,37 +246,41 @@ kernel, network libraries, and JVM. All times are in \us.}
 \xxx & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
 
 \hline\\[-2.3ex]
-\dare (update-heavy) & 8.8 & 12.0  & 32.5 & 64.0 & 102.5 \\
+\dare & 8.8 & 12.0  & 32.5 & 64.0 & 102.5 \\
 
-\hline\\[-2.3ex]
-\dare (read-heavy) & 5.8 & 7.2 & 16.8 & 29.2 & 45.1 \\
+% \hline\\[-2.3ex]
+% \dare (100W) & 5.8 & 7.2 & 16.8 & 29.2 & 45.1 \\
 
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em Raw data of FALCON and DARE.} The read-heavy workload 
-consist of 95\% reads. The update-heavy workload consist of 50\% writes.}
+\caption{{\em Consensus latency of \xxx and \dare.}}
 \label{tab:consensus-latency}
 \end{table}
 
-Because we had only three RDMA machines in the evaluation time, we
-picked \redis as the testing program and ran five to seven \xxx instances on
-three machines: one machine held the leader instance, and each of the other two
-machines held two to three backups.
+We compared \xxx and \dare~\cite{dare:hpdc15} with the same key-value store 
+workload, which contains half GETs and half SETs. This workload represents 
+real-world applications such as an advertisement log that records recent user 
+activities~\cite{dare:hpdc15}. To thoroughly analyze their latency with 
+scalability, we run more replicas than the nine physical machines (\ie, each 
+machine runs several replicas). Since our RDMA NIC bandwidth is 40Gpbs, we 
+didn't find network a bottleneck when running more replicas on a machine; from 
+9 to 105 replicas for both protocols, each RDMA round-trip increased merely 
+from 2.6 \us to 4.4 \us.
 
-Table~\ref{tab:scalability} shows the Scalability results. Given the same
-workload, \xxx's five-replica setting had a 17.9K requests/s and 10.1
-\us consensus latency, and its seven-replica setting had a 17.4K requests/s and
-11.0 \us consensus latency. Compared to the three-replica setting, \xxx
-achieved a similar consensus latency from three to seven replicas, because a
-\xxx consensus latency mainly contains two SSD stores and one WRITE round-trip
-(see Table~\ref{tab:consensus-latency}).
-
-We didn't consider these initial scalability results general; we found them
-promising. Given that each RDMA NIC hardware port supports up to 16 outbound
-RDMA WRITEs with peak performance~\cite{herd:sigcomm14}, and our NIC has dual
-ports, we anticipate that our algorithm may scale up to around 32 replicas
-under current hardware techniques. We plan to buy more servers and verify
-whether \xxx's scalability is bounded by RDMA NIC capacity. \S\ref{sec:comp}
+% Table~\ref{tab:consensus-latency} shows the Scalability results. Given the same
+% workload, \xxx's five-replica setting had a 17.9K requests/s and 10.1
+% \us consensus latency, and its seven-replica setting had a 17.4K requests/s and
+% 11.0 \us consensus latency. Compared to the three-replica setting, \xxx
+% achieved a similar consensus latency from three to seven replicas, because a
+% \xxx consensus latency mainly contains two SSD stores and one WRITE round-trip
+% (see Table~\ref{tab:consensus-latency}).
+% 
+% We didn't consider these initial scalability results general; we found them
+% promising. Given that each RDMA NIC hardware port supports up to 16 outbound
+% RDMA WRITEs with peak performance~\cite{herd:sigcomm14}, and our NIC has dual
+% ports, we anticipate that our algorithm may scale up to around 32 replicas
+% under current hardware techniques. We plan to buy more servers and verify
+% whether \xxx's scalability is bounded by RDMA NIC capacity. \S\ref{sec:comp}
 
 
 \subsection{Performance Overhead} \label{sec:overhead}
