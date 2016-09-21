@@ -138,15 +138,16 @@ protocols (\eg, see \crane in Figure~\ref{fig:scalability}).
 % TCP, and needs annotation.
 
 
-\para{Hardware- or Network- assisted consensus.}  Three recent
-systems~\cite{specpaxos:nsdi15,nopaxos:osdi16,consensusbox:nsdi16} leverage 
-augmented network hardware or topology to improve \paxos consensus latency. 
-``Consensus in a Box"~\cite{consensusbox:nsdi16} implemented \zookeeper's 
-consensus protocol in FPGA and intensively modify its hardware TCP/IP stack for 
-fast latency. It implemented a key-value store in hardware and showed similar 
-consensus latency to \xxx on 3 or 5 replicas. It did not discuss or evaluate 
-its scalability. Compared to this protocol, \xxx does not need to modify 
-hardware, so it is easier to deploy and support general programs.
+\para{Hardware- or Network- assisted consensus.}  Recent
+systems~\cite{consensusbox:nsdi16,specpaxos:nsdi15,nopaxos:osdi16,
+netpaxos:sosr15} leverage augmented network hardware or topology to improve 
+\paxos consensus latency. ``Consensus in a Box"~\cite{consensusbox:nsdi16} 
+implemented \zookeeper's consensus protocol in FPGA and intensively modify its 
+hardware TCP/IP stack for fast latency. It implemented a key-value store in 
+hardware and showed similar consensus latency to \xxx on 3 or 5 replicas. It did 
+not discuss or evaluate its scalability. Compared to this protocol, \xxx does 
+not need to modify hardware, so it is easier to deploy and support general 
+programs.
 
 Speculative Paxos~\cite{specpaxos:nsdi15} and NOPaxos~\cite{nopaxos:osdi16} 
 leverage the synchrony feature of datacenter topology to order requests, so 
