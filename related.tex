@@ -156,7 +156,8 @@ proactively detect reordered or lost packets. If packets are lost or
 reordered, they invoke consensus to rescue. These two systems are not designed 
 for scalability because when replica group becomes large, the probability that 
 replicas incur ordered or lost requests may increase. Moreover, their consensus 
-modules go through TCP/IP and have high round-trip latency, and \xxx can help.
+modules go through TCP/IP layers and have high round-trip latency, 
+and \xxx can be integrated in these systems to their performance.
 
 \para{RDMA-based techniques.} RDMA techniques have been implemented in various 
 architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
@@ -165,10 +166,12 @@ application-specific latency and throughput, including high performance
 computing~\cite{openmpi}, key-value 
 stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14,memcached:rdma}, 
 transactional processing systems~\cite{drtm:sosp15,farm:sosp15}, and file 
-systems~\cite{gibson:nfs}. These systems are largely complementary to \xxx. It 
-will be interesting to investigate whether \xxx can improve the availability for 
-both the client and server for some of these advanced systems within a 
-datacenter, and we leave it for future work.
+systems~\cite{gibson:nfs}. For instance, FaRM~\cite{farm:nsdi14} leverages RDMA 
+to build a fast, distributed key-value store. These systems use RDMA to 
+improve performance of different aspects of various systems, so they are 
+largely complementary to \xxx. It will be interesting to investigate whether 
+\xxx can improve the availability for both the client and server for some of 
+these advanced systems within a datacenter, and we leave it for future work.
 
 % \xxx's deployment model is to 
 % provide SMR fault-tolerance to general server programs deployed in datacenters, 
