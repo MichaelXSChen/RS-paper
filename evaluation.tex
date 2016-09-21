@@ -133,17 +133,18 @@ We compared \xxx with four traditional protocols, \libpaxos~\cite{libpaxos},
 \spaxos~\cite{spaxos:srds12}. All these four protocols were run on IPoIB 
 (\S\ref{sec:rdma}). Figure~\ref{fig:scalability} shows the results. Three 
 traditional protocols incurred almost a linear increase of consensus latency 
-except \spaxos. \spaxos batches requests and invokes consensus when the batch 
-is full or a timeout is reached. More replicas can take shorter time to form 
-a batch, so \spaxos incurred a slightly better consensus latency at more 
-replicas. Afterall, its latency was always over 600 \us. \xxx's 
-consensus latency outperforms these protocols by \comptradlow to \comptradhigh 
-on 3 to 9 replicas. Therefore, we needn't run them with more replicas.
+except \spaxos. \spaxos batches requests from replicas and invokes consensus 
+when the batch is full. More replicas can take shorter time to form a batch, so 
+\spaxos incurred a slightly better consensus latency with more replicas. 
+Afterall, its latency was always over 600 \us. \xxx's consensus latency 
+outperforms these four protocols by \comptradlow to \comptradhigh on 3 to 9 
+replicas. Therefore, we needn't run these protocols with more replicas.
 
 % \spaxos batch requests from replicas and it only invokes 
 % consensus when a fixed batch is full. More replicas will make this batch be 
 % full more quickly, so \spaxos incurred slightly better latency at 
 % more nodes. 
+
 
 To understand why traditional protocols are unscalable, we ran 
 only one client with them and inspect the micro events in their protocols, 
