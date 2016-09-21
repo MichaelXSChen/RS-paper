@@ -24,31 +24,13 @@ concurrent.}
 \label{tab:benchmarks}
 \end{table}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/throughput}
-\vspace{-.10in}
-\caption{\small {\em \xxx throughput compared to the unreplicated
-execution.}}
-\vspace{-.20in}
-\label{fig:tput}
-\end{figure*}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/latency}
-\vspace{-.10in}
-\caption{\small {\em \xxx response time compared to the unreplicated
-execution.}}
-\vspace{-.20in}
-\label{fig:latency}
-\end{figure*}
 
 Our evaluation machines include nine RDMA-enabled, Dell R430 servers as \paxos 
 replicas. Each server has Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 
 hyper-threading cores, 64GB memory, and 1TB SSD. All NICs are Mellanox 
-ConnectX-3 Pro Dual Port 40 Gbps, connected via Infiniband~\cite{infiniband}. 
-The \v{ping} latency between every two replicas are 84 \us (the IPoIB 
+ConnectX-3 Pro 40 Gbps, connected via Infiniband~\cite{infiniband}. 
+The \v{ping} latency between every two replicas is 84 \us (the IPoIB 
 round-trip latency).
 %
 % through a Dell S6000 high-performance switch with 32 40Gpbs ports.
@@ -57,14 +39,16 @@ Our evaluation machines also include one Dell R320 server for client programs.
 It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory, 
 and 160GB SSD. To mitigate latency of client requests, this client machine is 
 located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
-<<<<<<< HEAD
-\v{ping} latency between this machine and a RDMA replica is 241 \us. Running 
-cilents on which machine does not affect any \paxos protocol's consensus 
-=======
 \v{ping} latency between this machine and a RDMA replica is 249 \us. Note that 
 which machines to run cilents on do not affect any \paxos protocol's consensus 
->>>>>>> 93b2c0d1979b9ba4d0f942586352b3928b427096
 latency (it is only affected by the RDMA network among replicas).
+
+
+% <<<<<<< HEAD
+% \v{ping} latency between this machine and a RDMA replica is 241 \us. Running 
+% cilents on which machine does not affect any \paxos protocol's consensus 
+% =======
+% >>>>>>> 93b2c0d1979b9ba4d0f942586352b3928b427096
 
 % A larger 
 % network latency (\eg, sending client requests from WAN) will further mask 
@@ -238,34 +222,23 @@ processing all replies; and ``Sys" means time spent in systems (OS
 kernel, network libraries, and JVM) between the ``First" and the ``Major" 
 reply. All times are in \us.}
 \label{tab:traditional-latency}
+\vspace{-.2in}
 \end{table}
 
 \subsection{Comparing with \dare}
 \label{sec:eval-dare}
 
-\begin{table}[h]
-\footnotesize
+
+
+\begin{figure*}[t]
 \centering
-% \vspace{-.1in}
-\begin{tabular}{lrrrrr}
-
-{\bf \# Replicas} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
-\hline\\[-2.3ex]
-\xxx (update-heavy) & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
-
-\hline\\[-2.3ex]
-\dare (update-heavy) & 8.8 & 12.0  & 32.5 & 64.0 & 102.5 \\
-
-\hline\\[-2.3ex]
-\dare (read-heavy) & 5.8 & 7.2 & 16.8 & 29.2 & 45.1 \\
-
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em Consensus latency of \xxx and \dare.} The update-heavy workload 
-consist of 50\% SETs. The read-heavy workload consist of 10\% SETs.}
-\label{tab:consensus-latency}
-\vspace{-.2in}
-\end{table}
+\includegraphics[width=0.9\textwidth]{figures/throughput}
+\vspace{-.10in}
+\caption{\small {\em \xxx throughput compared to the unreplicated
+execution.}}
+\vspace{-.20in}
+\label{fig:tput}
+\end{figure*}
 
 We first compared \xxx and \dare~\cite{dare:hpdc15} with the key-value 
 stores. \xxx uses a widely used one, \redis; \dare uses 335-line key-value 
@@ -276,7 +249,7 @@ didn't find network a bottleneck when running more replicas on a machine; from 9
 to 105 replicas for both protocols, each RDMA round-trip increased merely from 
 2.6$\sim$4.4 \us.
 
-Table~\ref{tab:consensus-latency} shows the consensus latency of \xxx and 
+Table~\ref{tab:rdma-latency} shows the consensus latency of \xxx and 
 \dare on the same update-heavy workload, which contains half GETs and half 
 SETs. This workload represents real-world applications such as an advertisement 
 log that records recent user activities~\cite{dare:hpdc15}. \xxx and \dare 
@@ -308,10 +281,34 @@ which may improve throughput but aggravate latency. Second, \dare's GET
 requests only involve one-round consensus (does RDMA reads to fetch all 
 replicas's \paxos view IDs~\cite{paxos:practical} and check if a majority of 
 them match the leader's). We also ran \dare with a read-heavy workload 
-(Table~\ref{tab:consensus-latency}) and its consensus latency was about 50\% 
+(Table~\ref{tab:rdma-latency}) and its consensus latency was about 50\% 
 slower than \xxx on large replica groups. Note that \xxx has a durable input 
 storage, and \dare is a volatile protocol. Overall, we considered \xxx faster 
 and more scalable than \dare.
+
+\begin{table}[h]
+\footnotesize
+\centering
+% \vspace{-.1in}
+\begin{tabular}{lrrrrr}
+
+{\bf \# Replicas} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
+\hline\\[-2.3ex]
+\xxx (update-heavy) & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
+
+\hline\\[-2.3ex]
+\dare (update-heavy) & 8.8 & 12.0  & 32.5 & 64.0 & 102.5 \\
+
+\hline\\[-2.3ex]
+\dare (read-heavy) & 5.8 & 7.2 & 16.8 & 29.2 & 45.1 \\
+
+\end{tabular}
+\vspace{-.05in}
+\caption{{\em Consensus latency of \xxx and \dare.} The update-heavy workload 
+consist of 50\% SETs. The read-heavy workload consist of 10\% SETs.}
+\label{tab:rdma-latency}
+\vspace{-.2in}
+\end{table}
 
 % Table~\ref{tab:consensus-latency} shows the Scalability results. Given the same
 % workload, \xxx's five-replica setting had a 17.9K requests/s and 10.1
@@ -330,6 +327,16 @@ and more scalable than \dare.
 
 
 \subsection{Performance Overhead} \label{sec:overhead}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/latency}
+\vspace{-.10in}
+\caption{\small {\em \xxx response time compared to the unreplicated
+execution.}}
+\vspace{-.20in}
+\label{fig:latency}
+\end{figure*}
 
 To stress \xxx, we used a large SMR group size of 9 to run all server programs. 
 We spawned up to 32 concurrent connections, and then we measured both response 
@@ -350,11 +357,12 @@ Figure~\ref{fig:tput} shows \xxx's throughput and Figure~\ref{fig:latency}
 response time. We varied the number of concurrent client connections for each
 server program by from one to 32 threads. For \calvin, we only collected the
 8-thread result because \calvin uses this constant thread count in their code
-to serve client requests. Overall, compared to these server programs'
-unreplicated executions, \xxx merely incurred a mean throughput overhead of
-\tputoverhead (note that in Figure~\ref{fig:tput}, the Y-axises of most programs
-start from a large number). \xxx's mean overhead on response time was merely
-\latencyoverhead.
+to serve client requests.
+
+Overall, compared to these server programs' unreplicated executions, \xxx 
+merely incurred a mean throughput overhead of \tputoverhead (note that in 
+Figure~\ref{fig:tput}, the Y-axises of most programs start from a large 
+number). \xxx's mean overhead on response time was merely \latencyoverhead.
 
 As the number of threads increases, all programs' unreplicated executions
 got a performance improvement except \memcached. A prior
@@ -376,7 +384,7 @@ local writes (\S\ref{sec:logging}) for the leader and each backup.
 \begin{table}[h]
 \footnotesize
 \centering
-\vspace{-.05in}
+\vspace{.25in}
 \begin{tabular}{lrrrr}
 {\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time}
 & {\bf Quorum time}\\
@@ -395,7 +403,7 @@ local writes (\S\ref{sec:logging}) for the leader and each backup.
 \ssdb & 10,016  & 47.0 & 3.0 \us & 6.2 \us\\
 \calvin & 10,002  & 128.0 & 8.7 \us  & 10.8 \us\\
 \end{tabular}
-\vspace{-.05in}
+% \vspace{-.05in}
 \caption{{\em Leader's input consensus events per 10K requests, 8 threads.}
 The ``\# Calls" column means the number of socket calls that went through \xxx
 input consensus; ``Input" means average bytes of a server's inputs received in
