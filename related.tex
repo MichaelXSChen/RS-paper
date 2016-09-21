@@ -156,8 +156,8 @@ proactively detect reordered or lost packets. If packets are lost or
 reordered, they invoke consensus to rescue. These two systems are not designed 
 for scalability because when replica group becomes large, the probability that 
 replicas incur ordered or lost requests may increase. Moreover, their consensus 
-modules go through TCP/IP layers and have high round-trip latency, 
-and \xxx can be integrated in these systems to their performance.
+modules go through TCP/IP and incur high round-trip latency, 
+and \xxx can help.
 
 \para{RDMA-based techniques.} RDMA techniques have been implemented in various 
 architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
