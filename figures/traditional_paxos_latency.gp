@@ -33,18 +33,18 @@ set key spacing 3
 
 set xrange [0:98]
 #set for [i=0:5] xtics (0,3**i)
-set xtics ("3" 0,"5" 11,"7" 22, "9" 33, "33" 60, "66" 75, "105" 98)
+set xtics ("3" 0,"5" 11,"7" 22, "9" 33, "33" 50, "65" 68, "105" 98)
 
 set ylabel "consensus latency (us)" offset -1,6 font ",25"
 set xlabel "number of replicas" offset 0.5,0 font ",25"
 set key right top
 set xrange [0:98]
-set yrange [5:50]
+set yrange [7:50]
 
 #set origin 0.0,1.85
 #set ytics 50
 set ytics ("25" 25, "50" 50)
-#set logscale y
+set logscale y
 # plot upper
 set xtics nomirror
 plot 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 4, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 2
