@@ -157,7 +157,7 @@ benefits. First, the leader has less workloads.
 Second, both leader and backups participate in consensus; they can get rid of 
 the expensive RDMA ACK polling and just receive consensus messages on their 
 bare, local memory. An analogy is threads receiving other threads' data via 
-bare memory, a fast and scalable multithreading pattern.
+bare memory, a fast and scalable computation pattern.
 
 
 % An analogy is that threads receive other threads' data and
@@ -419,7 +419,7 @@ With 9 replicas, compared to servers' own unreplicated executions, \xxx
 incurred merely \tputoverhead overhead on throughput and \latencyoverhead on
 response time in average.
 
-\item \xxx is robust. On leader failures, \xxx's leader election
+\item \xxx is robust. On leader failures, its leader election
 latency was reasonable and scalable.
 
 % \xxx's consensus latency is \fasterthanzookeeper

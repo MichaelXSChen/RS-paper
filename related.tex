@@ -143,23 +143,23 @@ datacenter, and we leave it for future work.
 
 % Increasing assurance of replicas on thread schedulings. Not general 
 % as Falcon's checkpoint techniques. But complementary for example ClamAV.
-\para{Nondeterminism.} 
-Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
-cui:tern:osdi10, kendo:asplos09,
-dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} is 
-pervasive in both application programs and OS kernels, and it often comes with 
-concurrency bugs~\cite{lu:concurrency-bugs}. To mitigate nondeterminism, 
-deterministic multithreading techniques~\cite{grace:oopsla09, 
-dthreads:sosp11, 
-determinator:osdi10,dpj:oopsla09, 
-dmp:asplos09,kendo:asplos09,coredet:asplos10,dos:osdi10,ddos:asplos13,
-ics:oopsla13} and deterministic replay 
-techniques~\cite{r2:osdi,friday2007,srinivasan:flashback,revirt,dejavu,
-vmware-record-replay,smp-revirt:vee08,pres:sosp09,scribe:sigmetrics10,
-odr:sosp09, capo:asplos09} have been developed. Much of these techniques can 
-greatly improve software reliability, but they often come with a performance 
-slowdown. \xxx can run these techniques with the server program to mitigate 
-replica divergence caused by concurrency bugs. 
+% \para{Nondeterminism.} 
+% Nondeterminism~\cite{racepro:sosp11,dmp:asplos09,coredet:asplos10,
+% cui:tern:osdi10, kendo:asplos09,
+% dthreads:sosp11,peregrine:sosp11,parrot:sosp13,determinator:osdi10} is 
+% pervasive in both application programs and OS kernels, and it often comes with 
+% concurrency bugs~\cite{lu:concurrency-bugs}. To mitigate nondeterminism, 
+% deterministic multithreading techniques~\cite{grace:oopsla09, 
+% dthreads:sosp11, 
+% determinator:osdi10,dpj:oopsla09, 
+% dmp:asplos09,kendo:asplos09,coredet:asplos10,dos:osdi10,ddos:asplos13,
+% ics:oopsla13} and deterministic replay 
+% techniques~\cite{r2:osdi,friday2007,srinivasan:flashback,revirt,dejavu,
+% vmware-record-replay,smp-revirt:vee08,pres:sosp09,scribe:sigmetrics10,
+% odr:sosp09, capo:asplos09} have been developed. Much of these techniques can 
+% greatly improve software reliability, but they often come with a performance 
+% slowdown. \xxx can run these techniques with the server program to mitigate 
+% replica divergence caused by concurrency bugs. 
 
 % \para{Concurrency.} Pervasive in real-world applications. Threads. Processes. 
 % Break SMR's state machine assumption. complementary.
