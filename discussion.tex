@@ -66,7 +66,7 @@ Overall, \xxx differs from \dare in three aspects. First, \xxx's protocol has
 only one RDMA round (Figure~\ref{fig:consensus}), while \dare has two 
 rounds. To achieve one-round consensus, \xxx's backups poll from its local 
 memory to receive consensus requests, so \xxx consumes more CPU than \dare on 
-backlups. Second, \xxx has shown to scale well (sub-linearly) on 100+ nodes 
+backups. Second, \xxx has shown to scale well (sub-linearly) on 100+ nodes 
 (\S\ref{sec:eval-dare}), \dare mentioned that their design points 
 do not include scalability. Third, although \xxx's protocol includes a 
 persistent storage to ensure durability, \xxx was faster than 
