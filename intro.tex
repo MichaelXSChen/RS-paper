@@ -8,7 +8,7 @@
 role in datacenters and distributed systems, including ordering
 services~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11},
 leader election~\cite{zookeeper, chubby:osdi}, and
-fault-tolerance~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}. A \paxos service
+fault-tolerance~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}. A \paxos protocol
 runs the same program on a group of replicas and enforces a strongly
 consistent order of inputs for this program, as long as a quorum (typically,
 majority) of replicas still behave correctly.
@@ -17,8 +17,8 @@ majority) of replicas still behave correctly.
 Due to this strong fault-tolerance, \paxos is widely served in many systems.
 For instance, Scatter~\cite{scatter:sosp11} runs 8$\sim$12 replicas in each
 \paxos group to order client requests, and it lets replicas respond requests
-in parallel. A bigger group size will improve Scatter throughput. Moreover, 
-recent state machine replication (SMR) systems~\cite{ crane:sosp15,
+in parallel. A bigger group size will improve Scatter throughput. 
+Moreover, recent state machine replication (SMR) systems~\cite{ crane:sosp15,
 eve:osdi12, rex:eurosys14} use \paxos to greatly improve the availability of
 general server programs.
 
@@ -40,7 +40,7 @@ the leader to invoke consensus requests, and the other replicas as backups to
 agree on requests. To agree on an input, at least one message round-trip is
 required between the leader and a backup. A round-trip causes big latency as it
 goes through TCP/IP layers such as software network stack and OS kernel. This
-latency could be acceptable for leader elections~\cite{chubby:osdi,zookeeper} or
+latency could be acceptable for leader election~\cite{chubby:osdi,zookeeper} or
 heavyweight transactions~\cite{crane:sosp15,eve:osdi12}, but undesirable for
 key-value stores~\cite{redis,memcached}.
 % To address this challenge,
@@ -57,7 +57,7 @@ key-value stores~\cite{redis,memcached}.
 % parallilism, but still slow: despite the large latency, context switches (400
 % us).
 
-As replica group size grows, \paxos consensus latency increases
+As replica group size increases, \paxos consensus latency often increases
 drastically~\cite{scatter:sosp11} due to the linearly increasing number of 
 consensus messages. To improve scalability,
 one approach is introducing parallel techniques such as 
@@ -66,9 +66,9 @@ IO~\cite{crane:sosp15, libpaxos}. However, the high latency of TCP/IP
 round-trips still exist, and the synchronizations in these techniques
 frequently involve expensive OS events such as context switches. We ran four
 \paxos-like protocols~\cite{zookeeper, crane:sosp15, spaxos:srds12, libpaxos} on 
-40Gbps network with only one client sending consensus requests, and we found 
-that: when replica group size increased from 3 to 9, the consensus latency of 
-these protocols increased by \tradlatencyincreaselow to 
+40Gbps network with only one client sending consensus requests. We found 
+that, when replica group size increased from 3 to 9, the consensus latency of 
+three protocols increased by \tradlatencyincreaselow to 
 \tradlatencyincreasehigh, and \systemcostlow to \systemcosthigh of the increase 
 was in OS kernel.
 
@@ -78,9 +78,9 @@ states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus
 leadership~\cite{mencius:osdi08,spaxos:srds12}, and hierarchical 
 replication architecture~\cite{manos:hotdep10,scatter:sosp11}. These systems 
 have improved throughput. However, the core of these systems, \paxos, 
-still has an poorly salable consensus latency. 
-Prior work~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10} explicitly desires 
-to have a \paxos protocol with a more scalable consensus latency.
+still has an unscalable consensus latency. Previous
+work~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10} explicitly desires to 
+have a \paxos protocol with a more scalable consensus latency.
 
 %  advanced
 % replication
