@@ -11,14 +11,14 @@ leader election~\cite{zookeeper, chubby:osdi}, and
 fault-tolerance~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}. A \paxos service
 runs the same program on a group of replicas and enforces a strongly
 consistent order of inputs for this program, as long as a quorum (typically,
-majority) of replicas still work properly.
+majority) of replicas still behave correctly.
 
 % TBD: Scatter description is not very clear; on replica sub key range part.
 Due to this strong fault-tolerance, \paxos is widely served in many systems.
 For instance, Scatter~\cite{scatter:sosp11} runs 8$\sim$12 replicas in each
 \paxos group to order client requests, and it lets replicas respond requests
-in parallel. A bigger replica group size will improve Scatter throughput.
-Moreover, recent state machine replication (SMR) systems~\cite{ crane:sosp15,
+in parallel. A bigger group size will improve Scatter throughput. Moreover, 
+recent state machine replication (SMR) systems~\cite{ crane:sosp15,
 eve:osdi12, rex:eurosys14} use \paxos to greatly improve the availability of
 general server programs.
 
