@@ -114,9 +114,9 @@ taken in polling ACKs in a recent RDMA-based \paxos protocol
 \dare~\cite{dare:hpdc15}, and we found that, although \dare has been 
 carefully optimized (its leader maintains one global CQ to receive backups' ACKs 
 in batches), polling ACKs still became a scalability bottleneck: when the CQ was 
-empty, it took 61$\sim$79 \us; when the CQ has one or more ACKs randomly 
-arrived from other replicas, it took 260$\sim$410 \us. As the number of ACKs is 
-linear to replica group size, polling ACKs is a major scalability 
+empty, it took 0.039$\sim$0.12 \us; when the CQ has one or more ACKs randomly 
+arrived from other replicas, it took 0.051$\sim$0.42 \us. As the number of ACKs 
+is linear to replica group size, polling ACKs is a major scalability 
 bottleneck (\S\ref{sec:evaluation}).
 
 % If the 
