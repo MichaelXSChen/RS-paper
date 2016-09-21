@@ -41,7 +41,7 @@ set origin 0.0,1.85
 set size 1.0,0.85
 set ytics 500
 #set title "(a) ClamAV"
-set label 11 center at graph 0.5,-0.18 "(a) ClamAV" font ",30"
+set label 11 center at graph 0.5,-0.18 "(a) ClamAV" font ",25"
 
 plot 'throughput.dat' using 1:2 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:3 with linespoints title "Falcon" ls 2
 #plot 'throughput.dat' using 1:3 with linespoints title "hook" ls 2
@@ -58,7 +58,7 @@ set ytics 2500
 set origin 1.0,1.85
 set size 1.0,0.85
 #set title "(b) MediaTomb"
-set label 11 center at graph 0.5,-0.18 "(b) MediaTomb" font ",30"
+set label 11 center at graph 0.5,-0.18 "(b) MediaTomb" font ",25"
 
 plot 'throughput.dat' using 1:4 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:5 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 2
@@ -72,7 +72,7 @@ set ytics 500
 set origin 2.0,1.85
 set size 1.0,0.85
 #set title "(c) Memcached"
-set label 11 center at graph 0.5,-0.18 "(c) Memcached" font ",30"
+set label 11 center at graph 0.5,-0.18 "(c) Memcached" font ",25"
 
 plot 'throughput.dat' using 1:6 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:7 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 3
@@ -86,7 +86,7 @@ set ytics 500
 set origin 0.0,0.95
 set size 1.0,0.85
 #set title "(d) MongoDB"
-set label 11 center at graph 0.5,-0.18 "(d) MongoDB" font ",30"
+set label 11 center at graph 0.5,-0.18 "(d) MongoDB" font ",25"
 
 plot 'throughput.dat' using 1:8 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:9 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 4
@@ -100,7 +100,7 @@ set ytics 250
 set origin 1.0,0.95
 set size 1.0,0.85
 #set title "(e) MySQL"
-set label 11 center at graph 0.5,-0.18 "(e) MySQL" font ",30"
+set label 11 center at graph 0.5,-0.18 "(e) MySQL" font ",25"
 
 plot 'throughput.dat' using 1:10 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:11 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 5
@@ -115,7 +115,7 @@ set ytics 2000
 set origin 2.0,0.95
 set size 1.0,0.85
 #set title "(f) OpenLDAP"
-set label 11 center at graph 0.5,-0.18 "(f) OpenLDAP" font ",30"
+set label 11 center at graph 0.5,-0.18 "(f) OpenLDAP" font ",25"
 
 plot 'throughput.dat' using 1:12 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:13 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 6
@@ -131,7 +131,7 @@ set ytics 5000
 set origin 0.0,0.05
 set size 1.0,0.85
 #set title "(g) Redis"
-set label 11 center at graph 0.5,-0.2 "(g) Redis" font ",30"
+set label 11 center at graph 0.5,-0.18 "(g) Redis" font ",25"
 
 plot 'throughput.dat' using 1:14 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:15 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 7
@@ -146,7 +146,7 @@ set ytics 5000
 set origin 1.0,0.05
 set size 1.0,0.85
 #set title "(h) SSDB"
-set label 11 center at graph 0.5,-0.18 "(h) SSDB" font ",30"
+set label 11 center at graph 0.5,-0.18 "(h) SSDB" font ",25"
 
 plot 'throughput.dat' using 1:16 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:17 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 8
@@ -162,7 +162,7 @@ set ytics 2000
 set origin 2.0,0.05
 set size 1.0,0.85
 #set title "(i) Calvin"
-set label 11 center at graph 0.5,-0.18 "(i) Calvin" font ",30"
+set label 11 center at graph 0.5,-0.18 "(i) Calvin" font ",25"
 
 plot 'throughput.dat' using 1:18 with linespoints title "Unreplicated" ls 1,'throughput.dat' using 1:19 with linespoints title "Falcon" ls 2
 #plot sin(x) ls 9
