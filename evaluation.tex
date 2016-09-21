@@ -57,8 +57,13 @@ Our evaluation machines also include one Dell R320 server for client programs.
 It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory, 
 and 160GB SSD. To mitigate latency of client requests, this client machine is 
 located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
+<<<<<<< HEAD
 \v{ping} latency between this machine and a RDMA replica is 241 \us. Running 
 cilents on which machine does not affect any \paxos protocol's consensus 
+=======
+\v{ping} latency between this machine and a RDMA replica is 249 \us. Note that 
+which machines to run cilents on do not affect any \paxos protocol's consensus 
+>>>>>>> 93b2c0d1979b9ba4d0f942586352b3928b427096
 latency (it is only affected by the RDMA network among replicas).
 
 % A larger 
