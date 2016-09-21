@@ -40,9 +40,8 @@ the leader to invoke consensus requests, and the other replicas as backups to
 agree on requests. To agree on an input, at least one message round-trip is
 required between the leader and a backup. A round-trip causes big latency as it
 goes through TCP/IP layers such as software network stack and OS kernel. This
-latency could be acceptable for infrequent
-leader elections~\cite{chubby:osdi,zookeeper} or
-heavyweight transactions~\cite{crane:sosp15,eve:osdi12}, but prohibitive for
+latency could be acceptable for leader elections~\cite{chubby:osdi,zookeeper} or
+heavyweight transactions~\cite{crane:sosp15,eve:osdi12}, but undesirable for
 key-value stores~\cite{redis,memcached}.
 % To address this challenge,
 % some systems~\cite{calvin:sigmod12,rex:eurosys14} batch requests into one
