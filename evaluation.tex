@@ -241,7 +241,7 @@ reply. All times are in \us.}
 \begin{table}[h]
 \footnotesize
 \centering
-\vspace{.05in}
+% \vspace{-.1in}
 \begin{tabular}{lrrrrr}
 
 {\bf \# Replicas} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
@@ -259,6 +259,7 @@ reply. All times are in \us.}
 \caption{{\em Consensus latency of \xxx and \dare.} The update-heavy workload 
 consist of 50\% SETs. The read-heavy workload consist of 10\% SETs.}
 \label{tab:consensus-latency}
+\vspace{-.2in}
 \end{table}
 
 We first compared \xxx and \dare~\cite{dare:hpdc15} with the key-value 
@@ -268,7 +269,7 @@ scalability, we run more replicas than the nine physical machines (\ie, each
 machine runs several replicas). Since our RDMA NIC bandwidth is 40Gpbs, we 
 didn't find network a bottleneck when running more replicas on a machine; from 9 
 to 105 replicas for both protocols, each RDMA round-trip increased merely from 
-2.6 \us to 4.4 \us.
+2.6$\sim$4.4 \us.
 
 Table~\ref{tab:consensus-latency} shows the consensus latency of \xxx and 
 \dare on the same update-heavy workload, which contains half GETs and half 
