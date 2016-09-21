@@ -38,12 +38,12 @@ local memory, just like making threads receive other threads' data efficiently
 on bare memory.
 
 \xxx is the first to achieve low \paxos consensus latency on over 100 replicas. 
-Evaluation shows that \xxx's consensus latency was faster than four 
+Evaluation shows that \xxx's consensus latency outperforms four 
 traditional \paxos protocols by \comptradlow$\sim$\comptradhigh. When 
-increasing the replica group size from three to 105, \xxx's consensus latency 
+the group size increased from 3 to 105, \xxx's consensus latency 
 increases merely from \xxxlatencythree \us to \xxxlatencyonezerofive \us, a 
 sub-linear increase. \xxx is faster than a recent RDMA-based \paxos protocol by 
-up to \fasterDARE. \xxx runs with \nprog widely used, unmodified server programs 
+up to \fasterDARE. \xxx runs with 9 widely used, unmodified server programs 
 (\eg, \redis and \mysql) with low overhead. \xxx is deployable: all source 
 code and raw evaluation results are available at \github.
 
