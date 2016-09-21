@@ -51,12 +51,12 @@ Arrakis~\cite{arrakis:osdi14} reported that a \v{ping} program spent over 70\%
 latency in these two layers.
 
 To further quantify how software layers affect \paxos consensus latency, 
-we ran these four \paxos-like protocols on 40Gbps network with only one client 
-sending requests, and we found that: when increasing the replica group size from 
-three to nine, their consensus latency increased by \tradlatencyincreaselow to 
-\tradlatencyincreasehigh, and \systemcostlow to \systemcosthigh of this increase 
-was spent in OS kernels and networking libraries. Therefore, existing systems 
-(\eg, Scatter) deploy less than one dozen replicas in each \paxos group.
+we ran four \paxos-like protocols on 40Gbps network with only one client 
+sending requests. We found that, when changing the replica group size from 
+three to nine, the consensus latency of three protocols increased by 
+\tradlatencyincreaselow to \tradlatencyincreasehigh, and \systemcostlow to 
+\systemcosthigh of this increase was in OS kernel. Therefore, existing 
+systems (\eg, Scatter) deploy less than one dozen replicas in each \paxos group.
 
 
 % For instance, in an 
@@ -77,16 +77,17 @@ its decreasing prices. The ultra low latency of RDMA not only comes from its
 kernel bypassing feature, but also its dedicated network stack implemented in 
 hardware. Therefore, RDMA is considered the fastest kernel bypassing 
 technique~\cite{herd:sigcomm14,pilaf:usenix14,dare:hpdc15}; it is several times 
-faster than software-only kernel bypassing techniques (\eg, DPDK~\cite{dpdk}).
+faster than software-only kernel bypassing techniques (\eg, DPDK~\cite{dpdk} 
+and Arrakis~\cite{arrakis:osdi14}).
 
 RDMA has three primitive types, from fast to slow: one-sided 
 read/write operations, two sided send/recv operations, and IPoIB (IP over 
 Infiniband). IPoIB can run unmodified socket programs, but it is several times 
-slower than the other two primitives. A one-sided RDMA read/write 
+slower than the other two primitives. A one-sided RDMA write 
 operation can directly write from one replica's memory to a remote 
-replica's memory without involving the remote OS kernel and CPU. One-sided 
-operations is about 2x faster than two-sided operations because two-sided 
-operations consist of two one-sided operations~\cite{pilaf:usenix14}. \xxx 
+replica's memory without involving the remote OS kernel or CPU. One-sided 
+operations is about 2x faster than two-sided operations because a two-sided 
+operation contain two one-sided operations~\cite{pilaf:usenix14}. \xxx 
 uses one-sided operations, and the rest of this paper denotes such a operation 
 as ``WRITE".
 
