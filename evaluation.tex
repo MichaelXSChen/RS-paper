@@ -242,8 +242,8 @@ execution.}}
 \end{figure*}
 
 We first compared \xxx and \dare~\cite{dare:hpdc15} on key-value 
-stores, same key and data lengths (64 bytes). \xxx used a widely used one, 
-\redis; \dare used 335-line key-value store written by their authors. To 
+stores, same key and data lengths (64 bytes). \xxx ran a widely used one, 
+\redis; \dare ran a 335-line key-value store written by their authors. To 
 thoroughly analyze their latency with scalability, we run more replicas than the 
 nine physical machines (\ie, each machine runs several replicas). Since our RDMA 
 NIC bandwidth is 40Gpbs, we didn't find network a bottleneck when running more 
