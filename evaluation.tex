@@ -40,7 +40,7 @@ It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory,
 and 160GB SSD. To mitigate latency of client requests, this client machine is 
 located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
 \v{ping} latency between this machine and a RDMA replica is 250 \us. Note that 
-which machines to run cilents on do not affect any \paxos protocol's consensus 
+which machines to run clients on do not affect any \paxos protocol's consensus 
 latency (it is only affected by the RDMA network among replicas).
 
 
@@ -143,10 +143,10 @@ To understand why traditional protocols are unscalable, we ran
 only one client with them and inspect the micro events in their protocols, 
 shown in Table~\ref{tab:traditional-latency}. Three protocols had scalable 
 latency on the arrival of their first consensus reply (the ``First" column), 
-which means that network bandwith is not a scalability bottleneck for them.  
+which means that network bandwidth is not a scalability bottleneck for them.  
 \libpaxos is an exception because its two-round protocol consumed much 
 bandwidth. However, there is a big gap between the arrival of the first 
-consensu reply and the ``majority" reply (the ``Major" column). Given that the 
+consensus reply and the ``majority" reply (the ``Major" column). Given that the 
 reply CPU processing time was small (the ``Process" column), we can see that 
 the various systems layers, including OS kernels, network libraries, and 
 language runtimes (\eg, JVM) are the scalable bottleneck (the ``Sys" column). 
@@ -257,7 +257,8 @@ log that records recent user activities~\cite{dare:hpdc15}. \xxx and \dare
 achieves similar latency at three replicas, and \xxx was much faster than \dare 
 on more replicas. Their difference is 2.5x$\sim$3.3x on over 33 replicas. When 
 changing replica group size from 3 to 105 (a 35x increase), \xxx's consensus 
-latency merely increased by 3.8x, while \dare increased by 11.7x.
+latency merely increased by \xxxscalability, while \dare increased by 
+\darescalability.
 
 \xxx scales better than \dare for two main reasons. First, in a protocol level, 
 \xxx's protocol carefully separate the RDMA workloads across leader and 
@@ -277,10 +278,10 @@ one time. However, we found that ACKs arrived randomly, and each polling in
 ACK polling operations were needed.
 
 \xxx does the same consensus round on all types of requests. \dare does two 
-special handling on GET requests. First, it batchs GET requests for consensus, 
+special handling on GET requests. First, it batches GET requests for consensus, 
 which may improve throughput but aggravate latency. Second, \dare's GET 
 requests only involve one-round consensus (does RDMA reads to fetch all 
-replicas's \paxos view IDs~\cite{paxos:practical} and check if a majority of 
+replicas' \paxos view IDs~\cite{paxos:practical} and check if a majority of 
 them match the leader's). We also ran \dare with a read-heavy workload 
 (Table~\ref{tab:rdma-latency}) and its consensus latency was about 50\% 
 slower than \xxx on large replica groups. Note that \xxx has a durable input 
