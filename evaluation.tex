@@ -456,28 +456,44 @@ in Figure~\ref{fig:tput} and response times Figure~\ref{fig:latency}.
 
 \subsection{Checkpoint and Recovery} \label{sec:robust}
 
-\xxx's output checking protocol found different output results on \clamav,
-\openldap, and \mediatomb. The output divergence of \clamav was caused by its
-threading model: \clamav uses multiple threads to serve a directory scan
-request, where the threads scan files in parallel and append the scanned files
-into a shared output buffer protected by a mutex lock. Therefore, sometimes
-\clamav's output will diverge across replicas. Running a deterministic
-multithreading runtime with \clamav avoided this divergence~\cite{crane:sosp15}.
-\openldap and \mediatomb contained physical timestamps in their replies.
-\calvin did not send outputs to its client.
+% \xxx's output checking protocol found different output results on \clamav,
+% \openldap, and \mediatomb. The output divergence of \clamav was caused by its
+% threading model: \clamav uses multiple threads to serve a directory scan
+% request, where the threads scan files in parallel and append the scanned files
+% into a shared output buffer protected by a mutex lock. Therefore, sometimes
+% \clamav's output will diverge across replicas. Running a deterministic
+% multithreading runtime with \clamav avoided this divergence~\cite{crane:sosp15}.
+% \openldap and \mediatomb contained physical timestamps in their replies.
+% \calvin did not send outputs to its client.
 
 % TBD: what types of servers are good for output checking.
 
-Each \xxx periodic checkpoint operation cost 0.12s to 11.6s on the
-evaluated server programs. A checkpoint duration depends on whether a
-server's process has updated much of its memory or modified files in its
-current working directory. \clamav incurred the largest checkpoint time (11.6s)
-because it loaded and scanned files in a \v{/lib} directory. To evaluate the
-efficiency of \xxx's rocovery, we ran \clamav and tried to randomly trigger its
-output divergence. \clamav's rocovery time varied from 1.47s to 1.49s for
-backups and the leader, including extracting files in its local directory,
-restoring process state with CRIU, and reconnecting RDMA QPs with remote
-replicas.
+We ran the same performance benchmark as in \S\ref{sec:overhead} and measure 
+programs' checkpoint timecost. Each \xxx periodic checkpoint operation 
+(\S\ref{sec:checkpoint}) cost 0.12s to 11.6s on the evaluated server programs, 
+depending on the amount of modified memory and files in the server programs 
+since their own last checkpoint. \clamav incurred the largest checkpoint time 
+(11.6s) because it loaded and scanned files in a \v{/lib} directory.
+
+Checkpoint operations did not affect \xxx's performance in normal case because 
+they were done on only one backup, and the leader and other backups can still 
+reach consensus rapidly. This indicates \paxos's fault-tolerance strength: a 
+backup restart or failure does not affect consensus. 
+
+To evaluate \xxx's \paxos recovery feature, we ran \xxx with \redis and 
+manually kill one backup, and we did not observe a performance change in the 
+benchmark runs. We then manually killed the \xxx leader and measured the 
+latency of our RDMA-based leader election with three rounds 
+(\S\ref{sec:election}). Figure~\ref{tab:election} shows \xxx's election latency 
+from three to eleven replicas. Because \paxos leader election is rarely 
+invoked in practice, although \xxx's election latency was slightly higher than 
+its normal case consensus latency, we considered it reasonable.
+
+% efficiency of \xxx's rocovery, we ran \clamav and tried to randomly trigger its
+% output divergence. \clamav's rocovery time varied from 1.47s to 1.49s for
+% backups and the leader, including extracting files in its local directory,
+% restoring process state with CRIU, and reconnecting RDMA QPs with remote
+% replicas.
 
 
 
@@ -499,7 +515,7 @@ Election latency (\us) & 10.7  & 12.0 & 12.8 & 13.5 & 14.0\\
 \vspace{-.05in}
 \caption{{\em \xxx's scalability on leader election.}}
 \vspace{-.3in}
-\label{tab:scalability}
+\label{tab:election}
 \end{table}
 
 
