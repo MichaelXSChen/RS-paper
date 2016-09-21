@@ -242,7 +242,7 @@ execution.}}
 \end{figure*}
 
 We first compared \xxx and \dare~\cite{dare:hpdc15} on key-value 
-stores, same key and data lengths (64 bytes). \xxx ran a widely used one, 
+stores, same key and data length (64 bytes). \xxx ran a widely used one, 
 \redis; \dare ran a 335-line key-value store written by their authors. To 
 thoroughly analyze their latency with scalability, we run more replicas than the 
 nine physical machines (\ie, each machine runs several replicas). Since our RDMA 
@@ -254,10 +254,10 @@ Table~\ref{tab:rdma-latency} shows the consensus latency of \xxx and
 \dare on the same update-heavy workload, which contains half GETs and half 
 SETs. This workload represents real-world applications such as an advertisement 
 log that records recent user activities~\cite{dare:hpdc15}. \xxx and \dare 
-achieves similar latency at three replicas, and \xxx was much faster than \dare 
+achieved similar latency at three replicas, and \xxx was much faster than \dare 
 on more replicas. Their difference is 2.5x$\sim$3.3x on over 33 replicas. When 
 changing replica group size from 3 to 105 (a 35x increase), \xxx's consensus 
-latency merely increased by \xxxscalability, while \dare increased by 
+latency merely increased by \xxxscalability, and \dare increased by 
 \darescalability.
 
 \xxx scales better than \dare for two main reasons. First, in a protocol level, 
