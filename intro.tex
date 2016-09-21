@@ -59,9 +59,9 @@ key-value stores~\cite{redis,memcached}.
 
 As replica group size grows, \paxos consensus latency increases
 drastically~\cite{scatter:sosp11} due to the linearly increasing number of 
-consensus messsages. To improve scalability,
+consensus messages. To improve scalability,
 one approach is introducing parallel techniques such as 
-multithreading~\cite{zookeeper, spaxos:srds12} or asynchrous 
+multithreading~\cite{zookeeper, spaxos:srds12} or asynchronous 
 IO~\cite{crane:sosp15, libpaxos}. However, the high latency of TCP/IP 
 round-trips still exist, and the synchronizations in these techniques
 frequently involve expensive OS events such as context switches. We ran four
@@ -75,10 +75,10 @@ was in OS kernel.
 Another scalability approach is maintaining multiple instances of \paxos, 
 including batching requests~\cite{calvin:sigmod12}, partitioning program 
 states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus 
-leadership~\cite{mencius:osdi08,spaxos:srds12}, and hieratical 
+leadership~\cite{mencius:osdi08,spaxos:srds12}, and hierarchical 
 replication~\cite{manos:hotdep10,scatter:sosp11}. These systems have
-improved systems throughtput, however, the core of these systems, \paxos, still
-faces an unscable 
+improved systems throughput, however, the core of these systems, \paxos, still
+faces an unsalable 
 consensus latency~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10}.
 
 %  advanced
@@ -113,7 +113,7 @@ Fortunately, Remote Direct Access Memory (RDMA) becomes a possible scalability
 solution as it becomes common in datacenters. RDMA not only bypasses OS 
 kernel, but it also provides dedicated network hardware to achieve fast 
 round-trip. For instance, the fastest RDMA operation allows a process to 
-directly write to a remote replica's process without involing the remote OS 
+directly write to a remote replica's process without involving the remote OS 
 kernel or CPU (``one-sided" operation). To ensure an RDMA write successfully 
 resides in the remote memory, local process polls an ACK sent from remote NIC. 
 Such a RDMA round-trip takes only about 3 \us~\cite{pilaf:usenix14}.
@@ -122,7 +122,7 @@ Such a RDMA round-trip takes only about 3 \us~\cite{pilaf:usenix14}.
 % A strawman approach: DARE. RDMA communication primitives themselves have
 % scalability issues.
 % DARE weaken memory semantic. Need to come up with a reason.
-However, due to the unrichness of RDMA primitives, fully exploiting RDMA
+However, due to the unrich types of RDMA primitives, fully exploiting RDMA
 speed in software systems is widely
 considered challenging~\cite{pilaf:usenix14,herd:sigcomm14,
 farm:sosp15,dare:hpdc15}. For instance, \dare~\cite{dare:hpdc15} presents a
@@ -152,7 +152,7 @@ latency increased by \darescalability as the group grows by 35x
 Our key observation is that we should carefully separate RDMA workloads among
 the leader and backups, especially in such a scalability-sensitive 
 context. Intuitively, we can let both leader and backups do RDMA writes 
-directly on desination replicas' memory, and let all replicas poll their 
+directly on destination replicas' memory, and let all replicas poll their 
 local memory to receive messages.
 
 Although doing so will consume more CPU resources than a sole-leader 
@@ -247,11 +247,11 @@ efficiently ensure the atomicity of remote writes among replicas
 
 % P4: Falcon; key features. Hook sockets in servers.
 We present \xxx,\footnote{We name our system after
-falcon, one of the astest birds.} a new RDMA-based \paxos protocol and its
-runtime system. In \xxx, all replicas directly write to desination
+falcon, one of the fastest birds.} a new RDMA-based \paxos protocol and its
+runtime system. In \xxx, all replicas directly write to destination
 replicas' memory and poll messages from local memory to receive messages, and 
-our runtime system handles other technical challenges such as messsage 
-atomiciy (\S\ref{sec:normal}), efficient input logging (\S\ref{sec:logging}), 
+our runtime system handles other technical challenges such as message 
+atomicity (\S\ref{sec:normal}), efficient input logging (\S\ref{sec:logging}), 
 and failure recovery (\S\ref{sec:checkpoint}).
 
 Similar to general SMR systems~\cite{rex:eurosys14,crane:sosp15},
@@ -379,7 +379,7 @@ same inputs across replicas.
 % P8: implementation. POSIX. support checkpoint.
 We implemented \xxx in Linux. \xxx intercepts POSIX inbound socket calls
 (\eg, \accept and \recv) to coordinate inputs using the Infiniband
-RDMA architecture~\cite{infiniband}. To help deployers inspect whether replicas 
+RDMA architecture~\cite{infiniband}. To help people inspect whether replicas 
 run in sync, on top of \xxx's \paxos protocol, \xxx provides an efficient 
 network output checking protocol. To recover or add new replicas, \xxx 
 leverages \criu~\cite{criu} to automatically, efficiently checkpoint a program.
@@ -406,7 +406,7 @@ that
 \item \xxx achieves one order of magnitude higher scalability and one
 order of magnitude faster latency than the literature 
 (Figure~\ref{fig:scalability}). \xxx's consensus latency outperforms 4 
-popular \paxos implimentations by \comptradlow to \comptradhigh on 3 to 
+popular \paxos implementations by \comptradlow to \comptradhigh on 3 to 
 9 replicas. \xxx is faster than \dare by about \fasterDARE. When changing the 
 replica group size from 3 to 105 (a 35x
 increase), \xxx's consensus latency increases merely from \xxxlatencythree \us 
@@ -501,8 +501,8 @@ concludes.
 \vspace{-.10in}
 \includegraphics[width=.4\textwidth]{figures/traditional_paxos_latency}
 \vspace{-.15in}
-\caption{{\em Consensu latency of six \paxos-like protocols.} All protocols ran 
-with 20 concurrent proposing clients.}
+\caption{{\em Consensus latency of six \paxos-like protocols.} All protocols 
+ran with 20 concurrent proposing clients.}
 \label{fig:scalability}
 \vspace{-.20in}
 \end{figure}

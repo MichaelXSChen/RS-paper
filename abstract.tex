@@ -30,7 +30,7 @@ replicated on a group of machines (or replicas), tolerating various failures.
 Therefore, \paxos is served in many systems (\eg, ordering services). 
 Unfortunately, despite much effort, the group size of traditional \paxos 
 protocols can hardly go up to a dozen because their consensus messages 
-go throught TCP/IP layers, causing the consensus latency to increase almost 
+go through TCP/IP layers, causing the consensus latency to increase almost 
 linearly to the group size. This paper presents \xxx, a new RDMA-based \paxos 
 protocol. \xxx achieves scalability by: (1) carefully separating RDMA workloads 
 among replicas; and (2) making all replicas receive consensus messages purely on 
