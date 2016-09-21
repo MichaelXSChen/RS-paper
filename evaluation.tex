@@ -29,7 +29,7 @@ concurrent.}
 Our evaluation machines include nine RDMA-enabled, Dell R430 servers as \paxos 
 replicas. Each server has Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 
 hyper-threading cores, 64GB memory, and 1TB SSD. All NICs are Mellanox 
-ConnectX-3 Pro 40 Gbps, connected via Infiniband~\cite{infiniband}. 
+ConnectX-3 Pro 40Gbps, connected via Infiniband~\cite{infiniband}. 
 The \v{ping} latency between every two replicas is 84 \us (the IPoIB 
 round-trip latency).
 %
@@ -148,17 +148,17 @@ which means that network bandwidth is not a scalability bottleneck for them.
 \libpaxos is an exception because its two-round protocol consumed much 
 bandwidth. However, there is a big gap between the arrival of the first 
 consensus reply and the ``majority" reply (the ``Major" column). Given that the 
-reply CPU processing time was small (the ``Process" column), we can see that 
+replies' CPU processing time was small (the ``Process" column), we can see that 
 the various systems layers, including OS kernels, network libraries, and 
-language runtimes (\eg, JVM) are the scalable bottleneck (the ``Sys" column). 
-This indicates that RDMA is useful to bypass the systems layers for better 
-scalability.
+language runtimes (\eg, JVM), are the major scalable bottleneck (the ``Sys" 
+column). This indicates that RDMA is useful to bypass the systems layers for 
+better scalability.
 
 Note that when running with three replicas, \libpaxos and \crane's proposing 
 leader and acceptors are in different threads, so they two had different 
 ``First" and ``Major" arrival times. \crane and \spaxos's proposing 
-leader itself is just an accepter, so they two had same ``First" and ``Major" 
-arrival times (\ie, their ``Sys" times were negligible).
+leader itself is just an acceptor, so they two had same ``First" and ``Major" 
+arrival times (\ie, their ``Sys" times were 0).
 
 % We compared \xxx with \calvin's SMR system because \calvin's input consensus
 % uses \zookeeper, one of the most widely used coordination service built on
@@ -242,14 +242,14 @@ execution.}}
 \label{fig:tput}
 \end{figure*}
 
-We first compared \xxx and \dare~\cite{dare:hpdc15} on key-value 
-stores, same key and data length (64 bytes). \xxx ran a widely used one, 
-\redis; \dare ran a 335-line key-value store written by their authors. To 
-thoroughly analyze their latency with scalability, we run more replicas than the 
-nine physical machines (\ie, each machine runs several replicas). Since our RDMA 
-NIC bandwidth is 40Gpbs, we didn't find network a bottleneck when running more 
-replicas on a machine; from 9 to 105 replicas for both protocols, each RDMA 
-round-trip increased merely from 2.6$\sim$4.4 \us.
+We compared \xxx and \dare~\cite{dare:hpdc15} on key-value stores with the same 
+key and data length. \xxx ran a widely used one, \redis; \dare ran a 335-line, 
+RDMA-based key-value store written by their authors. To thoroughly analyze 
+their latency with scalability, we run more replicas than the nine physical 
+machines (\ie, each machine runs several replicas). Since our RDMA NIC 
+bandwidth is 40Gpbs, we didn't find network an obvious bottleneck while running 
+several replicas on one machine: when changing replica group size from 9 to 
+105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
 
 Table~\ref{tab:rdma-latency} shows the consensus latency of \xxx and 
 \dare on the same update-heavy workload, which contains half GETs and half 
