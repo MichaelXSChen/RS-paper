@@ -46,6 +46,7 @@ set yrange [7:50]
 set ytics ("25" 25, "50" 50)
 set logscale y
 # plot upper
+set xtics nomirror
 plot 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 4, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 2
 
 
