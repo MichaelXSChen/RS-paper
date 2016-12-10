@@ -238,8 +238,11 @@ reply. All times are in \us.}
 \vspace{-.10in}
 \includegraphics[width=.4\textwidth]{figures/server-processing-compare}
 \vspace{-.1in}
-\caption{{\em Consensus latency breakdown of \xxx and \dare.} The number of 
-replicas is seven.}
+\caption{{\em Consensus latency and its breakdown of \xxx and \dare.} The 
+number of replicas is seven. Consensus latency contains two parts: 
+``Wait-time" means the duration between the time a request being received by a 
+server program and the time a consensus for this request starts. 
+``Consensus-time" means the actual duration for consensus.}
 \label{fig:compare}
 \vspace{-.25in}
 \end{figure}
@@ -255,54 +258,77 @@ execution.}}
 \label{fig:tput}
 \end{figure*}
 
-We compared \xxx and \dare~\cite{dare:hpdc15} on key-value stores with the same 
-key and data length. \xxx ran a widely used one, \redis; \dare supported a 
-335-line, RDMA-based key-value server written by their authors. To thoroughly 
-analyze their latency with scalability, we ran up to seven replicas and 24 
-clients. 
+We compared \xxx and \dare~\cite{dare:hpdc15} on key-value servers with same 
+requests. \xxx ran a widely used one, \redis; \dare supported a 335-line, 
+RDMA-based key-value server written by their authors. To thoroughly analyze 
+their latency with scalability, we ran up to seven replicas and 24 clients. 
 % Since our RDMA NIC bandwidth is 40Gpbs, our network were not s while 
 % running several replicas on one machine: when changing replica group size from 9 
 % to 105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
 
-Table~\ref{tab:compare} shows the consensus latency of \xxx and 
-\dare with 50\% SETs and half 50\% requests. \xxx and \dare 
-achieved similar latency at three replicas, and \xxx was much faster than \dare 
-on more replicas. Their difference was 2.5x$\sim$3.3x on over 33 replicas. When 
-changing replica group size from 3 to 105 (a 35x increase), \xxx's consensus 
-latency merely increased by \xxxscalability, and \dare increased by 
-\darescalability.
+Figure~\ref{tab:compare} shows the consensus latency of \xxx and 
+\dare on seven replicas with randomly arriving, 50\% SETs and half 50\% 
+requests. When there was only one client, \xxx was slightly slower than \dare 
+becuase \dare does not store inputs persistently. On 6 to 24 requests, \xxx was 
+\fasterDARElow to \fasterDAREhigh faster than \dare due to two reasons. First, 
+\xxx is a one-round protocol and \dare is a two-round protocol, so \dare's 
+actual consensus time was \fasterDAREconsensusonly higher than \xxx.
+
+Second, \dare's second consensus round updates a global variable in remote 
+backups, which serializes ongoing consensus requests (\S\ref{sec:compare}). 
+Although \dare compensates this limitation by batching same SET or GET types, 
+the randomly arrival of requests often make the batches small, causing a large 
+wait duration (the following batches must wait for prior batches to reach 
+consensus and then they invoke consensus). \dare's 
+evaluation~\cite{dare:hpdc15} also confirmed a high wait duration: with three 
+replicas and nine concurrent clients, \dare's throughput on its real-world 
+inspred workloads (50\% SET and 50\% GET arrive randomly) was about 43.5\% lower 
+than 100\% SET workloads.
+
+These results suggest that \dare is better on smaller number of 
+concurrent requests and replicas (\eg, maintaining leadership 
+or metada~\cite{chubby:osdi,zookeeper}), and \xxx is better on larger number of 
+concurrent requests or replicas (\eg, replicating server 
+programs~\cite{rex:eurosys14,crane:sosp15}).
+
+% \xxx and \dare 
+% achieved similar latency at three replicas, and \xxx was much faster than \dare 
+% on more replicas. Their difference was 2.5x$\sim$3.3x on over 33 replicas. When 
+% changing replica group size from 3 to 105 (a 35x increase), \xxx's consensus 
+% latency merely increased by \xxxscalability, and \dare increased by 
+% \darescalability.
 % This workload represents 
 % real-world applications such as an advertisement 
 % log that records recent user activities~\cite{dare:hpdc15}. 
 
-\xxx scales better than \dare due to two main reasons. First, in a protocol 
-level, \xxx's protocol carefully separate the RDMA workloads across leader and 
-backups, and it is a one-round protocol (\S\ref{sec:normal}). \dare lets its 
-leader do all the consensus work and backups do nothing, and it is a two-round 
-protocol (\S\ref{sec:compare}). Therefore, \dare involves approximately 2x more 
-RDMA communications than \xxx.
+% \xxx scales better than \dare due to two main reasons. First, in a protocol 
+% level, \xxx's protocol carefully separate the RDMA workloads across leader and 
+% backups, and it is a one-round protocol (\S\ref{sec:normal}). \dare lets its 
+% leader do all the consensus work and backups do nothing, and it is a two-round 
+% protocol (\S\ref{sec:compare}). Therefore, \dare involves approximately 2x more 
+% RDMA communications than \xxx.
+% 
+% Second, in an RDMA communication primitive level, \xxx lets all replicas 
+% receive consensus messages on their bare, local memory. \dare frequently polls 
+% RDMA ACKs from a RDMA Completion Queue (CQ) in each consensus round. An ACK 
+% polling or insertion operation on the CQ involves synchronization between 
+% RDMA NICs among replicas. We found that \dare's ACK mechanism is 
+% already highly optimized with a global CQ (it can poll more ACKs at 
+% one time). However, we found that ACKs arrived randomly, and each 
+% polling in \dare took up to 0.042 \us (\S\ref{sec:background}). The 
+% number of ACK pollings in \dare is linear to replica group 
+% size (\S\ref{sec:compare}), causing a linearly increased consensus latency.
 
-Second, in an RDMA communication primitive level, \xxx lets all replicas 
-receive consensus messages on their bare, local memory. \dare frequently polls 
-RDMA ACKs from a RDMA Completion Queue (CQ) in each consensus round. An ACK 
-polling or insertion operation on the CQ involves synchronization between 
-RDMA NICs among replicas. We found that \dare's ACK mechanism is 
-already highly optimized with a global CQ (it can poll more ACKs at 
-one time). However, we found that ACKs arrived randomly, and each 
-polling in \dare took up to 0.042 \us (\S\ref{sec:background}). The 
-number of ACK pollings in \dare is linear to replica group 
-size (\S\ref{sec:compare}), causing a linearly increased consensus latency.
-
-\xxx does the same consensus round on all types of requests. \dare has two 
-special techniques on GET requests. First, it batches GET requests for 
-consensus, which may improve throughput but aggravate latency. Second, \dare's 
-GET requests only involve one-round consensus (it does RDMA reads to fetch all 
-replicas' \paxos view IDs~\cite{paxos:practical} and check if a majority of 
-them match the leader's). We also ran \dare with a read-heavy workload 
-(Table~\ref{tab:rdma-latency}) and its consensus latency was about 50\% 
-slower than \xxx on over 33 replica groups. Note that \xxx is a durable 
-protocol, and \dare is a volatile protocol. Overall, we considered \xxx faster 
-and more scalable than \dare.
+% \xxx does the same consensus round on all types of requests. \dare has two 
+% special techniques on GET requests. First, it batches GET requests for 
+% consensus, which may improve throughput but aggravate latency. Second, \dare's 
+% GET requests only involve one-round consensus (it does RDMA reads to fetch all 
+% replicas' \paxos view IDs~\cite{paxos:practical} and check if a majority of 
+% them match the leader's). We also ran \dare with a read-heavy workload 
+% (Table~\ref{tab:rdma-latency}) and its consensus latency was about 50\% 
+% slower than \xxx on over 33 replica groups. Note that \xxx is a durable 
+% protocol, and \dare is a volatile protocol. Overall, we considered \xxx faster 
+% and more scalable than \dare.
 
 % \begin{table}[h]
 % \footnotesize
@@ -310,7 +336,7 @@ and more scalable than \dare.
 % % \vspace{-.1in}
 % \begin{tabular}{lrrrrr}
 % 
-% {\bf \# Replicas} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
+% {\bf \# Replicas} & {\bf 3} & {\bf 9}\\
 % \hline\\[-2.3ex]
 % \xxx (update-heavy) & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
 % 
