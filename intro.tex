@@ -30,10 +30,10 @@ store important data.
 % majority) of replicas still behave correctly.
 
 % TBD: Scatter description is not very clear; on replica sub key range part.
-Due to this strong fault-tolerance, \paxos is widely served in many systems.
-For instance, Scatter~\cite{scatter:sosp11} runs 8$\sim$12 replicas in each
-\paxos group to order client requests, and it lets replicas respond requests
-in parallel. A bigger group size will improve Scatter throughput. 
+% Due to this strong fault-tolerance, \paxos is widely served in many systems.
+% For instance, Scatter~\cite{scatter:sosp11} runs 8$\sim$12 replicas in each
+% \paxos group to order client requests, and it lets replicas respond requests
+% in parallel. A bigger group size will improve Scatter throughput. 
 
 
 
@@ -48,16 +48,15 @@ in parallel. A bigger group size will improve Scatter throughput.
 % P2: Performance too slow. Agree first and then execute. Even three nodes, one
 % round-trip (~400 us). Not for performance critical servers such as key-value.
 % Batching: addressed throughput but not latency.
-Unfortunately, despite these great advances, the high consensus latency of 
-\paxos makes systems suffer. For efficiency, \paxos typically assigns one 
-replica as the leader to invoke consensus requests, and the other replicas as 
-backups to agree on requests. To agree on an input, at least one message 
-round-trip is required between the leader and a backup. A round-trip causes big 
-latency as it goes through TCP/IP layers such as software network stack and OS 
-kernel. This latency could be acceptable for leader 
-election~\cite{chubby:osdi,zookeeper} or
-heavyweight transactions~\cite{crane:sosp15,eve:osdi12}, but undesirable for
-key-value stores~\cite{redis,memcached}.
+Unfortunately, existing \paxos protocols incur prohibitive performance overhead 
+on server programs. For efficiency, \paxos typically assigns one replica as the 
+leader to invoke consensus requests, and the other replicas as backups to agree 
+on requests. To agree on an input, at least one message round-trip is required 
+between the leader and a backup. A round-trip causes big latency as it goes 
+through TCP/IP layers such as OS kernel. This latency may be acceptable for 
+leader election~\cite{chubby:osdi,zookeeper} or heavyweight 
+transactions~\cite{crane:sosp15,eve:osdi12}, but undesirable for
+key-value servers (\eg, \redis and \memcached).
 % To address this challenge,
 % some systems~\cite{calvin:sigmod12,rex:eurosys14} batch requests into one
 % consensus round. However, batching will only mitigate throughput lost and it
@@ -72,17 +71,24 @@ key-value stores~\cite{redis,memcached}.
 % parallilism, but still slow: despite the large latency, context switches (400
 % us).
 
-As replica group size increases, \paxos consensus latency often increases
-drastically~\cite{scatter:sosp11} due to the linearly increasing number of 
-consensus messages. To improve scalability,
-one approach is introducing parallel techniques such as 
-multithreading~\cite{zookeeper, spaxos:srds12} or asynchronous 
-IO~\cite{crane:sosp15, libpaxos}. However, the high TCP/IP round-trip latency 
-still exists, and synchronizations in these techniques
-frequently invoke expensive OS events such as context switches. We ran four
-\paxos-like protocols~\cite{zookeeper, spaxos:srds12, crane:sosp15, libpaxos} 
-on 40Gbps network with only one client sending consensus requests. We found 
-that, when replica group size increased from 3 to 9, the consensus latency of 
+As the number of concurrent requests or replicas increases, \paxos consensus 
+latency often increases linearly~\cite{scatter:sosp11} due to the linearly 
+increasing number of consensus messages. This limited scalability prevents SMR 
+from deploying with general server programs for two reasons. First, the 
+performance of server porgrams are often scalable to number of CPU cores on 
+serving concurent requests. Second, some advanced SMR systems (\eg, 
+Azure~\cite{azure:book}) often deploy seven or nine replicas to handle replica 
+failures and updates.
+
+To improve scalability, one approach 
+is introducing parallel techniques such as multithreading~\cite{zookeeper, 
+spaxos:srds12} or asynchronous IO~\cite{crane:sosp15, libpaxos}. However, the 
+high TCP/IP round-trip latency still exists, and synchronizations in these 
+techniques frequently invoke expensive OS events such as context switches. We 
+ran four \paxos-like protocols~\cite{zookeeper, spaxos:srds12, crane:sosp15, 
+libpaxos} on 24 cocurrent consensus requests on a computer with 24 CPU cores 
+and 40Gbps network. We found that, when replica group size increased from 3 to 
+9, the consensus latency of 
 three protocols increased by \tradlatencyincreaselow to 
 \tradlatencyincreasehigh, and \systemcostlow to \systemcosthigh of the increase 
 was in OS kernel.
