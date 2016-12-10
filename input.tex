@@ -55,9 +55,9 @@ replicates them in remote replicas' logs.
 \begin{minipage}{.5\textwidth}
 \lgrindfile{code/logentry.cpp}
 \end{minipage}
-\vspace{-.1in}
+\vspace{-.05in}
 \caption{{\em \xxx's log entry for each socket call.}} \label{fig:logentry}
-\vspace{-.15in}
+\vspace{-.2in}
 \end{figure}
 
 The second step (\textbf{L2}) is local preparation, including assigning a 
@@ -74,14 +74,7 @@ packet losses) for our WRITEs. In our evaluation, pushing a log entry to local
 QP took no more than 0.3 \us. Therefore, the WRITEs to all backups are done in 
 parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
 
-\begin{figure}[h]
-\centering
-\vspace{-0.1in}
-\includegraphics[width=.48\textwidth]{figures/consensus}
-\vspace{-.4in}
-\caption{{\em \xxx consensus algorithm in normal case.}} \label{fig:consensus}
-\vspace{-.25in}
-\end{figure}
+
 
 % Instead, \xxx's leader thread just return 
 % immediately after 
@@ -124,6 +117,15 @@ primitives are much slower than normal RDMA WRITEs and local memory reads.
 % Thus, in a RDMA-accelerated protocol, an extra mechanism 
 % is needed to gurantee that a 
 % leader's write has finished and then replicas can agree or disagree.
+
+\begin{figure}[t]
+\centering
+\vspace{-0.4in}
+\includegraphics[width=.48\textwidth]{figures/consensus}
+\vspace{-.25in}
+\caption{{\em \xxx consensus algorithm in normal case.}} \label{fig:consensus}
+\vspace{-.2in}
+\end{figure}
 
 \xxx tackles this issue by adding a canary value after the actual \v{data} 
 array. Because \xxx uses a QP with the type of RC (reliable connection) 
@@ -295,28 +297,22 @@ it starts to WRITE periodic heartbeats.
 % understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 % implement~\cite{paxos:live,paxos:practical}. 
 % 
-To minimize protocol-level bugs, 
-\xxx's \paxos protocol mostly sticks with a popular, 
-practical implementation~\cite{paxos:practical}, especially the behaviors of 
-senders and receivers (\S\ref{sec:normal} and \S\ref{sec:election}). For 
-instance, both \xxx's normal case algorithm and 
-the popular implementation~\cite{paxos:practical} involve two messages and 
-same senders and receivers (although we use WRITEs and carefully make them run 
-in parallel). We made this choice 
-because \paxos is notoriously difficult to 
+To minimize protocol-level bugs, \xxx's protocol derives from a popular 
+viewstamp-based manner~\cite{paxos:practical}. We made this design 
+choice because \paxos is notoriously difficult to 
 understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 implement~\cite{paxos:live,paxos:practical} 
-verify~\cite{modist:nsdi09,demeter:sosp11}. Aligning with a practical
-\paxos implementation~\cite{paxos:practical} helps us incorporate these 
+verify~\cite{modist:nsdi09,demeter:sosp11}. Deriving from a popular 
+manner~\cite{paxos:practical} helps us incorporate these 
 readily mature understanding, engineering experience, and the theoretically 
-verified safety rules into our protocol design and implementation.
+verified safety rules into our protocol.
 
 % TBD: reliability analyzes. We do not need the lossless assumption in RDMA QPs.
 Although \xxx's \paxos protocol works on a RDMA network, the reliability of 
-this protocol does not rely on the lossless networking in RDMA. \xxx's protocol 
-still complies with the standard \paxos failure-handling model, where a stable 
-storage exists, but hardware may fail, network may be partitioned, packets may 
-be delayed or lost, and server programs may crash.
+this protocol does not rely on a lossless RDMA. \xxx still provides same 
+fault-tolerance guarantee as the standard \paxos model, where a stable storage 
+exists, but the hardware or network devices of replicas may fail, and server 
+programs may crash.
 
 
 % Define safety: TBD.
