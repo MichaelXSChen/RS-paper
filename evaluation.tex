@@ -233,6 +233,15 @@ reply. All times are in \us.}
 \subsection{Comparing with \dare}
 \label{sec:eval-dare}
 
+\begin{figure}[t]
+\centering
+\vspace{-.10in}
+\includegraphics[width=.4\textwidth]{figures/server-processing-compare}
+\vspace{-.1in}
+\caption{{\em Consensus latency breakdown of \xxx and \dare.}}
+\label{fig:compare}
+\vspace{-.25in}
+\end{figure}
 
 
 \begin{figure*}[t]
@@ -246,23 +255,24 @@ execution.}}
 \end{figure*}
 
 We compared \xxx and \dare~\cite{dare:hpdc15} on key-value stores with the same 
-key and data length. \xxx ran a widely used one, \redis; \dare ran a 335-line, 
-RDMA-based key-value store written by their authors. To thoroughly analyze 
-their latency with scalability, we run more replicas than the nine physical 
-machines (\ie, each machine runs several replicas). Since our RDMA NIC 
-bandwidth is 40Gpbs, we didn't find network an obvious bottleneck while running 
-several replicas on one machine: when changing replica group size from 9 to 
-105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
+key and data length. \xxx ran a widely used one, \redis; \dare supported a 
+335-line, RDMA-based key-value server written by their authors. To thoroughly 
+analyze their latency with scalability, we ran up to seven replicas and 24 
+clients. 
+% Since our RDMA NIC bandwidth is 40Gpbs, our network were not s while 
+% running several replicas on one machine: when changing replica group size from 9 
+% to 105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
 
 Table~\ref{tab:rdma-latency} shows the consensus latency of \xxx and 
-\dare on the same update-heavy workload, which contains half GETs and half 
-SETs. This workload represents real-world applications such as an advertisement 
-log that records recent user activities~\cite{dare:hpdc15}. \xxx and \dare 
+\dare with 50\% SETs and half 50\% requests. \xxx and \dare 
 achieved similar latency at three replicas, and \xxx was much faster than \dare 
 on more replicas. Their difference was 2.5x$\sim$3.3x on over 33 replicas. When 
 changing replica group size from 3 to 105 (a 35x increase), \xxx's consensus 
 latency merely increased by \xxxscalability, and \dare increased by 
 \darescalability.
+% This workload represents 
+% real-world applications such as an advertisement 
+% log that records recent user activities~\cite{dare:hpdc15}. 
 
 \xxx scales better than \dare due to two main reasons. First, in a protocol 
 level, \xxx's protocol carefully separate the RDMA workloads across leader and 
@@ -293,29 +303,29 @@ slower than \xxx on over 33 replica groups. Note that \xxx is a durable
 protocol, and \dare is a volatile protocol. Overall, we considered \xxx faster 
 and more scalable than \dare.
 
-\begin{table}[h]
-\footnotesize
-\centering
-% \vspace{-.1in}
-\begin{tabular}{lrrrrr}
-
-{\bf \# Replicas} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
-\hline\\[-2.3ex]
-\xxx (update-heavy) & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
-
-\hline\\[-2.3ex]
-\dare (update-heavy) & 8.8 & 12.0  & 32.5 & 64.0 & 102.5 \\
-
-\hline\\[-2.3ex]
-\dare (read-heavy) & 5.8 & 7.2 & 16.8 & 29.2 & 45.1 \\
-
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em Consensus latency of \xxx and \dare.} The update-heavy workload 
-consist of 50\% SETs. The read-heavy workload consist of 10\% SETs.}
-\label{tab:rdma-latency}
-\vspace{-.2in}
-\end{table}
+% \begin{table}[h]
+% \footnotesize
+% \centering
+% % \vspace{-.1in}
+% \begin{tabular}{lrrrrr}
+% 
+% {\bf \# Replicas} & {\bf 3} & {\bf 9} & {\bf 33} & {\bf 65} & {\bf 105} \\
+% \hline\\[-2.3ex]
+% \xxx (update-heavy) & 8.2 & 8.8 & 13.0 & 20.3 & 31.6 \\
+% 
+% \hline\\[-2.3ex]
+% \dare (update-heavy) & 8.8 & 12.0  & 32.5 & 64.0 & 102.5 \\
+% 
+% \hline\\[-2.3ex]
+% \dare (read-heavy) & 5.8 & 7.2 & 16.8 & 29.2 & 45.1 \\
+% 
+% \end{tabular}
+% \vspace{-.05in}
+% \caption{{\em Consensus latency of \xxx and \dare.} The update-heavy workload 
+% consist of 50\% SETs. The read-heavy workload consist of 10\% SETs.}
+% \label{tab:rdma-latency}
+% \vspace{-.2in}
+% \end{table}
 
 % Table~\ref{tab:consensus-latency} shows the Scalability results. Given the same
 % workload, \xxx's five-replica setting had a 17.9K requests/s and 10.1
@@ -540,13 +550,13 @@ its normal case consensus latency, we considered it reasonable.
 \footnotesize
 \centering
 \vspace{-.05in}
-\begin{tabular}{lrrrrr}
-{\bf \# Replicas} & {\bf 3} & {\bf 5} & {\bf 7} & {\bf 9} & {\bf 11}\\
+\begin{tabular}{lrrrr}
+{\bf \# Replicas} & {\bf 3} & {\bf 5} & {\bf 7} & {\bf 9}\\
 \hline\\[-2.3ex]
-Election latency (\us) & 10.7  & 12.0 & 12.8 & 13.5 & 14.0\\
+Election latency (\us) & 10.7  & 12.0 & 12.8 & 13.5\\
 \end{tabular}
 \vspace{-.1in}
-\caption{{\em \xxx's scalability on leader election.}}
+\caption{{\em \xxx's latency on on leader election.}}
 \vspace{-.3in}
 \label{tab:election}
 \end{table}
