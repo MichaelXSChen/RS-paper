@@ -419,7 +419,7 @@ without perturbing consensus in normal case.
 
 % P9: Evaluatuion, with highlight items, match abstract, but more details.
 We compared \xxx with five popular, open source \paxos-like implementations,
-including four traditional ones (\libpaxos~\cite{libpaxos},
+including four TCP/IP-based ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
 \spaxos~\cite{spaxos:srds12}), and an RDMA-based one 
 (\dare~\cite{dare:hpdc15}). We evaluated \xxx on \nprog widely used or studied 
@@ -432,33 +432,42 @@ and a transactional database \calvin~\cite{calvin:sigmod12}. Evaluation shows
 that
 
 \begin{tightenum}
-\item \xxx achieves one order of magnitude higher scalability and one
-order of magnitude faster latency than the literature 
-(Figure~\ref{fig:scalability}). \xxx's consensus latency outperforms 4 
-popular \paxos protocols by \comptradlow to \comptradhigh on 3 to 
-9 replicas. \xxx is faster than \dare by up to \fasterDARE. When changing the 
-replica group size from 3 to 105 (a 35x
-increase), \xxx's consensus latency increases merely from \xxxlatencythree \us 
-to \xxxlatencyonezerofive \us (a \xxxscalability, sub-linear increase).
 
-\item \xxx is general and easy to use. For all \nprog evaluated programs, \xxx 
-ran them without any modification except \calvin.
+\item \xxx is fast and scalable. Figure~\ref{fig:scalability} shows that \xxx's 
+consensus latency outperforms four TCP/IP-based \paxos protocols by up
+to \comptradhigh and \dare by \fasterDARE. \xxx's consensus latency stays 
+almost constant on the number of concurent requests and replicas.
 
-%  (we added a \nlinescalvin-line patch to make
-% \calvin's client and server communicate with sockets)
 
-\item \xxx incurs low overhead on all \nprog evaluated server programs.
-With 9 replicas, compared to servers' own unreplicated executions, \xxx
-incurred only \tputoverhead overhead on throughput and \latencyoverhead on
-response time in average.
+% \item \xxx is general and easy to use. For all \nprog evaluated programs, 
+% \xxx ran them without any modification except \calvin.
 
-\item \xxx is robust. On leader failures, its leader election
-latency was reasonable and scalable.
+\item \xxx achieves low overhead on diverse real-world server programs. We ran 
+all \nprog server programs with seven replicas and compared to servers' own 
+unreplicated executions at peak performance. In average, \xxx incurred only 
+\tputoverhead overhead on throughput and \latencyoverhead on response time.
+ 
+\item \xxx is robust on replicas failures and message losses. Its leader 
+election latency was reasonable.
 
+
+% \item \xxx achieves one order of magnitude higher scalability and one
+% order of magnitude faster latency than the literature 
+% (Figure~\ref{fig:scalability}). 
+
+\end{tightenum}
+% \item \xxx achieves one order of magnitude higher scalability and one
+% order of magnitude faster latency than the literature 
+% (Figure~\ref{fig:scalability}). 
+% \xxx is faster than \dare by up to \fasterDARE. When changing the 
+% replica group size from 3 to 105 (a 35x
+% increase), 
 % \xxx's consensus latency is \fasterthanzookeeper
 % faster than \calvin's SMR service \zookeeper.
 
 
+% %  (we added a \nlinescalvin-line patch to make
+% % \calvin's client and server communicate with sockets)
 
 
 
@@ -467,7 +476,7 @@ latency was reasonable and scalable.
 % requests in \redis to do consensus and XX times faster than \redis's own
 % replication system.
 
-\end{tightenum}
+
 % % tighten items, highlighted.
 
 % P10: Conceptual contribution. Applications: other replications, parallel
@@ -533,8 +542,8 @@ concludes.
 \includegraphics[width=.4\textwidth]{figures/traditional_paxos_latency}
 \vspace{-.15in}
 \caption{{\em Consensus latency of six \paxos-like protocols.} All protocols 
-ran with 20 concurrent proposing clients. Both X and Y axes are broken to fit 
-in all these protocols.}
+ran with 24 concurrent proposing clients. Both X and Y axes 
+are broken to fit in all these protocols.}
 \label{fig:scalability}
 \vspace{-.20in}
 \end{figure}
