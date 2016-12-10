@@ -238,7 +238,8 @@ reply. All times are in \us.}
 \vspace{-.10in}
 \includegraphics[width=.4\textwidth]{figures/server-processing-compare}
 \vspace{-.1in}
-\caption{{\em Consensus latency breakdown of \xxx and \dare.}}
+\caption{{\em Consensus latency breakdown of \xxx and \dare.} The number of 
+replicas is seven.}
 \label{fig:compare}
 \vspace{-.25in}
 \end{figure}
@@ -263,7 +264,7 @@ clients.
 % running several replicas on one machine: when changing replica group size from 9 
 % to 105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
 
-Table~\ref{tab:rdma-latency} shows the consensus latency of \xxx and 
+Table~\ref{tab:compare} shows the consensus latency of \xxx and 
 \dare with 50\% SETs and half 50\% requests. \xxx and \dare 
 achieved similar latency at three replicas, and \xxx was much faster than \dare 
 on more replicas. Their difference was 2.5x$\sim$3.3x on over 33 replicas. When 
