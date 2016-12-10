@@ -3,7 +3,7 @@
 This section compares \xxx and \dare's protocols (\S\ref{sec:compare}), and 
 discusses \xxx's limitations (\S\ref{sec:limits}).
 
-\subsection{Comparing \xxx and \dare}\label{sec:compare}
+\subsection{Comparing \xxx with \dare}\label{sec:compare}
 
 \begin{figure}[t]
 \centering
@@ -20,8 +20,8 @@ a consensus is reached, leader does WRITEs to notify backups.}
 \vspace{-.20in}
 \end{figure}
 
-\dare~\cite{dare:hpdc15} is a recent fastest \paxos 
-protocol (Figure~\ref{fig:dare}) based on RDMA, so it is most relevant to \xxx. 
+We highly appreciate \dare~\cite{dare:hpdc15}, a recent fastest \paxos 
+protocol (Figure~\ref{fig:dare}) based on RDMA. It is most relevant to \xxx. 
 \dare is designed to run with a small number of replicas (\ie, three) and a 
 single-threaded key-value server program written by the authors. Under this 
 design choice, \dare follows a sole-leader manner that needs to do two-rounds: 
@@ -79,7 +79,7 @@ up to nine replicas (\S\ref{sec:eval-dare}), and \dare~\cite{dare:hpdc15}
 mentioned that their design choices do not include scalability. Third, although 
 \xxx is a durable protocol and \dare is a volatile one, \xxx is faster than 
 \dare by up to \fasterDARE. \S\ref{sec:eval-dare} compares \xxx and \dare 
-performance in detail.
+in detail.
 
 \subsection{\xxx Limitations}\label{sec:limits}
 
@@ -90,7 +90,7 @@ performance in detail.
 \xxx currently does not hook random functions such as \v{gettimeofday()} and 
 \v{rand()} because these random results are often explicit and easy to examine 
 from network outputs (\eg, a timestamp in the header of a reply). Existing 
-approaches~\cite{eve:osdi12,paxos:practical} in \paxos protocols can also be 
+\paxos approaches~\cite{eve:osdi12,paxos:practical} can also be 
 leveraged to intercept these functions and make general programs produce same 
 results among replicas.
 % because our output checkers have not detected network output 
@@ -119,9 +119,8 @@ results among replicas.
 Like recent systems~\cite{dare:hpdc15,crane:sosp15}, \xxx totally orders all 
 types of requests and it has not incorporated 
 read-only optimization~\cite{eve:osdi12}, because its performance overhead 
-compared to the evaluated programs' unreplicated executions is already 
-reasonable (\S\ref{sec:overhead}). However, \xxx can be extended to 
-support read-only optimization if two conditions are met: (1) whether the 
+is already low (\S\ref{sec:overhead}). However, \xxx can be extended to 
+support read-only optimization if two conditions are met: (1) the 
 semantic an operation is read-only is clear in a server program; and (2) the 
 number of output bytes for this operation is fixed. GET requests in key-value 
 stores often meet these two conditions.

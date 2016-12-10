@@ -29,7 +29,7 @@ concurrent.}
 Our evaluation machines include nine RDMA-enabled, Dell R430 servers as \paxos 
 replicas. Each server has Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 
 hyper-threading cores, 64GB memory, and 1TB SSD. All NICs are Mellanox 
-ConnectX-3 Pro 40Gbps, connected via Infiniband~\cite{infiniband}. 
+ConnectX-3 Pro 40Gbps connected with Infiniband~\cite{infiniband}. 
 The \v{ping} latency between every two replicas is 84 \us (the IPoIB 
 round-trip latency).
 %
@@ -43,21 +43,11 @@ located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average
 which machines to hold clients do not affect any \paxos protocol's consensus 
 latency (it is only affected by the RDMA network among replicas).
 
-
-% <<<<<<< HEAD
-% \v{ping} latency between this machine and a RDMA replica is 241 \us. Running 
-% cilents on which machine does not affect any \paxos protocol's consensus 
-% =======
-% >>>>>>> 93b2c0d1979b9ba4d0f942586352b3928b427096
-
-% A larger 
-% network latency (\eg, sending client requests from WAN) will further mask 
-% \xxx's overhead.
-
-We compared \xxx with five popular, open source \paxos-like implementations,
-including four traditional ones (\libpaxos~\cite{libpaxos},
+We compared \xxx with five popular, open source \paxos-compatible 
+implementations,
+including four TCP/IP-based ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
-\spaxos~\cite{spaxos:srds12}), and an RDMA-based one 
+\spaxos~\cite{spaxos:srds12}) and an RDMA-based one 
 (\dare~\cite{dare:hpdc15}). \spaxos is designed to achieve scalable throughput 
 when more replicas are added. 
 
@@ -72,14 +62,13 @@ important data and files, thus the strong \paxos fault-tolerance is especially
 attractive to these programs.
 
 % Benchmarks table.
-Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. To
-evaluate \xxx's practicality, we used the protocol or program developers' own 
-performance benchmarks or popular third-party benchmarks. For benchmark 
-workload settings, we used the benchmarks' default workloads whenever 
-available. To perform a stress testing on \xxx's input consensus protocol, we 
-chose workloads with significant portions of writes, because write operations 
-often contain more input bytes than reads (\eg, a key-value SET operation 
-contains more bytes than a GET).
+Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. We 
+used the protocol or program developers' own performance benchmarks or popular 
+third-party benchmarks. For benchmark workload settings, we used the 
+benchmarks' default workloads whenever available. To perform a stress testing 
+on \xxx's input consensus protocol, we chose workloads with significant 
+portions of writes, because write operations often contain more input bytes 
+than reads (\eg, a key-value SET operation contains more bytes than a GET).
 
 
 
@@ -88,14 +77,14 @@ The rest of this section focuses on these questions:
 
 \begin{tightenum}
 
-\item[\S\ref{sec:eval-traditional}:] What is \xxx's consensus latency compared
-to traditional \paxos protocols?
+\item[\S\ref{sec:eval-traditional}:] How is \xxx's performance compared
+to TCP/IP-based \paxos protocols?
 
-\item[\S\ref{sec:eval-dare}:] What is \xxx's consensus latency compared
+\item[\S\ref{sec:eval-dare}:] How is \xxx's performance compared
 to \dare?
 
 \item[\S\ref{sec:overhead}:] What is the performance overhead of running \xxx
-with general server programs? How does it scale with the number of concurrent 
+with server programs? How does it scale with the number of concurrent 
 requests?
 
 % \item[\S\ref{sec:scalability}:] How scalable is \xxx on different replica group
@@ -116,29 +105,30 @@ electing a new leader?
 
 
 
-\subsection{Comparing with Traditional \paxos}
+\subsection{Comparing with TCP/IP-based \paxos}
 \label{sec:eval-traditional}
 
 As a common evaluation practice in 
 \paxos systems~\cite{dare:hpdc15,nopaxos:osdi16}, when comparing \xxx with 
-other \paxos protocols, we ran \xxx with a popular key value store \redis. For 
-all six \paxos protocols, we spawned 20 consensus requests, a common high 
-concurrent value in prior 
+other \paxos protocols, we ran \xxx with a popular key value store \redis.  
+To stress \xxx on our 24-core machines, we spawned 24 concurrent requests for 
+all six protocols, a common high concurrent value in prior 
 evaluation~\cite{zookeeper,crane:sosp15,rex:eurosys14}. Our evaluation also 
-showed that most server programs reached peak performance at this concurrent 
-value (\S\ref{sec:overhead}).
+showed that most server programs reached peak throughput before 16 concurrent 
+(\S\ref{sec:overhead}).
 
-We compared \xxx with four traditional protocols, \libpaxos~\cite{libpaxos},
-\zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
-\spaxos~\cite{spaxos:srds12}. All these four protocols were run on IPoIB 
-(\S\ref{sec:rdma}). Figure~\ref{fig:scalability} shows the results. Three 
-traditional protocols incurred almost a linear increase of consensus latency 
+% We compared \xxx with four TCP/IP-based protocols, \libpaxos~\cite{libpaxos},
+% \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
+% \spaxos~\cite{spaxos:srds12}. 
+
+All four TCP/IP-based protocols were run on IPoIB (\S\ref{sec:rdma}). 
+Figure~\ref{fig:scalability} shows the results. Three traditional protocols 
+incurred almost a linear increase of consensus latency 
 except \spaxos. \spaxos batches requests from replicas and invokes consensus 
 when the batch is full. More replicas can take shorter time to form a batch, so 
 \spaxos incurred a slightly better consensus latency with more replicas. 
 Afterall, its latency was always over 600 \us. \xxx's consensus latency 
-outperforms these four protocols by \comptradlow to \comptradhigh on 3 to 9 
-replicas. Therefore, we needn't run these protocols with more replicas.
+outperforms these four protocols by \comptradlow to \comptradhigh.
 
 % \spaxos batch requests from replicas and it only invokes 
 % consensus when a fixed batch is full. More replicas will make this batch be 
@@ -148,17 +138,24 @@ replicas. Therefore, we needn't run these protocols with more replicas.
 
 To understand why traditional protocols are unscalable, we ran 
 only one client with them and inspect the micro events in their protocols, 
-shown in Table~\ref{tab:traditional-latency}. Three protocols had scalable 
-latency on the arrival of their first consensus reply (the ``First" column), 
-which means that network bandwidth is not a scalability bottleneck for them.  
-\libpaxos is an exception because its two-round protocol consumed much 
-bandwidth. However, there is a big gap between the arrival of the first 
+shown in Table~\ref{tab:traditional-latency}. Overall, on three to nine 
+replicas, the consensus latency (the ``Latency" column) of these protocols 
+increased more gently than that on 24 concurrent clients. For instance, when the 
+number of replicas increased from three to nine, \zookeeper latency increased by 
+30.3\% with one client; this latency increased by 168.3\% with 24 clients 
+(Figure~\ref{fig:scalability}). This indicates that the number of concurrent 
+is one major scalability bottleneck for these protocols.
+
+Specifically, three protocols had scalable latency on the arrival of their 
+first consensus reply (the ``First" column), which means that network is not 
+saturated. \libpaxos is an exception because its two-round protocol consumed 
+much bandwidth. However, there is a big gap between the arrival of the first 
 consensus reply and the ``majority" reply (the ``Major" column). Given that the 
 replies' CPU processing time was small (the ``Process" column), we can see that 
-the various systems layers, including OS kernels, network libraries, and 
-language runtimes (\eg, JVM), are the major scalable bottleneck (the ``Sys" 
-column). This indicates that RDMA is useful to bypass the systems layers for 
-better scalability.
+various systems layers, including OS kernels, network libraries, and 
+language runtimes (\eg, JVM), are another major scalable bottleneck (the ``Sys" 
+column). This indicates that RDMA is useful to bypass these systems layers for 
+good scalability.
 
 Note that when running with three replicas, \libpaxos and \crane's proposing 
 leader and acceptors are in different threads, so they two had different 
@@ -221,10 +218,10 @@ Process}
 
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em Scalability bottleneck analysis in traditional \paxos protocols.}
-The ``Proto-\#Rep" column means the \paxos protocol name and replica group
-size; ``Latency" means the consensus latency; ``First" means the latency
-of its first consensus reply; ``Major" means the
+\caption{{\em Performance breakdown of TCP/IP-based \paxos protocols 
+with only one client.} The ``Proto-\#Rep" column means the protocol name 
+and replica group size; ``Latency" means the consensus latency; ``First" means 
+the latency of its first consensus reply; ``Major" means the
 latency of its the majority reply; ``Process" means time spent in
 processing all replies; and ``Sys" means time spent in systems (OS
 kernel, network libraries, and JVM) between the ``First" and the ``Major" 
