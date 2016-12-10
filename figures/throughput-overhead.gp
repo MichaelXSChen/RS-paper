@@ -11,7 +11,7 @@ set yrange [0:200]
 set xtics nomirror
 set ytics nomirror
 
-set ylabel "Throughput Overhead (%)"
+set ylabel "Throughput Overhead (%)" offset -1,6
 
 
 
