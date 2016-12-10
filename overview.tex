@@ -1,7 +1,6 @@
 \section{Background}\label{sec:background}
 
-This section introduces \paxos
-(\S\ref{sec:paxos}) and RDMA (\S\ref{sec:rdma}).
+% This section introduces \paxos and RDMA background.
 
 \subsection{\paxos}\label{sec:paxos}
 % \paxos background. Keys:
@@ -10,14 +9,14 @@ This section introduces \paxos
 % Network round trips in normal case. Latency.
 \paxos~\cite{paxos:complex,paxos,paxos:simple,paxos:live,paxos:fast,
 paxos:practical} runs the same program and its data on a group of replicas 
-and enforces a strongly consistent sequence of inputs across replicas. Because 
+and enforces a strongly consistent order of inputs across replicas. Because 
 a consensus can be achieved as long as a majority of replicas agree, \paxos is 
 well known for tolerating various faults, including minor replica failures 
-and packet losses due to hardware or program errors. If the leader replica
-fails, \paxos elects a new leader from the backups.
+and packet losses. If the leader replica fails, \paxos elects a new leader from 
+the backups.
 
-To handle replica fail-overs, \paxos replicas must log inputs in local 
-stable storage. When a new input comes, the \paxos leader writes this input in 
+To handle replica failovers, \paxos replicas must log inputs in local stable 
+storage. When a new input comes, the \paxos leader writes this input in 
 local stable storage. The leader then starts a new consensus round among 
 replicas. A backup also writes the received consensus request in local storage 
 if it agrees on this request. Since logging is done by each replica locally, it 
@@ -39,24 +38,33 @@ is scalable.
 % always produces the same output on the same input).
 
 % Normal case, round trip.
-The consensus latency of traditional \paxos protocols is notoriously high and 
-unscalable. As datacenters incorporate increasingly faster networking hardware 
-and more CPU cores, traditional 
-\paxos 
+The consensus latency of \paxos protocols is notoriously high and 
+unscalable~\cite{zookeeper,scatter:sosp11}. As datacenters incorporate 
+faster networking hardware and more CPU cores, traditional \paxos 
 protocols~\cite{libpaxos,spaxos:srds12,crane:sosp15,rex:eurosys14,zookeeper} are 
 having fewer performance bottlenecks on network bandwidth and CPU resources. 
-However, these protocols still run on TCP/IP and have to go through various 
-software layers such as network stack and OS kernel. 
-Arrakis~\cite{arrakis:osdi14} reported that a \v{ping} program spent over 70\% 
-latency in these two layers.
 
-To further quantify how software layers affect \paxos consensus latency, 
-we ran four \paxos-like protocols on 40Gbps network with only one client 
-sending requests. We found that, when changing the replica group size from 
-three to nine, the consensus latency of three protocols increased by 
-\tradlatencyincreaselow to \tradlatencyincreasehigh, and \systemcostlow to 
-\systemcosthigh of this increase was in OS kernel. Therefore, existing 
-systems (\eg, Scatter) deploy less than one dozen replicas in each \paxos group.
+% Arrakis~\cite{arrakis:osdi14} reported that a \v{ping} program spent over 70\% 
+% latency in these two layers.
+
+However, software TCP/IP layers and OS kernels remain performance 
+bottleneck~\cite{arrakis:osdi14}. To quantify this bottleneck, we evaluated 
+four \paxos-like protocols on a computer with 24-cores, 40Gbps network, and we 
+spawned 24 concurent consensus clients. When changing the replica group size 
+from three to nine, although network and CPUs were not saturate, the consensus 
+latency of three protocols drastically increased by \tradlatencyincreaselow to 
+\tradlatencyincreasehigh (Figure~\ref{fig:scalability}), and \systemcostlow to 
+\systemcosthigh of this increase was in OS kernel. If only one consensus client 
+was spawned, the latency increase on the number of replicas was more gentle 
+(Table~\ref{tab:traditional-latency}).
+
+This evaluation also shows that both the number of concurrent requests and 
+replicas make \paxos latency increase drastically. This problem becomes worse 
+as server programs tend to support more concurrent requests and advanced SMR 
+systems such as Azure deploy seven to nine replicas~\cite{azure:book} to handle 
+replica updates.
+% Therefore, existing 
+% systems (\eg, Scatter) deploy less than one dozen replicas in each \paxos group.
 
 
 % For instance, in an 
@@ -85,18 +93,18 @@ read/write operations, two sided send/recv operations, and IPoIB (IP over
 Infiniband). IPoIB can run unmodified socket programs, but it is several times 
 slower than the other two primitives. A one-sided RDMA write 
 operation can directly write from one replica's memory to a remote 
-replica's memory without involving the remote OS kernel or CPU. One-sided 
-operations is about 2x faster than two-sided operations because a two-sided 
-operation contain two one-sided operations~\cite{pilaf:usenix14}. \xxx 
-uses one-sided operations, and the rest of this paper denotes such a operation 
-as ``WRITE".
+replica's memory without involving the remote OS kernel or CPU. Prior 
+work~\cite{pilaf:usenix14} shows that one-sided operations are up to 2x faster 
+than two-sided operations, so \xxx uses one-sided operations (or 
+``WRITE" in this paper). On a WRITE succeeds, remote NIC sends
+an RDMA ACK to local NIC.
 
-RDMA communications between a local NIC and a remote NIC 
-requires setting up a Queue Pair (QP), including a send queue and a receive 
-queue. Each QP associates with a Completion Queue (CQ) to store ACKs. A QP 
+A one-sided RDMA communication between a local and a remote NIC needs
+a Queue Pair (QP), including a send queue and a receive 
+queue. Each QP has a Completion Queue (CQ) to store ACKs. A QP 
 belongs to a type of ``XY": X can be R (reliable) or U (unreliable), and Y can 
-be C (connected) or U (unconnected). HERD~\cite{herd:sigcomm14} reported that 
-WRITEs on RC and UC OPs incur almost the same latency, so \xxx 
+be C (connected) or U (unconnected). HERD~\cite{herd:sigcomm14} shows 
+that WRITEs on RC and UC OPs incur almost same latency, so \xxx 
 uses RC QPs.
 
 % \xxx's implementations mainly use RC QPs, because such a reliable, connected QP 
@@ -106,18 +114,17 @@ uses RC QPs.
 
 
 
-To ensure a remote replica is alive and a WRITE succeeds, a common RDMA 
-practice is that after a WRITE is pushed to a QP, the local replica polls
-an ACK from the associated CQ before it continues (the so 
-called \emph{signaling}). Polling ACK is time consuming as it involves 
-synchronization between the NICs on both sides of a CQ. We collected the time 
-taken in polling ACKs in a recent RDMA-based \paxos protocol 
-\dare~\cite{dare:hpdc15}, and we found that, although \dare has been 
-carefully optimized (its leader maintains one global CQ to receive backups' ACKs 
-in batches), polling ACKs still became a scalability bottleneck: when the CQ was 
-empty, it took 0.039$\sim$0.12 \us; when the CQ has one or more ACKs, it took 
-0.051$\sim$0.42 \us. As the number of ACKs is linear to replica group size, 
-polling ACKs is a major scalability bottleneck (\S\ref{sec:evaluation}).
+To ensure a WRITE resides in remote memory, a common practice is that the 
+local replica busily polls an ACK from the associated CQ before it continues 
+(the so called \emph{signaling}). Polling ACK is time consuming as it involves 
+synchronization between the NICs on both sides of a CQ. We looked into the ACK 
+pollings in a fastest RDMA-based \paxos protocol \dare~\cite{dare:hpdc15}, 
+and we found that, although \dare is highly optimized (its leader maintains one 
+global CQ to receive all backups' ACKs in batches), polling ACKs is still time 
+consuming: when the CQ was empty, it took 0.039$\sim$0.12 \us; when the CQ has 
+one or more ACKs, it took 0.051$\sim$0.42 \us. As the number of ACKs is linear 
+to both the number of concurent requests and replicas, polling ACKs becomes one 
+major scalability bottleneck in \dare (\S\ref{sec:evaluation}).
 
 % If the 
 % number of polling ACK operations is linear to the replica group size, a \paxos 
@@ -127,7 +134,7 @@ polling ACKs is a major scalability bottleneck (\S\ref{sec:evaluation}).
 Fortunately, depending on protocol logic, one can do \emph{selective 
 signaling}~\cite{herd:sigcomm14}: it only checks for an ACK after pushing a 
 number of WRITEs. Because \xxx's protocol logic does not rely on RDMA ACKs, 
-it just occasionally invokes selective signaling to clean up ACKs in its CQs.
+it just occasionally invokes selective signaling to clean up ACKs.
 
 % To 
 % perform RDMA operations, the process and the remote process establishes a 
@@ -162,12 +169,11 @@ it just occasionally invokes selective signaling to clean up ACKs in its CQs.
 % TBD. Input coordinator and output checker. Components.
 
 % System model. Replicas. RDMA. LAN. Clients.
-\xxx follows a typical \paxos runtime system 
-deployment~\cite{scatter:sosp11,eve:osdi12,rex:eurosys14,crane:sosp15, 
-dare:hpdc15}. It runs replicas of a server program in a datacenter. Replicas 
+\xxx follows a typical SMR deployment scenario: it runs replicas of a server 
+program in a datacenter. Replicas 
 connect with each other using RDMA QPs. Client programs located in LAN or WAN. 
-The leader handles client requests and runs our RDMA-based \paxos protocol to 
-coordinate inputs among replicas.
+The \xxx leader handles client requests and runs its RDMA-based 
+protocol to coordinate inputs across replicas.
 % If a backup receives client 
 % requests, it deny the requests and reply the leader's IP.
 
@@ -175,10 +181,10 @@ coordinate inputs among replicas.
 % socket operations: the \accept type, the \recv type, the \send type, and the 
 % \close type. 
 Figure~\ref{fig:arch} shows \xxx's architecture. \xxx intercepts a server 
-program's socket calls (\eg, \recv) using a Linux technique called LD\_PRELOAD. 
-\xxx involves four key components: a \paxos consensus protocol for input 
-coordination (in short, the \emph{coordinator}), an output checking protocol 
-(the \emph{checker}), a circular in-memory consensus log (the 
+program's inbound socket calls (\eg, \recv) using a Linux technique called 
+LD\_PRELOAD. \xxx involves four key components: a \paxos consensus protocol for 
+input coordination (in short, the \emph{coordinator}), an output checking 
+protocol (the \emph{checker}), a circular in-memory consensus log (the 
 \emph{log}), and a guard process that handles checkpointing and recovering a 
 server's process state and file system state (the \emph{guard}).
 
@@ -186,10 +192,10 @@ server's process state and file system state (the \emph{guard}).
 \centering
 \vspace{-.15in}
 \includegraphics[width=.48\textwidth]{figures/arch}
-\vspace{-.50in}
-\caption{{\em The \xxx Architecture.} \xxx components are shaded (and in
+\vspace{-.30in}
+\caption{\em \xxx Architecture (key components are in
   blue).}
-\vspace{-.15in}
+\vspace{-.2in}
   \label{fig:arch}
 \end{figure}
 
