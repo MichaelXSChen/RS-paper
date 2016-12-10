@@ -73,13 +73,12 @@ stable storage or checkpoint/restore design. Therefore, \dare lacks durability
 % (\S\ref{sec:evaluation}).
 
 Overall, \xxx differs from \dare in three aspects. First, \xxx's protocol has 
-only one RDMA round (Figure~\ref{fig:consensus}) and allows concurrent 
-consensus requests, while \dare has two rounds. Second, \xxx has shown to scale 
-well on many concurrent client connections and up to nine replicas 
-(\S\ref{sec:eval-dare}), while \dare~\cite{dare:hpdc15} mentioned that their 
-design choices do not include scalability. Third, although \xxx is a durable 
-protocol and \dare is a volatile one, \xxx is faster than \dare by up to 
-\fasterDARE. \S\ref{sec:eval-dare} compares \xxx and \dare 
+only one RDMA round (Figure~\ref{fig:consensus}), and \dare has two rounds. 
+Second, \xxx scales well on many concurrent client connections and 
+up to nine replicas (\S\ref{sec:eval-dare}), and \dare~\cite{dare:hpdc15} 
+mentioned that their design choices do not include scalability. Third, although 
+\xxx is a durable protocol and \dare is a volatile one, \xxx is faster than 
+\dare by up to \fasterDARE. \S\ref{sec:eval-dare} compares \xxx and \dare 
 performance in detail.
 
 \subsection{\xxx Limitations}\label{sec:limits}
