@@ -4,24 +4,37 @@
 % for general servers. Agree-execute: must reach consensus and then execute a
 % request. Emphasis ordering services, Scatter, 8~12 nodes.
 
-\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex} plays a core
-role in datacenters and distributed systems, including ordering
-services~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11},
-leader election~\cite{zookeeper, chubby:osdi}, and
-fault-tolerance~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}. A \paxos protocol
-runs the same program on a group of replicas and enforces a strongly
-consistent order of inputs for this program, as long as a quorum (typically,
-majority) of replicas still behave correctly.
+State machine replication (SMR) runs a program on several computer 
+replicas and enforces same inputs for this program as long as a quorum 
+majority of replicas still behave normally, tolerating various 
+faults such as minor replicas failures and packet losses. To achieve 
+this powerful 
+fault-tolerance, SMR typically uses 
+a distributed consensus protocol called 
+\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex}. Recent SMR 
+systems~\cite{eve:osdi12,rex:eurosys14,crane:sosp15} have greatly 
+improved the availability of server programs that serve online requests and 
+store important data.
+
+% ~\cite{eve:osdi12,rex:eurosys14,crane:sosp15,ellis:thesis, 
+% manos:hotdep10,scatter:sosp11,zookeeper, chubby:osdi}
+% Furthermore, other recent 
+% systems~\cite{tbd1,tbd2} extend \paxos to achieve byzantine 
+% fault-tolerance~\cite{pbft:osdi99,zyzzyva:sosp07}.
+
+% services~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11},
+% leader election~\cite{zookeeper, chubby:osdi}, and
+% fault-tolerance~\cite{eve:osdi12,rex:eurosys14,crane:sosp15}. A \paxos protocol
+% runs the same program on a group of replicas and enforces a strongly
+% consistent order of inputs for this program, as long as a quorum (typically,
+% majority) of replicas still behave correctly.
 
 % TBD: Scatter description is not very clear; on replica sub key range part.
 Due to this strong fault-tolerance, \paxos is widely served in many systems.
 For instance, Scatter~\cite{scatter:sosp11} runs 8$\sim$12 replicas in each
 \paxos group to order client requests, and it lets replicas respond requests
 in parallel. A bigger group size will improve Scatter throughput. 
-Moreover, recent state machine replication (SMR) 
-systems~\cite{eve:osdi12,rex:eurosys14,crane:sosp15} use \paxos to greatly 
-improve the availability of
-general server programs.
+
 
 
 
