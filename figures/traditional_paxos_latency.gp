@@ -7,8 +7,8 @@ set style line 4 lt 4 lw 2 pt 7 ps 2 lc rgb "#208418"
 set style line 5 lt 5 lw 2 pt 8 ps 2 lc rgb "#000000"
 set style line 6 lt 1 lw 2 pt 5 ps 2 lc rgb "#000000"
 set style line 7 lt 7 lw 2 pt 11 ps 2 lc rgb "#000000"
-#set style line 8 lt 8 lw 2 pt 11 ps 1 lc rgb "#d97c19"
-#set style line 9 lt 9 lw 15 pt 11 ps 1 lc rgb "#d97c19"
+set style line 8 lt 8 lw 2 pt 11 ps 1 lc rgb "#d97c19"
+set style line 9 lt 9 lw 4 pt 12 ps 2 lc rgb "#000000"
 
 bm = 0.15
 lm = 0.12
@@ -28,21 +28,21 @@ set tmargin at screen bm + size * kk
 
 
 
-set key font ",20"
-set key spacing 3
+set key font ",15"
+set key spacing 1
 
-set xrange [0:98]
+set xrange [0:27]
 #set for [i=0:5] xtics (0,3**i)
 set xtics ("3" 0,"5" 9,"7" 18, "9" 27, "33" 50, "65" 68, "105" 98)
 
-set ylabel "consensus latency (us)" offset -1,6 font ",25"
+set ylabel "Server processing time (us)" offset -1,6 font ",25"
 set xlabel "number of replicas" offset 0.5,0 font ",25"
-set key right top
-set xrange [0:98]
-set yrange [7:50]
+set key right bottom
+set xrange [0:27]
+set yrange [7:11]
 #set origin 0.0,1.85
 #set ytics 50
-set ytics ("25" 25, "50" 50)
+set ytics ("5" 5, "10" 10, "15" 15)
 set logscale y
 # plot upper
 set xtics nomirror
@@ -57,20 +57,21 @@ set arrow 1 from A-eps2-0.5, E1 to A+eps2+0.5, E1 nohead lw 2 lc rgb "#ffffff" f
 set arrow 3 from A-eps-eps2, E1-eps to A+eps-eps2, E1+eps nohead
 set arrow 4 from A-eps+eps2, E1-eps to A+eps+eps2, E1+eps nohead
 
-plot 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 4, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 2
+plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libPaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "ZooKeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "Crane" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 5,'traditional_paxos_latency.dat' using 1:6 with linespoints title "APUS" ls 2, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "DARE" ls 9
+
 
 
 set border 2+4+8
 set bmargin at screen bm + size * kk + gap
 set tmargin at screen bm + size + gap
-set yrange [250:1300]
+set yrange [100:1500]
 
 unset logscale y
 unset xlabel
 unset ylabel
 unset xtics
-set ytics ("300" 300, "750" 750 ,"1200" 1200)
-plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libPaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "ZooKeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "Crane" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 5, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "DARE" ls 4,'traditional_paxos_latency.dat' using 1:7 with linespoints title "FALCON" ls 2
+set ytics ("100" 100, "300" 300, "750" 750 ,"1200" 1200)
+plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "" ls 5,'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 2, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 9
 
 unset yrange
 unset ytics
