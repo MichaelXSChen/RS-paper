@@ -1,3 +1,25 @@
+State machine replication (SMR) enforces same order of inputs 
+for a program replicated on a group of machines (or replicas), 
+tolerating various failures. Recent SMR protocols have greatly improved
+the availability of server programs (\eg, \redis) that store important data. 
+Unfortunately, existing SMR protocols incur prohibitive performance overhead on 
+server programs, because their protocol latency is high when going through OS 
+and TCP/IP layers, or this latency increases almost linearly to the number of 
+concurrent requests or replicas. This paper presents \xxx, a new 
+RDMA-based SMR protocol. \xxx achieves high performance by: (1) carefully 
+dividing RDMA workloads among replicas; and (2) making all replicas receive 
+consensus messages purely on local memory, just like making threads receive 
+other threads' data efficiently on bare metal memory.
+
+
+\xxx is the first SMR protocol that achieves low overhead on diverse 
+real-world server programs. Evaluation on nine widely-used server programs (\eg, 
+\redis and \mysql) shows that \xxx incurred merely a mean overhead of 
+\latencyoverhead on response time and \tputoverhead on throughput.
+\xxx's protocol latency outperforms a recent fastest RDMA-based SMR protocol 
+by \fasterDARE. \xxx's protocol latency almost stays constant to the number of 
+concurrent requests and replicas. \xxx is deployable: all source code and raw 
+evaluation results are released at \github.
 
 % S1: SMR, reliable, good for online services, machines, network. 
 % S2: but going through network round trips for requests hurt latency of 
@@ -25,27 +47,27 @@
 % consensus rapidly in parallel. Leveraging this protocol, \xxx presents a fast 
 % network output checking protocol to check whether replicas run in sync.
 
-\paxos enforces a strongly consistent order of inputs for the same program 
-replicated on a group of machines (or replicas), tolerating various failures. 
-Therefore, \paxos is served in many systems (\eg, ordering services). 
-Unfortunately, despite much effort, the group size of traditional \paxos 
-protocols can hardly go up to a dozen because their consensus messages 
-go through TCP/IP layers, causing the consensus latency to increase almost 
-linearly to the group size. This paper presents \xxx, a new RDMA-based \paxos 
-protocol. \xxx achieves scalability by: (1) carefully separating RDMA workloads 
-among replicas; and (2) making all replicas receive consensus messages purely on 
-local memory, just like making threads receive other threads' data efficiently 
-on bare memory.
-
-\xxx is the first to achieve low \paxos consensus latency on over 100 replicas. 
-Evaluation shows that \xxx's consensus latency outperforms four 
-traditional \paxos protocols by \comptradlow to \comptradhigh. When 
-changing the group size from 3 to 105, \xxx's consensus latency 
-increases merely from \xxxlatencythree \us to \xxxlatencyonezerofive \us, a 
-sub-linear increase. \xxx is faster than a recent RDMA-based \paxos protocol by 
-up to \fasterDARE. \xxx runs with 9 widely used, unmodified server programs 
-(\eg, \redis and \mysql) with low overhead. \xxx is deployable: all source 
-code and raw evaluation results are available at \github.
+% \paxos enforces a strongly consistent order of inputs for the same program 
+% replicated on a group of machines (or replicas), tolerating various failures. 
+% Therefore, \paxos is served in many systems (\eg, ordering services). 
+% Unfortunately, despite much effort, the group size of traditional \paxos 
+% protocols can hardly go up to a dozen because their consensus messages 
+% go through TCP/IP layers, causing the consensus latency to increase almost 
+% linearly to the group size. This paper presents \xxx, a new RDMA-based \paxos 
+% protocol. \xxx achieves scalability by: (1) carefully separating RDMA workloads 
+% among replicas; and (2) making all replicas receive consensus messages purely on 
+% local memory, just like making threads receive other threads' data efficiently 
+% on bare memory.
+% 
+% \xxx is the first to achieve low \paxos consensus latency on over 100 replicas. 
+% Evaluation shows that \xxx's consensus latency outperforms four 
+% traditional \paxos protocols by \comptradlow to \comptradhigh. When 
+% changing the group size from 3 to 105, \xxx's consensus latency 
+% increases merely from \xxxlatencythree \us to \xxxlatencyonezerofive \us, a 
+% sub-linear increase. \xxx is faster than a recent RDMA-based \paxos protocol by 
+% up to \fasterDARE. \xxx runs with 9 widely used, unmodified server programs 
+% (\eg, \redis and \mysql) with low overhead. \xxx is deployable: all source 
+% code and raw evaluation results are available at \github.
 
 % \xxx's key to achieve scalability is making \paxos replicas receive consensus 
 % messages \emph{purely on local memory}, creating an ilusion that these replicas 
