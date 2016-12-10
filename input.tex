@@ -297,28 +297,22 @@ it starts to WRITE periodic heartbeats.
 % understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 % implement~\cite{paxos:live,paxos:practical}. 
 % 
-To minimize protocol-level bugs, 
-\xxx's \paxos protocol mostly sticks with a popular, 
-practical implementation~\cite{paxos:practical}, especially the behaviors of 
-senders and receivers (\S\ref{sec:normal} and \S\ref{sec:election}). For 
-instance, both \xxx's normal case algorithm and 
-the popular implementation~\cite{paxos:practical} involve two messages and 
-same senders and receivers (although we use WRITEs and carefully make them run 
-in parallel). We made this choice 
-because \paxos is notoriously difficult to 
+To minimize protocol-level bugs, \xxx's protocol derives from a popular 
+viewstamp-based manner~\cite{paxos:practical}. We made this design 
+choice because \paxos is notoriously difficult to 
 understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 implement~\cite{paxos:live,paxos:practical} 
-verify~\cite{modist:nsdi09,demeter:sosp11}. Aligning with a practical
-\paxos implementation~\cite{paxos:practical} helps us incorporate these 
+verify~\cite{modist:nsdi09,demeter:sosp11}. Deriving from a popular 
+manner~\cite{paxos:practical} helps us incorporate these 
 readily mature understanding, engineering experience, and the theoretically 
-verified safety rules into our protocol design and implementation.
+verified safety rules into our protocol.
 
 % TBD: reliability analyzes. We do not need the lossless assumption in RDMA QPs.
 Although \xxx's \paxos protocol works on a RDMA network, the reliability of 
-this protocol does not rely on the lossless networking in RDMA. \xxx's protocol 
-still complies with the standard \paxos failure-handling model, where a stable 
-storage exists, but hardware may fail, network may be partitioned, packets may 
-be delayed or lost, and server programs may crash.
+this protocol does not rely on a lossless RDMA. \xxx still provides same 
+fault-tolerance guarantee as the standard \paxos model, where a stable storage 
+exists, but the hardware or network devices of replicas may fail, and server 
+programs may crash.
 
 
 % Define safety: TBD.
