@@ -22,12 +22,12 @@ leader election (\S\ref{sec:election}), and reliability guarantees
 
 % First, basic roles. log format details.
 Recall that \xxx' input consensus protocol contains three roles. First, the 
-\paxos consensus log (\S\ref{sec:overview}). Second, a leader replica's server 
-program thread (in short, a leader thread) which invokes consensus request. For 
-efficiency, \xxx lets a server program's threads directly handle consensus 
-requests whenever they call inbound socket calls (\eg, \recv). Third, a backup 
-replica's \xxx internal follower thread (\S\ref{sec:overview}) which agrees on 
-or rejects consensus requests.
+\paxos consensus log (\S\ref{sec:overview}). Second, a server 
+program thread on the leader replica (in short, a leader thread) which invokes 
+a consensus request. For efficiency, \xxx lets leader threads concurrently 
+invoke consensus requests when they call inbound socket calls (\eg, \recv). 
+Third, a backup eplica's \xxx internal follower thread (\S\ref{sec:overview}) 
+which agrees on or rejects consensus requests.
 
 \begin{figure}[h]
 \vspace{-.2in}
@@ -64,20 +64,20 @@ replicates them in remote replicas' logs.
 The second step (\textbf{L2}) is local preparation, including assigning a 
 global viewstamp to locate this entry in the consensus log, building a log 
 entry structure for this call, and writing this entry to a local parallel 
-logging storage on SSD (\S\ref{sec:logging}). Then, \xxx invokes consensus for 
-each incoming request (entry) concurrently.
+logging storage on SSD (\S\ref{sec:logging}). 
 % without allowing gaps (\ig, newer 
 % entries reach consensus but ).
 
-The third step (\textbf{L3}) is to WRITE a log entry to remote backups 
-in parallel. Unlike a previous RDMA-based consensus 
+Then, each leader thread invokes a consensus on its entry concurrently with 
+other leader threads via the third step (\textbf{L3}): WRITE the log entry to 
+remote backups. Unlike a previous RDMA-based consensus 
 algorithm~\cite{dare:hpdc15} which has to wait for ACKs from remote NICs, our 
 WRITE immediately returns after copying the entry to its local QP between the 
-leader and each backup, because \paxos has handled the reliability issues (\eg, 
-packet losses) for our WRITEs. In our evaluation, copying a log entry to local 
-QP took no more than 0.2 \us. Therefore, the WRITEs to all backups are done in 
-parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
-
+leader and each backup. In our evaluation, copying a log entry to local QP took 
+no more than 0.2 \us. Therefore, the WRITEs to all backups are done almost in 
+parallel (all \textbf{L3} arrows in Figure~\ref{fig:logentry}).
+% , because \paxos has handled the reliability 
+% issues (\eg, packet losses) for our WRITEs
 
 
 % Instead, \xxx's leader thread just return 
