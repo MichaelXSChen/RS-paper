@@ -131,7 +131,7 @@ traditional protocols increased almost linearly to the number of replicas
 (except \spaxos). \spaxos batches requests from replicas and invokes consensus 
 when the batch is full. More replicas can take shorter time to form a batch, so 
 \spaxos incurred a slightly better consensus latency with more replicas. 
-Afterall, its latency was always over 600 \us. \xxx's consensus latency 
+Nevertheless, its latency was always over 600 \us. \xxx's consensus latency 
 outperforms these four protocols by \comptradlow to \comptradhigh.
 
 % \spaxos batch requests from replicas and it only invokes 
@@ -292,7 +292,7 @@ the randomly arrival of requests often make batches small, causing a large
 wait duration (a new batch can not start consensus until prior batches 
 reach consensus). \dare's evaluation~\cite{dare:hpdc15} also confirmed a high 
 wait duration: with three replicas and nine concurrent clients, \dare's 
-throughput on real-world inspred workloads (50\% SET and 50\% GET arriving 
+throughput on real-world inspired workloads (50\% SET and 50\% GET arriving 
 randomly) was about 43.5\% lower than that on 100\% SET workloads.
 
 Overall, these results suggest that \dare is better on smaller number of 
