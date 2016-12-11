@@ -290,10 +290,12 @@ backups, which serializes ongoing consensus requests (\S\ref{sec:compare}).
 Although \dare compensates this limitation by batching same SET or GET types, 
 the randomly arrival of requests often make batches small, causing a large 
 wait duration (a new batch can not start consensus until prior batches 
-reach consensus). \dare's evaluation~\cite{dare:hpdc15} also confirmed a high 
+reach consensus). \dare's evaluation~\cite{dare:hpdc15} confirmed a high 
 wait duration: with three replicas and nine concurrent clients, \dare's 
 throughput on real-world inspired workloads (50\% SET and 50\% GET arriving 
-randomly) was about 43.5\% lower than that on 100\% SET workloads.
+randomly) was 43.5\% lower than that on 100\% SET workloads. \dare's 
+evaluation also showed that its throughput dropped by 30.1\% when the number of 
+replicas increased from three to seven.
 
 Overall, these results suggest that \dare is better on smaller number of 
 concurrent requests and replicas (\eg, 
