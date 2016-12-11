@@ -11,11 +11,11 @@
 \includegraphics[width=.35\textwidth]{figures/dare_algo}
 \vspace{-.53in}
 \caption{{\em \dare's RDMA-based protocol.} It is a sole-leader, 
-two-round protocol with three steps: (a) the leader WRITEs a consensus request 
+two-round protocol with three steps: (1) the leader WRITEs a consensus request 
 to all backups' consensus logs and waits for ACKs to check if they succeed; 
-(b) for the successful backups in (a), leader does WRITEs to update tail 
-pointer of their consensus logs; and (c) on receiving a majority of ACKs in 
-(b), a consensus is reached, leader does WRITEs to notify backups.}
+(2) for the successful backups in (1), leader does WRITEs to update tail 
+pointer of their consensus logs; and (3) on receiving a majority of ACKs in 
+(2), a consensus is reached, leader does WRITEs to notify backups.}
 \label{fig:dare}
 \vspace{-.20in}
 \end{figure}

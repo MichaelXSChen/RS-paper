@@ -6,7 +6,7 @@
 
 State machine replication (SMR) runs a program on several computer 
 replicas and enforces same inputs for this program as long as a quorum 
-majority of replicas still behave normally, tolerating various 
+(typically, majority) of replicas still behave normally, tolerating various 
 faults such as minor replicas failures and packet losses. To achieve 
 this powerful 
 fault-tolerance, SMR typically uses 
@@ -153,8 +153,8 @@ consensus: first, leader does RDMA writes consensus requests on each replica;
 second, leader does RDMA writes on each replica to update a global variable 
 that points to the latest request. Unfortunately, such a global variable update 
 \emph{serializes} consensus requests: both \dare's and our 
-evaluation (\S\ref{sec:eval-dare}) confirmed that, as the number of concurrent 
-requests increased, \dare's consensus latency increased almost linearly.
+evaluation (\S\ref{sec:eval-dare}) showed that, as the number of concurrent 
+requests increased, \dare's consensus latency increased drastically.
 
 % \dare was fast with a small number of concurrent requests or replicas. 
 
