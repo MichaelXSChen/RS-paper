@@ -10,10 +10,12 @@ scalable~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}. Since consensus
 protocols play a core role in datacenters~\cite{matei:hotcloud11, mesos:nsdi11, 
 datacenter:os} and worldwide 
 distributed systems~\cite{spanner:osdi12,mencius:osdi08}, a variety of study 
-have been conducted to improve specific aspects of consensus protocols, 
-including order commutativity~\cite{epaxos:sosp13}, 
-understandability~\cite{raft:usenix14,paxos}, and verifiable reliability 
-rules~\cite{modist:nsdi09,demeter:sosp11}.
+have been conducted to improve specific aspects of consensus, 
+including order commutativity~\cite{epaxos:sosp13,marandi:icdcs14}, 
+understandability~\cite{raft:usenix14,paxos}, and verifiable 
+reliability~\cite{modist:nsdi09,demeter:sosp11}. Recent 
+systems~\cite{brun:icdcs12,meling:icdcs12,bal:icdcs12} extend \paxos to tolerate 
+byzantine faults~\cite{pbft:osdi99,zyzzyva:sosp07}.
 
 % Although \xxx tightly integrates 
 % RDMA features in \paxos, its implementation mostly complies with a popular, 
@@ -21,29 +23,30 @@ rules~\cite{modist:nsdi09,demeter:sosp11}.
 % approaches can also be leveraged in \xxx.
 
 
-To make \paxos's throughput scalable (\ie, more replicas, higher throughput), 
-various systems leverage \paxos as a core building block to develop advanced 
-replication approaches, including partitioning program 
-states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus 
-leadership~\cite{mencius:osdi08,spaxos:srds12}, and hierarchical 
-replication~\cite{manos:hotdep10,scatter:sosp11}. Theses approaches have shown 
-to largely improve throughput. However, the core of these systems, 
-\paxos, still faces an unscalable consensus 
-latency~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10}. By using \xxx as a 
-building block, these system may scale even better.
+% To make \paxos's throughput scalable (\ie, more replicas, higher throughput), 
+% various systems leverage \paxos as a core building block to develop advanced 
+% replication approaches, including partitioning program 
+% states~\cite{scatter:sosp11,ssmr:dsn14}, splitting consensus 
+% leadership~\cite{mencius:osdi08,spaxos:srds12}, and hierarchical 
+% replication~\cite{manos:hotdep10,scatter:sosp11}. Theses approaches have shown 
+% to largely improve throughput. However, the core of these systems, 
+% \paxos, still faces an unscalable consensus 
+% latency~\cite{ellis:thesis,scatter:sosp11,manos:hotdep10}. By using \xxx as a 
+% building block, these system may scale even better.
 
 % arious advanced replication models have been 
 % developed~\cite{epaxos:sosp13,mencius:osdi08,scatter:sosp11,manos:hotdep10}. 
 
 
 
-Three state machine replication (SMR) systems, Eve~\cite{eve:osdi12}, 
-Rex~\cite{rex:eurosys14}, and \crane~\cite{crane:sosp15}, build traditional 
-\paxos protocols to improve the availability of general server programs. 
+Three SMR systems, Eve~\cite{eve:osdi12}, 
+Rex~\cite{rex:eurosys14}, and \crane~\cite{crane:sosp15}, use TCP/IP-based 
+\paxos protocols to improve the availability of server programs. 
 Evaluation in these systems shows that SMR services incur modest overhead on 
-server programs' throughput compared to their unreplicated executions. \xxx's 
-consensus latency is much faster than their traditional 
-protocols (\eg, see \crane in Figure~\ref{fig:scalability}).
+server programs' throughput compared to unreplicated executions. None of 
+these three systems evaluate their response time overhead on key-value stores 
+which are sensitive on latency. \xxx is the first SMR system that achieves low 
+overhead on both response time and throughput on real-world key-value stores.
 % If programs (\eg, key-value 
 % stores) demand short request latency, \xxx  
 % \xxx's (\S\ref{sec:compare}).
@@ -139,26 +142,31 @@ protocols (\eg, see \crane in Figure~\ref{fig:scalability}).
 
 
 \para{Hardware- or Network- assisted consensus.}  Recent
-systems~\cite{consensusbox:nsdi16,specpaxos:nsdi15,nopaxos:osdi16,
-netpaxos:sosr15} leverage augmented network hardware or topology to improve 
-\paxos consensus latency. ``Consensus in a Box"~\cite{consensusbox:nsdi16} 
-implemented \zookeeper's consensus protocol in FPGA and intensively modify its 
-hardware TCP/IP stack for fast latency. It implemented a key-value store in 
-hardware and showed similar consensus latency to \xxx on 3 or 5 replicas. It did 
-not discuss or evaluate its scalability. Compared to this protocol, \xxx does 
-not need to modify hardware, so it is easier to deploy and support general 
-programs.
+systems~\cite{consensusbox:nsdi16,netpaxos:sosr15,caans,specpaxos:nsdi15,
+nopaxos:osdi16} leverage augmented network hardware or topology to 
+improve \paxos consensus latency. 
+Three systems~\cite{consensusbox:nsdi16,netpaxos:sosr15,caans} implement 
+consensus protocols in network devices (\eg, switches). ``Consensus in a 
+Box"~\cite{consensusbox:nsdi16} implemented \zookeeper's protocol in 
+FPGA. These systems are suitable on maintaining compact metadata. However, 
+as mentioned in prior work~\cite{nopaxos:osdi16}, these systems' hardware may 
+not be sufficient to store large amount of replicated states (\eg, server 
+programs' continuously arriving inputs).
+
+% Compared to this protocol, 
+% \xxx does 
+% not need to modify hardware, so it is easier to deploy and support general 
+% programs.
 
 Speculative Paxos~\cite{specpaxos:nsdi15} and NOPaxos~\cite{nopaxos:osdi16} 
 leverage the synchrony feature of datacenter topology to order requests, so 
-they can eliminate consensus rounds if packets are not reordered or lost. 
-Moreover, NOPaxos assigns a global sequence ID to packets so that it can 
-proactively detect reordered or lost packets. If packets are lost or 
-reordered, they invoke consensus to rescue. These two systems are not designed 
-for scalability because when replica group and the datacenter network 
-become big, the probability that replicas incur reordered or lost packets will 
-increase. Moreover, these two systems' consensus modules go through TCP/IP 
-layers and incur high round-trip latency. \xxx can help them.
+they can eliminate consensus rounds if packets are not reordered or lost. If 
+packets are lost or reordered, they invoke consensus to rescue.
+These two systems are not designed for scalability because when the 
+number of concurrent requests or replicas increase, the probability of 
+reordered or lost packets will increase. Moreover, these two systems' consensus 
+modules go through TCP/IP layers and incur high consensus latency, and 
+\xxx can help them.
 
 \para{RDMA-based systems.} RDMA techniques have been implemented in various 
 architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
