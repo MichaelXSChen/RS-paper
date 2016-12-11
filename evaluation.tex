@@ -1,28 +1,6 @@
 \section{Evaluation} \label{sec:evaluation}
 
-\begin{table}[b]
-\footnotesize
-\centering
-\vspace{-.15in}
-\begin{tabular}{lrr}
-{\bf Program} & {\bf Benchmark} & {\bf Workload/input description}\\
-\hline\\[-2.3ex]
-\clamav & clamscan~\cite{clamscan}  & Files in \v{/lib} from a replica \\
-\mediatomb & ApacheBench~\cite{apachebench}  & Transcoding videos\\
-\memcached & mcperf~\cite{mcperf}  & 50\% set, 50\% get operations\\
-\mongodb & YCSB~\cite{ycsb}  & Insert operations\\
-\mysql & Sysbench~\cite{sysbench}  & SQL transactions\\
-\openldap & Self  & LDAP queries\\
-\redis & Self  & 50\% set, 50\% get operations\\
-\ssdb & Self  & Eleven operation types\\
-\calvin & Self  & SQL transactions\\
-\end{tabular}
-\vspace{-.05in}
-\caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means
-we used a program's own performance benchmark program. Workloads are all
-concurrent.}
-\label{tab:benchmarks}
-\end{table}
+
 
 
 
@@ -61,6 +39,7 @@ serve concurrent requests via Libevent). These servers all update or store
 important data and files, thus the strong \paxos fault-tolerance is especially 
 attractive to these programs.
 
+
 % Benchmarks table.
 Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. We 
 used the protocol or program developers' own performance benchmarks or popular 
@@ -70,6 +49,30 @@ on \xxx's input consensus protocol, we chose workloads with significant
 portions of writes, because write operations often contain more input bytes 
 than reads (\eg, a key-value SET operation contains more bytes than a GET).
 
+\begin{table}[h]
+\footnotesize
+\centering
+\vspace{-.1in}
+\begin{tabular}{lrr}
+{\bf Program} & {\bf Benchmark} & {\bf Workload/input description}\\
+\hline\\[-2.3ex]
+\clamav & clamscan~\cite{clamscan}  & Files in \v{/lib} from a replica \\
+\mediatomb & ApacheBench~\cite{apachebench}  & Transcoding videos\\
+\memcached & mcperf~\cite{mcperf}  & 50\% set, 50\% get operations\\
+\mongodb & YCSB~\cite{ycsb}  & Insert operations\\
+\mysql & Sysbench~\cite{sysbench}  & SQL transactions\\
+\openldap & Self  & LDAP queries\\
+\redis & Self  & 50\% set, 50\% get operations\\
+\ssdb & Self  & Eleven operation types\\
+\calvin & Self  & SQL transactions\\
+\end{tabular}
+
+\caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means
+we used a program's own performance benchmark program. Workloads are all
+concurrent.}
+\vspace{-.05in}
+\label{tab:benchmarks}
+\end{table}
 
 
 % evaluation metric. client benchmarks all run in LAN, average latency
@@ -77,10 +80,10 @@ The rest of this section focuses on these questions:
 
 \begin{tightenum}
 
-\item[\S\ref{sec:eval-traditional}:] How is \xxx's performance compared
+\item[\S\ref{sec:eval-traditional}:] How does \xxx performance compare
 to TCP/IP-based \paxos protocols?
 
-\item[\S\ref{sec:eval-dare}:] How is \xxx's performance compared
+\item[\S\ref{sec:eval-dare}:] How does \xxx performance compare
 to \dare?
 
 \item[\S\ref{sec:overhead}:] What is the performance overhead of running \xxx
@@ -105,16 +108,17 @@ electing a new leader?
 
 
 
+
 \subsection{Comparing with TCP/IP-based \paxos}
 \label{sec:eval-traditional}
 
-As a common evaluation practice in 
-\paxos systems~\cite{dare:hpdc15,nopaxos:osdi16}, when comparing \xxx with 
+A common practice in 
+\paxos evaluation~\cite{dare:hpdc15,nopaxos:osdi16}, when comparing \xxx with 
 other \paxos protocols, we ran \xxx with a popular key value store \redis.  
 To stress \xxx on our 24-core machines, we spawned 24 concurrent requests for 
 all six protocols, a common high concurrent value in prior 
 evaluation~\cite{zookeeper,crane:sosp15,rex:eurosys14}. Our evaluation also 
-showed that most server programs reached peak throughput before 16 concurrent 
+showed that most server programs reached peak throughput before 16 requests 
 (\S\ref{sec:overhead}).
 
 % We compared \xxx with four TCP/IP-based protocols, \libpaxos~\cite{libpaxos},
@@ -122,9 +126,9 @@ showed that most server programs reached peak throughput before 16 concurrent
 % \spaxos~\cite{spaxos:srds12}. 
 
 All four TCP/IP-based protocols were run on IPoIB (\S\ref{sec:rdma}). 
-Figure~\ref{fig:scalability} shows the results. Three traditional protocols 
-incurred almost a linear increase of consensus latency 
-except \spaxos. \spaxos batches requests from replicas and invokes consensus 
+Figure~\ref{fig:scalability} shows that the consensus latency of three 
+traditional protocols increased almost linearly to the number of replicas 
+(except \spaxos). \spaxos batches requests from replicas and invokes consensus 
 when the batch is full. More replicas can take shorter time to form a batch, so 
 \spaxos incurred a slightly better consensus latency with more replicas. 
 Afterall, its latency was always over 600 \us. \xxx's consensus latency 
@@ -136,28 +140,27 @@ outperforms these four protocols by \comptradlow to \comptradhigh.
 % more nodes. 
 
 
-To understand why traditional protocols are unscalable, we ran 
-only one client with them and inspect the micro events in their protocols, 
-shown in Table~\ref{tab:traditional-latency}. Overall, on three to nine 
-replicas, the consensus latency (the ``Latency" column) of these protocols 
-increased more gently than that on 24 concurrent clients. For instance, when the 
-number of replicas increased from three to nine, \zookeeper latency increased by 
-30.3\% with one client; this latency increased by 168.3\% with 24 clients 
-(Figure~\ref{fig:scalability}). This indicates that the number of concurrent 
-is one major scalability bottleneck for these protocols.
+To understand the scalability bottleneck in these four protocols, we spawned 
+only one client and inspected the micro events in their protocols 
+(Table~\ref{tab:traditional-latency}). From three to nine replicas, the 
+consensus latency (the ``Latency" column) of these protocols increased more 
+gently than that on 24 concurrent clients. For instance, when the number of 
+replicas increased from three to nine, \zookeeper latency increased by 30.3\% 
+with one client; this latency increased by 168.3\% with 24 clients 
+(Figure~\ref{fig:scalability}). This indicates that concurrent consensus 
+requests are the major scalability bottleneck for these protocols.
 
 Specifically, three protocols had scalable latency on the arrival of their 
-first consensus reply (the ``First" column), which means that network is not 
-saturated. \libpaxos is an exception because its two-round protocol consumed 
+first consensus reply (the ``First" column), which implies that network is not 
+saturate. \libpaxos is an exception because its two-round protocol consumed 
 much bandwidth. However, there is a big gap between the arrival of the first 
 consensus reply and the ``majority" reply (the ``Major" column). Given that the 
 replies' CPU processing time was small (the ``Process" column), we can see that 
 various systems layers, including OS kernels, network libraries, and 
 language runtimes (\eg, JVM), are another major scalable bottleneck (the ``Sys" 
-column). This indicates that RDMA is useful to bypass these systems layers for 
-good scalability.
+column). This indicates that RDMA is useful on bypassing these systems layers.
 
-Note that when running with three replicas, \libpaxos and \crane's proposing 
+Note that on three replicas, \libpaxos and \crane's proposing 
 leader and acceptors are in different threads, so they two had different 
 ``First" and ``Major" arrival times. \crane and \spaxos's proposing 
 leader itself is just an acceptor, so they two had same ``First" and ``Major" 
@@ -267,28 +270,35 @@ their latency with scalability, we ran up to seven replicas and 24 clients.
 % to 105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
 
 Figure~\ref{tab:compare} shows the consensus latency of \xxx and 
-\dare on seven replicas with randomly arriving, 50\% SETs and half 50\% 
-requests. When there was only one client, \xxx was slightly slower than \dare 
-becuase \dare does not store inputs persistently. On 6 to 24 requests, \xxx was 
-\fasterDARElow to \fasterDAREhigh faster than \dare due to two reasons. First, 
-\xxx is a one-round protocol and \dare is a two-round protocol, so \dare's 
-actual consensus time was \fasterDAREconsensusonly higher than \xxx.
+\dare on seven replicas with randomly arriving, update-heavy (50\% SETs and 
+50\% GETs) and read-heavy (10\% SETs and 90\% GETs) workloads. \dare 
+performance on these two workloads were different because it handles GETs with 
+only one consensus round~\cite{dare:hpdc15}. \xxx handles all requests with the 
+same protocol. When there was only one client, \xxx was slightly slower than 
+\dare because \dare does not store inputs persistently. On 6 to 24 requests, 
+\xxx was \fasterDARElow to \fasterDAREhigh faster than \dare due to two reasons.
+
+First, \xxx is a one-round protocol and \dare is a two-round protocol (for 
+SETs), so \dare's actual consensus time was \fasterDAREconsensusonly higher than 
+\xxx. Even comparing \dare's read-heavy workloads (one-round for GETs) with 
+\xxx on more concurrent requests, \xxx's actual consensus time was still 
+slightly faster than \dare's because \xxx's protocol avoids expensive ACK 
+pollings (\S\ref{sec:rdma}).
 
 Second, \dare's second consensus round updates a global variable in remote 
 backups, which serializes ongoing consensus requests (\S\ref{sec:compare}). 
 Although \dare compensates this limitation by batching same SET or GET types, 
-the randomly arrival of requests often make the batches small, causing a large 
-wait duration (the following batches must wait for prior batches to reach 
-consensus and then they invoke consensus). \dare's 
-evaluation~\cite{dare:hpdc15} also confirmed a high wait duration: with three 
-replicas and nine concurrent clients, \dare's throughput on its real-world 
-inspred workloads (50\% SET and 50\% GET arrive randomly) was about 43.5\% lower 
-than 100\% SET workloads.
+the randomly arrival of requests often make batches small, causing a large 
+wait duration (a new batch can not start consensus until prior batches 
+reach consensus). \dare's evaluation~\cite{dare:hpdc15} also confirmed a high 
+wait duration: with three replicas and nine concurrent clients, \dare's 
+throughput on real-world inspred workloads (50\% SET and 50\% GET arriving 
+randomly) was about 43.5\% lower than that on 100\% SET workloads.
 
-These results suggest that \dare is better on smaller number of 
-concurrent requests and replicas (\eg, maintaining leadership 
-or metada~\cite{chubby:osdi,zookeeper}), and \xxx is better on larger number of 
-concurrent requests or replicas (\eg, replicating server 
+Overall, these results suggest that \dare is better on smaller number of 
+concurrent requests and replicas (\eg, 
+leader election~\cite{chubby:osdi,zookeeper}), and \xxx is better on larger 
+number of concurrent requests or replicas (\eg, replicating server 
 programs~\cite{rex:eurosys14,crane:sosp15}).
 
 % \xxx and \dare 

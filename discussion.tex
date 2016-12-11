@@ -1,35 +1,33 @@
-\section{Discussions}\label{sec:discuss}
+% \section{Discussions}\label{sec:discuss}
 % 
-This section compares \xxx and \dare's protocols (\S\ref{sec:compare}), and 
-discusses \xxx's limitations (\S\ref{sec:limits}).
+% This section compares \xxx and \dare's protocols (\S\ref{sec:compare}), and 
+% discusses \xxx's limitations (\S\ref{sec:limits}).
 
-\subsection{Comparing \xxx with \dare}\label{sec:compare}
+\section{Comparing \xxx with \dare}\label{sec:compare}
 
 \begin{figure}[t]
 \centering
 \vspace{-.4in}
 \includegraphics[width=.35\textwidth]{figures/dare_algo}
 \vspace{-.53in}
-\caption{{\em \dare's RDMA-based protocol.} This is a sole-leader, 
-two-round protocol with three steps: (1) the leader WRITEs a consensus request 
+\caption{{\em \dare's RDMA-based protocol.} It is a sole-leader, 
+two-round protocol with three steps: (a) the leader WRITEs a consensus request 
 to all backups' consensus logs and waits for ACKs to check if they succeed; 
-(2) for the successful backups in (1), leader does WRITEs to update tail 
-pointer of their consensus logs; and (3) on receiving a majority of ACKs in (2), 
-a consensus is reached, leader does WRITEs to notify backups.}
+(b) for the successful backups in (a), leader does WRITEs to update tail 
+pointer of their consensus logs; and (c) on receiving a majority of ACKs in 
+(b), a consensus is reached, leader does WRITEs to notify backups.}
 \label{fig:dare}
 \vspace{-.20in}
 \end{figure}
 
-We highly appreciate \dare~\cite{dare:hpdc15}, a recent fastest \paxos 
-protocol (Figure~\ref{fig:dare}) based on RDMA. It is most relevant to \xxx. 
-\dare is designed to run with a small number of replicas (\ie, three) and a 
-single-threaded key-value server program written by the authors. Under this 
-design choice, \dare follows a sole-leader manner that needs to do two-rounds: 
+\dare~\cite{dare:hpdc15} (Figure~\ref{fig:dare}) is one of 
+the fastest \paxos protocols. It is RDMA-based and most relevant to \xxx. \dare 
+is designed for both a small number of concurrent requests and 
+replicas. \dare follows a sole-leader manner with two-rounds: 
 first, leader does RDMA writes consensus requests on each replica; second, 
 leader does RDMA writes on each replica to update a global variable that points 
-to the latest request (tail of consensus log). Both rounds are essential in 
-\dare because if a backup becomes a new leader, it needs the tail to perform a 
-``log adjustment"~\cite{dare:hpdc15} across replicas.
+to the latest request (tail of consensus log) in each backup. Both rounds are 
+essential in \dare to incase a backup becomes a new leader.
 % Figure~\ref{fig:dare} shows 
 % \dare's protocol. Figure~\ref{fig:consensus} shows \xxx's protocol.
 
@@ -46,21 +44,22 @@ to the latest request (tail of consensus log). Both rounds are essential in
 % writes as successful on other replicas, and poll ACKs on these writes. Once a 
 % majority of successful writes in the second round, DARE reaches a consensus.
 
-To further improve performance, \dare makes two technical choices. First, to 
-avoid delays caused by polling ACKs, \dare uses a global RDMA CQ (Completion 
-Queue) for all replicas, making it possible to collect multiple ACKs each poll 
-operation. 
+% To further improve performance, \dare makes two technical choices. First, to 
+% avoid delays caused by polling ACKs, \dare uses a global RDMA CQ (Completion 
+% Queue) for all replicas, making it possible to collect multiple ACKs each poll 
+% operation. 
 
-\dare is not designed to scale to a large number of concurrent requests or 
+\dare is not designed to work with large concurrent requests or 
 replicas for two reasons. First, its second round needs to update a global 
-variable for each replica, which prevents concurrent consensus 
-requests, a desirable feature for \paxos performance~\cite{paxos:practical}. 
-Therefore, the consensus of a new incoming request in \dare's server program 
-must wait for prior all consensus requests to finish (confirmed in our 
-evaluation). Second, a sole-leader protocol is not suitable to incorporate a 
-stable storage or checkpoint/restore design. Therefore, \dare lacks durability 
-(\S\ref{sec:background}), an important feature in standard \paxos protocols 
-(including \xxx).
+variable for each replica, which \emph{serializes} concurrent consensus 
+requests, a essential feature for \paxos performance~\cite{paxos:practical}. 
+For instance, two ongoing \dare consensus requests may interleave and cause the 
+variable to point to an earlier request. Therefore, the consensus of \dare's 
+new requests can not start until the consensus of prior requests finish, 
+confirmed in both \dare's and our evaluation (\S\ref{sec:eval-dare}). Second, a 
+sole-leader protocol can not incorporate a stable storage or 
+checkpoint design. Therefore, \dare lacks durability 
+(\S\ref{sec:background}), another essential \paxos feature.
 
 % With these 
 % two choices, \dare runs slightly faster than \xxx on three replicas.
@@ -74,25 +73,25 @@ stable storage or checkpoint/restore design. Therefore, \dare lacks durability
 
 Overall, \xxx differs from \dare in three aspects. First, \xxx's protocol has 
 only one RDMA round (Figure~\ref{fig:consensus}), and \dare has two rounds. 
-Second, \xxx scales well on many concurrent client connections and 
-up to nine replicas (\S\ref{sec:eval-dare}), and \dare~\cite{dare:hpdc15} 
-mentioned that their design choices do not include scalability. Third, although 
-\xxx is a durable protocol and \dare is a volatile one, \xxx is faster than 
-\dare by up to \fasterDARE. \S\ref{sec:eval-dare} compares \xxx and \dare 
-in detail.
+Second, \xxx scales well on concurrent client connections and replicas 
+(\S\ref{sec:eval-dare}), and \dare~\cite{dare:hpdc15} mentioned that their 
+design choices do not include scalability. Third, although \xxx is a durable 
+protocol and \dare is a volatile one, \xxx is faster than \dare by up to 
+\fasterDARE. \S\ref{sec:eval-dare} compares \xxx and \dare performance in 
+detail.
 
-\subsection{\xxx Limitations}\label{sec:limits}
+% \subsection{\xxx Limitations}\label{sec:limits}
 
 % Input coordination protocol.
 
 % Have not hooked time and rand(). Can use PMP approach. Not a problem for 
 % evaluated apps. 
-\xxx currently does not hook random functions such as \v{gettimeofday()} and 
-\v{rand()} because these random results are often explicit and easy to examine 
-from network outputs (\eg, a timestamp in the header of a reply). Existing 
-\paxos approaches~\cite{eve:osdi12,paxos:practical} can also be 
-leveraged to intercept these functions and make general programs produce same 
-results among replicas.
+% \xxx currently does not hook random functions such as \v{gettimeofday()} and 
+% \v{rand()} because these random results are often explicit and easy to examine 
+% from network outputs (\eg, a timestamp in the header of a reply). Existing 
+% \paxos approaches~\cite{eve:osdi12,paxos:practical} can also be 
+% leveraged to intercept these functions and make general programs produce same 
+% results among replicas.
 % because our output checkers have not detected network output 
 % divergence comming from these functions
 
@@ -116,24 +115,24 @@ results among replicas.
 % of view, such bugs do not matter. Moreover, \xxx already checkpoints file 
 % system state to mitigate this issue.
 
-Like recent systems~\cite{dare:hpdc15,crane:sosp15}, \xxx totally orders all 
-types of requests and it has not incorporated 
-read-only optimization~\cite{eve:osdi12}, because its performance overhead 
-is already low (\S\ref{sec:overhead}). However, \xxx can be extended to 
-support read-only optimization if two conditions are met: (1) the 
-semantic an operation is read-only is clear in a server program; and (2) the 
-number of output bytes for this operation is fixed. GET requests in key-value 
-stores often meet these two conditions.
+% Like recent systems~\cite{dare:hpdc15,crane:sosp15}, \xxx totally orders all 
+% types of requests and it has not incorporated 
+% read-only optimization~\cite{eve:osdi12}, because its performance overhead 
+% is already low (\S\ref{sec:overhead}). However, \xxx can be extended to 
+% support read-only optimization if two conditions are met: (1) the 
+% semantic an operation is read-only is clear in a server program; and (2) the 
+% number of output bytes for this operation is fixed. GET requests in key-value 
+% stores often meet these two conditions.
 
-We use GET requests to present a design. \xxx intercepts a client program's 
-outbound socket calls (\eg, \send), compares the first three bytes in each call 
-with ``GET". If they match, \xxx appends two extra \xxx metadata fields 
-\v{read\_only} and \v{length} in this outbound call to the server. \xxx then 
-intercepts a server's \recv calls and strips these two fields. If the first 
-field is true, \xxx directly processes this operation in a local replica 
-and strips the next \v{length} bytes from the output checker within the same
-connection. In sum, \xxx processes these operations locally without making 
-outputs across replicas diverge.
+% We use GET requests to present a design. \xxx intercepts a client program's 
+% outbound socket calls (\eg, \send), compares the first three bytes in each call 
+% with ``GET". If they match, \xxx appends two extra \xxx metadata fields 
+% \v{read\_only} and \v{length} in this outbound call to the server. \xxx then 
+% intercepts a server's \recv calls and strips these two fields. If the first 
+% field is true, \xxx directly processes this operation in a local replica 
+% and strips the next \v{length} bytes from the output checker within the same
+% connection. In sum, \xxx processes these operations locally without making 
+% outputs across replicas diverge.
 
 % When execution divergence is detected in a replica, \xxx's rollback mechanism 
 % is not designed to guarantee that the re-executions of this replica will 
