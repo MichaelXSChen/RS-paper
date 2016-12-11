@@ -50,7 +50,7 @@ having fewer performance bottlenecks on network bandwidth and CPU resources.
 However, software TCP/IP layers and OS kernels remain performance 
 bottleneck~\cite{arrakis:osdi14}. To quantify this bottleneck, we evaluated 
 four TCP/IP-based \paxos-like protocols on a computer with 24-cores, 40Gbps 
-network, and we spawned 24 concurent consensus clients. When changing the 
+network, and we spawned 24 concurrent consensus clients. When changing the 
 replica group size from three to nine, although network and CPUs were not 
 saturate, the consensus latency of three protocols drastically increased by 
 \tradlatencyincreaselow to \tradlatencyincreasehigh 

@@ -76,7 +76,7 @@ latency often increases linearly~\cite{scatter:sosp11} due to the linearly
 increasing number of consensus messages. This limited scalability hurts the 
 performance of server programs for two reasons. First, the performance of 
 server programs is often scalable to number of CPU cores in a computer when 
-serving concurent client requests. Second, some advanced SMR systems (\eg, 
+serving concurrent client requests. Second, some advanced SMR systems (\eg, 
 Azure~\cite{azure:book}) deploy seven or nine replicas to handle replica 
 failures or updates.
 
@@ -86,7 +86,7 @@ IO~\cite{crane:sosp15, libpaxos}. However, the high TCP/IP round-trip latency
 still exists, and synchronizations in these techniques frequently invoke 
 expensive OS events such as context switches. We ran four parallel \paxos 
 protocols~\cite{zookeeper, spaxos:srds12, crane:sosp15, libpaxos} on a computer 
-with 24 CPU cores and 40Gbps network, then we spawned 24 cocurrent consensus 
+with 24 CPU cores and 40Gbps network, then we spawned 24 concurrent consensus 
 requests. When the number of replicas increased from three to nine, the 
 consensus latency of three protocols increased by \tradlatencyincreaselow to 
 \tradlatencyincreasehigh, and \systemcostlow to \systemcosthigh of the increase 
@@ -434,7 +434,7 @@ that
 \item \xxx is fast and scalable. Figure~\ref{fig:scalability} shows that \xxx's 
 consensus latency outperforms four TCP/IP-based \paxos protocols by up
 to \comptradhigh and \dare by \fasterDARE. \xxx's consensus latency stays 
-almost constant to the number of concurent requests and replicas.
+almost constant to the number of concurrent requests and replicas.
 
 
 % \item \xxx is general and easy to use. For all \nprog evaluated programs, 
