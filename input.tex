@@ -29,6 +29,17 @@ requests whenever they call inbound socket calls (\eg, \recv). Third, a backup
 replica's \xxx internal follower thread (\S\ref{sec:overview}) which agrees on 
 or rejects consensus requests.
 
+\begin{figure}[h]
+\vspace{-.2in}
+\centering
+\begin{minipage}{.5\textwidth}
+\lgrindfile{code/logentry.cpp}
+\end{minipage}
+\vspace{-.05in}
+\caption{{\em \xxx's log entry for each socket call.}} \label{fig:logentry}
+\vspace{-.1in}
+\end{figure}
+
 Figure~\ref{fig:logentry} shows the format of a log entry in \xxx's consensus 
 log. Most fields are regular as those in a typical \paxos 
 protocol~\cite{paxos:practical} except three ones: the \v{reply} array, the 
@@ -37,8 +48,8 @@ client connection ID \v{conn\_vs}, and the type ID of a socket call
 replies to the leader. The \v{conn\_vs} is for identifying which connection this 
 socket call belongs to (see \ref{sec:concurrent}). The \v{call\_type} 
 identifies four types of socket calls in \xxx: the \accept type (\eg, \accept), 
-the \recv type (\eg, \recv and \myread), the \send type (\eg, \send and 
-\mywrite), and the \close type (\eg, \close).
+the \recv type (\eg, \recv and \myread), the \send type (\eg, \send), and the 
+\close type (\eg, \close).
 
 % Second, leader thread behavior on \recv(). Return from orig recv, grab 
 % spin % lock and get view stamp, store the log, and post send to all replicas. 
@@ -49,16 +60,6 @@ leader thread invokes a consensus request when it calls a socket call with the
 (\textbf{L1}) is executing the actual Libc socket call, because \xxx needs to 
 get the actual return values or received data bytes of this call and then 
 replicates them in remote replicas' logs.
-
-\begin{figure}[t]
-\centering
-\begin{minipage}{.5\textwidth}
-\lgrindfile{code/logentry.cpp}
-\end{minipage}
-\vspace{-.05in}
-\caption{{\em \xxx's log entry for each socket call.}} \label{fig:logentry}
-\vspace{-.2in}
-\end{figure}
 
 The second step (\textbf{L2}) is local preparation, including assigning a 
 global, monotonically increasing viewstamp to locate this entry in the 
@@ -154,10 +155,11 @@ own node ID. Backups perform these two steps in parallel
 Third (\textbf{B3}, not shown in Figure~\ref{fig:consensus}), the follower 
 does a regular \paxos check on \v{last\_committed} and executes all socket 
 calls that it has not executed before this viewstamp. It then ``executes" each 
-log entry by forwarding the socket calls to the local server program. This 
-forwarding faithfully builds and closes concurrent connections between the 
-follower and the local server program according to the socket calls in the 
-consensus log.
+log entry by sending the socket calls to the local server program.
+% This 
+% forwarding faithfully builds and closes concurrent connections between the 
+% follower and the local server program according to the socket calls in the 
+% consensus log.
 % thus \xxx can 
 % maintain consistent concurrent client connection mappings between the leader and 
 % backups.
