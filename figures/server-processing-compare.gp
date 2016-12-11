@@ -22,11 +22,15 @@ set boxwidth 0.75
 set key autotitle columnheader
 #set key outside below center
 #set key left top
+set termoption enhanced
+set style histogram rowstacked title offset 0,0.5
 
-plot newhistogram "DARE" lt 1, \
+plot newhistogram "{/*0.7 DARE (update-heavy)}" lt 1, \
 'throughput-compare2.dat' u 3:xtic(1) fs pattern 2, '' u 2 fs pattern 2, \
-newhistogram "APUS" lt 1, \
-'throughput-compare2.dat' u 5:xtic(1) fs pattern 2 notitle, '' u 4 fs pattern 2 notitle
+newhistogram "{/*0.7 DARE (read-heavy)}" lt 1, \
+'throughput-compare2.dat' u 5:xtic(1) fs pattern 2 notitle, '' u 4 fs pattern 2 notitle, \
+newhistogram "{/*0.7 APUS}" lt 1, \
+'throughput-compare2.dat' u 7:xtic(1) fs pattern 2 notitle, '' u 6 fs pattern 2 notitle
 
 #plot newhistogram "1" lt 1, \
 #'throughput-compare2.dat' u 2:xtic(1) fs pattern 2, '' u 3 fs pattern 2,  \
