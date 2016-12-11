@@ -269,8 +269,8 @@ their latency with scalability, we ran up to seven replicas and 24 clients.
 % running several replicas on one machine: when changing replica group size from 9 
 % to 105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
 
-Figure~\ref{tab:compare} shows the consensus latency of \xxx and 
-\dare on seven replicas with randomly arriving, update-heavy (50\% SETs and 
+Figure~\ref{fig:compare} shows the consensus latency of \xxx 
+and \dare on seven replicas with randomly arriving, update-heavy (50\% SETs and 
 50\% GETs) and read-heavy (10\% SETs and 90\% GETs) workloads. \dare 
 performance on these two workloads were different because it handles GETs with 
 only one consensus round~\cite{dare:hpdc15}. \xxx handles all requests with the 
@@ -412,19 +412,18 @@ We turned on and off the output checking (\S\ref{sec:output}) and didn't
 observe difference in \xxx performance. Only three programs (\mediatomb, 
 \mysql, and \openldap) have different output hashes cause by physical times.
 
-Figure~\ref{fig:tput} shows \xxx's throughput and Figure~\ref{fig:latency}
-response time. We varied the number of concurrent client connections for each
-server program by from one to 32 threads. For \calvin, we only collected the
-8-thread result because \calvin uses this constant thread count in their code
-to serve client requests.
+%  and Figure~\ref{fig:latency}
+% response time
+Figure~\ref{fig:tput} shows \xxx's throughput. We varied the number of 
+concurrent client connections for each server program by from one to 32 
+threads. For \calvin, we only collected the 8-thread result because \calvin 
+uses this constant thread count in their code to serve client requests.
 
 Overall, compared to these server programs' unreplicated executions, \xxx 
 merely incurred a mean throughput overhead of \tputoverhead (note that in 
 Figure~\ref{fig:tput}, the Y-axises of most programs start from a large 
-number). \xxx's mean overhead on response time was \latencyoverhead.
-
-As the number of threads increases, all programs' unreplicated executions
-got a performance improvement except \memcached. A prior
+number). As the number of threads increases, all programs' unreplicated 
+executions got a performance improvement except \memcached. A prior
 evaluation~\cite{rex:eurosys14} also observed a similar \memcached low
 scalability. \xxx scaled almost as well as the unreplicated executions.
 % a \latencyoverhead overhead compared to the unreplicated
@@ -443,7 +442,7 @@ local SSD writes (\S\ref{sec:logging}) for the leader and each backup.
 \begin{table}[h]
 \footnotesize
 \centering
-% \vspace{.25in}
+\vspace{-.1in}
 \begin{tabular}{lrrrr}
 {\bf Program} & {\bf \# Calls} & {\bf Input} & {\bf SSD time}
 & {\bf Quorum time}\\
@@ -468,8 +467,8 @@ The ``\# Calls" column means the number of socket calls that went through \xxx
 input consensus; ``Input" means average bytes of a server's inputs received in
 these calls; ``SSD time" means the average time spent on storing these calls to
 stable storage; and ``Quorum time" means the average time spent on waiting
-quorum for these calls.}
-\vspace{-.2in}
+quorum.}
+\vspace{-.1in}
 \label{tab:consensus-latency}
 \end{table}
 
@@ -491,7 +490,11 @@ By adding the last two columns in Table~\ref{tab:consensus-latency}, a
 % This consensus latency mainly depends on the ``Input" column: the average number of 
 % data bytes received in socket calls (\eg, \mongodb has the largest received bytes).
 \xxx's small consensus latency makes it achieve reasonable throughputs 
-in Figure~\ref{fig:tput} and response times Figure~\ref{fig:latency}.
+in Figure~\ref{fig:tput}. Overall, Figure~\ref{fig:compare} and 
+Table~\ref{tab:consensus-latency}  indicate that \xxx has low overhead on 
+server programs' response time. \xxx's mean overhead on response time was 
+\latencyoverhead. Due to space limit, the response time overhead figure is put 
+here~\cite{apus}.
 
 % This small latency suggests that, even if clients are deployed within the same
 % datacenter network, \xxx may still achieve acceptable overhead on many programs
