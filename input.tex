@@ -72,10 +72,10 @@ each incoming request (entry) concurrently.
 The third step (\textbf{L3}) is to WRITE a log entry to remote backups 
 in parallel. Unlike a previous RDMA-based consensus 
 algorithm~\cite{dare:hpdc15} which has to wait for ACKs from remote NICs, our 
-WRITE immediately returns after pushing the entry to its local QP between the 
+WRITE immediately returns after copying the entry to its local QP between the 
 leader and each backup, because \paxos has handled the reliability issues (\eg, 
-packet losses) for our WRITEs. In our evaluation, pushing a log entry to local 
-QP took no more than 0.3 \us. Therefore, the WRITEs to all backups are done in 
+packet losses) for our WRITEs. In our evaluation, copying a log entry to local 
+QP took no more than 0.2 \us. Therefore, the WRITEs to all backups are done in 
 parallel (see \textbf{L3} in Figure~\ref{fig:logentry}).
 
 
