@@ -51,10 +51,10 @@ eps2=0.5
 E1=7
 E2=50
 eps=0.5
-set arrow 1 from A-eps2-0.5, E1 to A+eps2+0.5, E1 nohead lw 2 lc rgb "#ffffff" front
+#set arrow 1 from A-eps2-0.5, E1 to A+eps2+0.5, E1 nohead lw 2 lc rgb "#ffffff" front
 #set arrow 2 from A-eps2-3, E2-8.7 to A+eps2+2, E2-8.7 nohead lc rgb "#000000" front
-set arrow 3 from A-eps-eps2, E1-eps to A+eps-eps2, E1+eps nohead
-set arrow 4 from A-eps+eps2, E1-eps to A+eps+eps2, E1+eps nohead
+#set arrow 3 from A-eps-eps2, E1-eps to A+eps-eps2, E1+eps nohead
+#set arrow 4 from A-eps+eps2, E1-eps to A+eps+eps2, E1+eps nohead
 
 plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "" ls 5, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 2
 
