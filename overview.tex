@@ -15,8 +15,8 @@ well known for tolerating various faults, including minor replica failures
 and packet losses. If the leader replica fails, \paxos elects a new leader from 
 the backups.
 
-To handle replica failovers, \paxos replicas must log inputs in local stable 
-storage. When a new input comes, the \paxos leader writes this input in 
+To handle replica failovers, standard \paxos must log inputs in local 
+stable storage. When a new input comes, the \paxos leader writes this input in 
 local stable storage. The leader then starts a new consensus round among 
 replicas. A backup also writes the received consensus request in local storage 
 if it agrees on this request. Since logging is done by each replica locally, it 
@@ -49,13 +49,14 @@ having fewer performance bottlenecks on network bandwidth and CPU resources.
 
 However, software TCP/IP layers and OS kernels remain performance 
 bottleneck~\cite{arrakis:osdi14}. To quantify this bottleneck, we evaluated 
-four \paxos-like protocols on a computer with 24-cores, 40Gbps network, and we 
-spawned 24 concurent consensus clients. When changing the replica group size 
-from three to nine, although network and CPUs were not saturate, the consensus 
-latency of three protocols drastically increased by \tradlatencyincreaselow to 
-\tradlatencyincreasehigh (Figure~\ref{fig:scalability}), and \systemcostlow to 
-\systemcosthigh of this increase was in OS kernel. If only one consensus client 
-was spawned, the latency increase on the number of replicas was more gentle 
+four TCP/IP-based \paxos-like protocols on a computer with 24-cores, 40Gbps 
+network, and we spawned 24 concurent consensus clients. When changing the 
+replica group size from three to nine, although network and CPUs were not 
+saturate, the consensus latency of three protocols drastically increased by 
+\tradlatencyincreaselow to \tradlatencyincreasehigh 
+(Figure~\ref{fig:scalability}), and \systemcostlow to \systemcosthigh of this 
+increase was in OS kernel. If only one consensus client was spawned, the latency 
+increase on the number of replicas was more gentle 
 (Table~\ref{tab:traditional-latency}).
 
 This evaluation also shows that both the number of concurrent requests and 
@@ -96,7 +97,7 @@ operation can directly write from one replica's memory to a remote
 replica's memory without involving the remote OS kernel or CPU. Prior 
 work~\cite{pilaf:usenix14} shows that one-sided operations are up to 2x faster 
 than two-sided operations, so \xxx uses one-sided operations (or 
-``WRITE" in this paper). On a WRITE succeeds, remote NIC sends
+``WRITE" in this paper). On a WRITE succeeds, the remote NIC sends
 an RDMA ACK to local NIC.
 
 A one-sided RDMA communication between a local and a remote NIC needs
@@ -114,17 +115,21 @@ uses RC QPs.
 
 
 
-To ensure a WRITE resides in remote memory, a common practice is that the 
-local replica busily polls an ACK from the associated CQ before it continues 
-(the so called \emph{signaling}). Polling ACK is time consuming as it involves 
+Normally, to ensure a WRITE resides in remote memory, the local replica 
+normally busily polls an ACK from the CQ before it proceeds 
+(or \emph{signaling}). Polling ACK is time consuming as it involves 
 synchronization between the NICs on both sides of a CQ. We looked into the ACK 
-pollings in a fastest RDMA-based \paxos protocol \dare~\cite{dare:hpdc15}, 
-and we found that, although \dare is highly optimized (its leader maintains one 
+pollings in a fastest RDMA-based \paxos protocol \dare~\cite{dare:hpdc15}, and 
+we found that, although \dare is highly optimized (its leader maintains one 
 global CQ to receive all backups' ACKs in batches), polling ACKs is still time 
 consuming: when the CQ was empty, it took 0.039$\sim$0.12 \us; when the CQ has 
-one or more ACKs, it took 0.051$\sim$0.42 \us. As the number of ACKs is linear 
-to both the number of concurent requests and replicas, polling ACKs becomes one 
-major scalability bottleneck in \dare (\S\ref{sec:evaluation}).
+one or more ACKs, it took 0.051$\sim$0.42 \us.
+% Therefore, \xxx 
+% avoids ACKs.
+
+% As the number of ACKs is linear 
+% to both the number of concurent requests and replicas, polling ACKs becomes one 
+% major scalability bottleneck in \dare (\S\ref{sec:evaluation}).
 
 % If the 
 % number of polling ACK operations is linear to the replica group size, a \paxos 

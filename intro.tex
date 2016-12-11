@@ -148,14 +148,13 @@ However, due to the limited RDMA operation types, fully exploiting RDMA
 speed in software systems is widely considered 
 challenging by the community~\cite{pilaf:usenix14,herd:sigcomm14,
 farm:sosp15,dare:hpdc15}. For instance, \dare~\cite{dare:hpdc15}, a recent 
-fastest RDMA-based \paxos protocol, presents a sole-leader, two-round 
+fastest \paxos protocol based on RDMA, presents a sole-leader, two-round 
 consensus: first, leader does RDMA writes consensus requests on each replica; 
 second, leader does RDMA writes on each replica to update a global variable 
-that points to the latest request. Unfortunately, such a sole-leader consensus 
-with a global variable update will incur scalability bottleneck. Both \dare's 
-and our evaluation (\S\ref{sec:eval-dare}) showed that, as the number of 
-concurrent requests increased, \dare's consensus latency increased almost 
-linearly.
+that points to the latest request. Unfortunately, such a global variable update 
+\emph{serializes} consensus requests: both \dare's and our 
+evaluation (\S\ref{sec:eval-dare}) confirmed that, as the number of concurrent 
+requests increased, \dare's consensus latency increased almost linearly.
 
 % \dare was fast with a small number of concurrent requests or replicas. 
 
@@ -184,11 +183,10 @@ receive messages.
 Although doing so will consume more CPU resources than a sole-leader 
 protocol~\cite{dare:hpdc15}, it has two major benefits. First, both leader and 
 backups participate in consensus, which makes it possible to reach consensus 
-with only one round~\cite{paxos:practical} without requiring leader to update 
-global variables for backups. Second, all replicas now receive consensus 
-messages on their bare metal, local memory. An analogy is threads receiving 
-other threads' data via bare metal memory, a fast and scalable computation 
-pattern.
+with only one round~\cite{paxos:practical} without updating global variables. 
+Second, all replicas now efficiently receive consensus messages on their local, 
+bare metal memory. An analogy is threads receiving other threads' data via bare 
+metal memory, a fast and scalable computation pattern.
 
 
 % An analogy is that threads receive other threads' data and
@@ -277,10 +275,10 @@ pattern.
 We present \xxx,\footnote{We name our system after
 apus, one of the fastest birds.} a new RDMA-based \paxos protocol and its
 runtime system. In \xxx, all replicas directly write to destination
-replicas' memory and poll messages from local memory to receive messages, and 
-our runtime system handles other technical challenges such as atomic delivery 
-of messages (\S\ref{sec:normal}), efficient input logging 
-(\S\ref{sec:logging}), and failure recovery (\S\ref{sec:checkpoint}).
+replicas' memory and poll messages from local memory to receive messages. Our 
+runtime system handles other technical challenges such as atomic delivery of 
+messages (\S\ref{sec:normal}), efficient input logging (\S\ref{sec:logging}), 
+and failure recovery (\S\ref{sec:checkpoint}).
 
 Similar to recent SMR systems~\cite{rex:eurosys14,crane:sosp15}, \xxx 
 supports general, unmodified server programs. Within \xxx, a program runs as is. 
@@ -447,10 +445,10 @@ all \nprog server programs with seven replicas and compared to servers' own
 unreplicated executions at peak performance. In average, \xxx incurred only 
 \tputoverhead overhead on throughput and \latencyoverhead on response time.
  
-\item \xxx is robust on replicas failures and message losses. Its leader 
+\item \xxx is robust on replicas failures and packet losses. Its leader 
 election latency was reasonable.
 
-q
+
 % \item \xxx achieves one order of magnitude higher scalability and one
 % order of magnitude faster latency than the literature 
 % (Figure~\ref{fig:scalability}). 
@@ -484,7 +482,7 @@ q
 % makes % system calls go beyond single machine).
 % New design space. comprehensive model. many applications: other replications,
 % parallel analysis, datacenter OS.
-Our major contribution is a first RDMA-based \paxos protocol that achieves  
+Our major contribution is the first RDMA-based \paxos protocol that achieves  
 low performance overhead on diverse server programs. \xxx has the potential 
 to largely improve both the scale and performance of many replication 
 systems~\cite{azure:book,manos:hotdep10,crane:sosp15,rex:eurosys14, 
