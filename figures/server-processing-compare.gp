@@ -8,7 +8,7 @@ set style histogram rowstack gap 1
 set xtics nomirror
 set ytics nomirror
 
-set ylabel "Server processing time (us)" offset 2.2,0
+set ylabel "Consensus latency (us)" offset 2.2,0
 set xtics font ",14"
 #set xrange[-0.75:14]
 set yrange [0:120]

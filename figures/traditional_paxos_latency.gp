@@ -35,7 +35,7 @@ set xrange [0:27]
 #set for [i=0:5] xtics (0,3**i)
 set xtics ("3" 0,"5" 9,"7" 18, "9" 27, "33" 50, "65" 68, "105" 98)
 
-set ylabel "Server processing time (us)" offset -1,6 font ",25"
+set ylabel "Consensus latency (us)" offset -1,6 font ",25"
 set xlabel "number of replicas" offset 0.5,0 font ",25"
 set key right bottom
 set xrange [0:27]
@@ -57,7 +57,7 @@ set arrow 1 from A-eps2-0.5, E1 to A+eps2+0.5, E1 nohead lw 2 lc rgb "#ffffff" f
 set arrow 3 from A-eps-eps2, E1-eps to A+eps-eps2, E1+eps nohead
 set arrow 4 from A-eps+eps2, E1-eps to A+eps+eps2, E1+eps nohead
 
-plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libPaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "ZooKeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "Crane" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 5,'traditional_paxos_latency.dat' using 1:6 with linespoints title "APUS" ls 2, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "DARE" ls 9
+plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "libPaxos" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "ZooKeeper" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "Crane" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "S-Paxos" ls 5, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "DARE" ls 9, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "APUS" ls 2
 
 
 
@@ -71,7 +71,7 @@ unset xlabel
 unset ylabel
 unset xtics
 set ytics ("100" 100, "300" 300, "750" 750 ,"1200" 1200)
-plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "" ls 5,'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 2, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 9
+plot 'traditional_paxos_latency.dat' using 1:2 with linespoints title "" ls 1,'traditional_paxos_latency.dat' using 1:3 with linespoints title "" ls 7, 'traditional_paxos_latency.dat' using 1:4 with linespoints title "" ls 6, 'traditional_paxos_latency.dat' using 1:5 with linespoints title "" ls 5, 'traditional_paxos_latency.dat' using 1:7 with linespoints title "" ls 9, 'traditional_paxos_latency.dat' using 1:6 with linespoints title "" ls 2 
 
 unset yrange
 unset ytics
