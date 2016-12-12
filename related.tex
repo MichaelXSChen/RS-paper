@@ -169,17 +169,17 @@ modules go through TCP/IP layers and incur high consensus latency, and
 
 \para{RDMA-based systems.} RDMA techniques have been implemented in various 
 architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
-iWRAP~\cite{iwrap}. RDMA have been leveraged in many systems to improve 
-application-specific latency and throughput, including high performance 
+iWRAP~\cite{iwrap}. RDMA are used to speed up high performance 
 computing~\cite{openmpi}, key-value 
 stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14,memcached:rdma}, 
-transactional processing systems~\cite{drtm:sosp15,farm:sosp15}, and file 
+transactional systems~\cite{drtm:sosp15,farm:sosp15,fasst:osdi16}, 
+and file 
 systems~\cite{gibson:nfs}. For instance, FaRM~\cite{farm:nsdi14} leverages RDMA 
 to build a fast DHT. FaRM uses a data replication 
 approach~\cite{ramcloud:sosp11}, which works in a primary-backup 
 manner~\cite{remus:nsdi08}. In general, \paxos provides better consistency and 
-availability than primary-backup. These RDMA-based systems use RDMA to improve 
-performance in different aspects, so they are complementary to \xxx.
+availability than primary-backup. These systems use RDMA to speed up 
+application-specific aspects, so they are complementary to \xxx.
 % It will be interesting to investigate whether \xxx can improve the 
 % availability for both the client and server for some of these advanced systems 
 % within a datacenter, and we leave it for future work.
