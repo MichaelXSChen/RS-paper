@@ -241,11 +241,10 @@ reply. All times are in \us.}
 \vspace{-.10in}
 \includegraphics[width=.4\textwidth]{figures/server-processing-compare}
 \vspace{-.1in}
-\caption{{\em Consensus latency and breakdown of \xxx and \dare.} The 
-number of replicas is seven. Consensus latency contains two parts: 
-``Wait-consensus" means the duration between the time a request being received 
-by a server program and the time a consensus of this request starts. 
-``Actual-consensus" means the actual consensus duration.}
+\caption{{\em \xxx and \dare consensus latency (divided into two parts) on 
+variant concurrent clients.} 
+``Wait-consensus" is the time an input request spent on waiting consensus to 
+start. ``Actual-consensus" is the time spent on running consensus.}
 \label{fig:compare}
 \vspace{-.25in}
 \end{figure}
@@ -261,39 +260,46 @@ execution.}}
 \label{fig:tput}
 \end{figure*}
 
-We compared \xxx and \dare~\cite{dare:hpdc15} on key-value servers with same 
-requests. \xxx ran a widely used one, \redis; \dare supported a 335-line, 
-RDMA-based key-value server written by their authors. To thoroughly analyze 
-their latency with scalability, we ran up to seven replicas and 24 clients. 
+We compared \xxx and \dare~\cite{dare:hpdc15} on key-value stores. \xxx ran a 
+popular one, \redis; \dare supported a 335-line, RDMA-based key-value 
+server written by their authors. Figure~\ref{fig:compare} shows \xxx and 
+\dare's consensus latency on variant concurrent clients. Both \xxx and \dare ran 
+seven replicas with randomly arriving, update-heavy (50\% SETs and 50\% GETs) 
+and read-heavy (10\% SETs and 90\% GETs) workloads. \dare performance on two 
+workloads were different because it handles GETs with only one consensus 
+round~\cite{dare:hpdc15}. \xxx handles all requests with the same protocol. When 
+there was only one client, \xxx was slightly slower than \dare because \dare 
+does not store inputs persistently. In average, \xxx's 
+consensus latency was faster than \dare by \fasterDARE due to two reasons.
+
+% To thoroughly analyze 
+% their latency with scalability, we ran up to seven replicas and 24 clients. 
 % Since our RDMA NIC bandwidth is 40Gpbs, our network were not s while 
 % running several replicas on one machine: when changing replica group size from 9 
 % to 105, an RDMA round-trip increased from 2.6$\sim$4.4 \us.
 
-Figure~\ref{fig:compare} shows the consensus latency of \xxx 
-and \dare on seven replicas with randomly arriving, update-heavy (50\% SETs and 
-50\% GETs) and read-heavy (10\% SETs and 90\% GETs) workloads. \dare 
-performance on these two workloads were different because it handles GETs with 
-only one consensus round~\cite{dare:hpdc15}. \xxx handles all requests with the 
-same protocol. When there was only one client, \xxx was slightly slower than 
-\dare because \dare does not store inputs persistently. In average, \xxx's 
-consensus latency was faster than \dare by \fasterDARE due to two reasons.
+
 
 First, \xxx is a one-round protocol and \dare is a two-round protocol (for 
-SETs), so \dare's actual consensus time was \fasterDAREconsensusonly higher than 
-\xxx. Even comparing \dare's read-heavy workloads (one-round for GETs) with 
-\xxx on more concurrent requests, \xxx's actual consensus time was still 
-slightly faster than \dare's because \xxx's protocol avoids expensive ACK 
+SETs), so \dare's ``actual-consensus" time was \fasterDAREconsensusonly higher 
+than \xxx. Even using read-heavy workloads (\dare uses one-round for GETs) 
+with \xxx, \xxx's actual consensus time was still slightly faster than \dare's 
+on more than six clients, because \xxx avoids expensive ACK 
 pollings (\S\ref{sec:rdma}).
 
-Second, \dare's second consensus round updates a global variable in remote 
-backups, which serializes ongoing consensus requests (\S\ref{sec:compare}). 
-Although \dare compensates this limitation by batching same SET or GET types, 
-the randomly arrival of requests often make batches small, causing a large 
-wait duration (a new batch can not start consensus until prior batches 
-reach consensus). \dare's evaluation~\cite{dare:hpdc15} confirmed a high 
+Second, \dare's second consensus round updates a global variable for each 
+backup and serializes consensus requests (\S\ref{sec:compare}). 
+Although \dare mitigates this limitation by batching same SET or GET types, 
+randomly arriving requests often break batches, causing a large 
+``wait-consensus" time (a new batch can not start consensus until prior batches 
+reach consensus). \dare evaluation~\cite{dare:hpdc15} confirmed such a high 
 wait duration: with three replicas and nine concurrent clients, \dare's 
 throughput on real-world inspired workloads (50\% SET and 50\% GET arriving 
-randomly) was 43.5\% lower than that on 100\% SET workloads. \dare's 
+randomly) was 43.5\% lower than that on 100\% SET workloads. \xxx's 
+``wait-consensus" was almost 0 as it enables concurrent consensus requests 
+(\S\ref{sec:normal}).
+
+\dare's 
 evaluation also showed that its throughput dropped by 30.1\% when the number of 
 replicas increased from three to seven.
 
@@ -396,10 +402,8 @@ programs~\cite{rex:eurosys14,crane:sosp15}).
 
 To stress \xxx, we used a large replica group size of 9 to run all server 
 programs. We spawned up to 32 concurrent connections, and then we measured both 
-response 
-time and throughput. We also measured \xxx's bare consensus latency. Each 
-performance data point was taken from a mean value of 
-10 executions.
+response time and throughput. We also measured \xxx's bare consensus latency. 
+Each performance data point was taken from a mean value of 10 executions.
 
 % \subsection{Ease of Use} \label{sec:ease-of-use}
 
