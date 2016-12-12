@@ -3,9 +3,12 @@
 Most server programs are multithreaded and they may run into nondeterminism 
 (\eg, concurrency errors~\cite{lu:concurrency-bugs}), which may cause replicas 
 to diverge. \xxx provides a fast output checking protocol as a best-effort tool 
-for server program developers to detect replica divergence. If a divergence is 
-detected, developers can restore them with \xxx 
-checkpoints (\S\ref{sec:checkpoint}).
+for server program developers to detect replica divergence. If divergence is 
+detected, developers can restore them with \xxx checkpoints 
+(\S\ref{sec:checkpoint}). If developers need a fully automatic tool, they can 
+run a deterministic 
+multithreading tool~\cite{parrot:sosp13,dthreads:sosp11,crane:sosp15} within 
+\xxx.
 
 % TBD. Motivation of this approach. Make replicas follow consistent execution 
 % states. Recover from bugs that diverge executions. 
@@ -35,8 +38,8 @@ is full, \xxx computes a new CRC64 hash on a union of the current hash and this
 bucket. Such a hash computation mechanism encodes accumulated network outputs. 
 Then, for every \thashcomp (by default, 10K in \xxx) local hash values 
 are generated, \xxx invokes the output checking protocol once to check this 
-hash across replicas. Because this protocol is invoked rarely, it did not incur 
-observable performance lost in our evaluation.
+hash across replicas. Because this protocol is invoked rarely, we did not 
+observed its performance impact.
 
 % The index of this hash in the generated sequence is consistent across 
 % replicas because each replica runs the same mechanism to generate the hash 
