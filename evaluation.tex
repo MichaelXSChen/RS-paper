@@ -4,7 +4,7 @@
 
 
 
-Our evaluation machines include nine RDMA-enabled, Dell R430 servers as \paxos 
+Our evaluation machines include ten RDMA-enabled, Dell R430 servers as \paxos 
 replicas. Each server has Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 
 hyper-threading cores, 64GB memory, and 1TB SSD. All NICs are Mellanox 
 ConnectX-3 Pro 40Gbps connected with Infiniband~\cite{infiniband}. 
@@ -13,42 +13,20 @@ round-trip latency).
 %
 % through a Dell S6000 high-performance switch with 32 40Gpbs ports.
 
-Our evaluation machines also include one Dell R320 server for client programs. 
-It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory, 
-and 160GB SSD. To mitigate latency of client requests, this client machine is 
-located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
-\v{ping} latency between this machine and a RDMA replica is 250 \us. Note that 
-which machines to hold clients do not affect any \paxos protocol's consensus 
-latency (it is only affected by the RDMA network among replicas).
+% Our evaluation machines also include one Dell R320 server for client programs. 
+% It has Linux 3.16.0, 2.2GHz Intel Xeon 12 hyper-threading cores, 32GB memory, 
+% and 160GB SSD. To mitigate latency of client requests, this client machine is 
+% located at the same LAN as the RDMA replicas with a 1Gbps NIC. The average 
+% \v{ping} latency between this machine and a RDMA replica is 250 \us. Note that 
+% which machines to hold clients do not affect any \paxos protocol's consensus 
+% latency (it is only affected by the RDMA network among replicas).
 
-We compared \xxx with five popular, open source \paxos-compatible 
-implementations,
+We compared \xxx with five open source consensus protocols,
 including four traditional ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
 \spaxos~\cite{spaxos:srds12}) and an RDMA-based one 
 (\dare~\cite{dare:hpdc15}). \spaxos is designed to achieve scalable throughput 
-when more replicas are added. 
-
-We evaluated \xxx on \nprog widely used or studied server programs, including
-\nkvprog key-value stores \redis, \memcached, \ssdb, \mongodb; \mysql, a SQL
-server; \clamav, an anti-virus server that scans files and delete malicious ones;
-\mediatomb, a multimedia storage server that stores and transcodes video and
-audio files; \openldap, an LDAP server; \calvin, a widely studied transactional
-database system. All these programs are multithreaded except \redis (but it can 
-serve concurrent requests via Libevent). These servers all update or store 
-important data and files, thus the strong \paxos fault-tolerance is especially 
-attractive to these programs.
-
-
-% Benchmarks table.
-Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. We 
-used the benchmarks' default workloads whenever available. To perform a stress 
-testing on \xxx's input consensus protocol, we chose workloads with significant 
-portions of writes, because write operations often contain more input bytes 
-than reads (\eg, a key-value SET operation contains more bytes than a GET).
-% We 
-% used the protocol or program developers' own performance benchmarks or popular 
-% third-party benchmarks. 
+on more replicas. 
 
 \begin{table}[h]
 \footnotesize
@@ -69,11 +47,34 @@ than reads (\eg, a key-value SET operation contains more bytes than a GET).
 \end{tabular}
 
 \caption{{\em Benchmarks and workloads.} ``Self" in the Benchmark column means
-we used a program's own performance benchmark program. Workloads are all
-concurrent.}
-\vspace{-.05in}
+we used a program's own benchmark.}
+\vspace{-.1in}
 \label{tab:benchmarks}
 \end{table}
+
+We evaluated \xxx on \nprog widely used or studied server programs, including
+\nkvprog key-value stores \redis, \memcached, \ssdb, \mongodb; \mysql, a SQL
+server; \clamav, an anti-virus server that scans files and delete malicious ones;
+\mediatomb, a multimedia storage server that stores and transcodes video and
+audio files; \openldap, an LDAP server; \calvin, a widely studied transactional
+database system. All these programs are multithreaded except \redis (but it can 
+serve concurrent requests via Libevent). Table~\ref{tab:benchmarks} shows the 
+benchmarks and workloads. These servers all update or store 
+important data and files, thus \paxos' strong fault-tolerance is especially 
+attractive to these programs. 
+
+
+% Benchmarks table.
+%  We 
+% used the benchmarks' default workloads whenever available. To perform a stress 
+% testing on \xxx's input consensus protocol, we chose workloads with significant 
+% portions of writes, because write operations often contain more input bytes 
+% than reads (\eg, a key-value SET operation contains more bytes than a GET).
+% We 
+% used the protocol or program developers' own performance benchmarks or popular 
+% third-party benchmarks. 
+
+
 
 
 % evaluation metric. client benchmarks all run in LAN, average latency
@@ -115,9 +116,10 @@ electing a new leader?
 
 we ran \xxx and four traditional consensus protocols using their own 
 client programs or popular client programs with similar bytes of requests.
-We spawned up to 24 concurrent requests and used up to seven 
-replicas. Both these two values are common and high in relevant 
-evaluation~\cite{zookeeper,crane:sosp15,rex:eurosys14,dare:hpdc15}.
+We spawned up to 24 concurrent requests for client programs on one machine and 
+used up to nine replicas. Both these two values are common and 
+high in 
+relevant evaluation~\cite{zookeeper,crane:sosp15,rex:eurosys14,dare:hpdc15}.
 % Our evaluation also 
 % showed that most server programs reached peak throughput at 16 requests 
 % (\S\ref{sec:overhead}).
@@ -231,7 +233,7 @@ processing all replies; and ``Sys" means time spent in systems (OS
 kernel, network libraries, and JVM) between the ``First" and the ``Major" 
 reply. All times are in \us.}
 \label{tab:traditional-latency}
-\vspace{-.2in}
+\vspace{-.15in}
 \end{table}
 
 \subsection{Comparing with \dare}
@@ -255,18 +257,7 @@ does not store inputs persistently. In average, \xxx's
 consensus latency was faster than \dare by \fasterDARE. We think this owes to 
 two reasons.
 
-\begin{figure}[h]
-\centering
-\vspace{-.10in}
-\includegraphics[width=.4\textwidth]{figures/server-processing-compare}
-\vspace{-.1in}
-\caption{{\em \xxx and \dare consensus latency (divided into two parts) on 
-variant concurrent clients.} 
-``Wait-consensus" is the time an input request spent on waiting consensus to 
-start. ``Actual-consensus" is the time spent on running consensus.}
-\label{fig:compare}
-\vspace{-.25in}
-\end{figure}
+
 
 % To thoroughly analyze 
 % their latency with scalability, we ran up to seven replicas and 24 clients. 
@@ -294,6 +285,19 @@ throughput on real-world inspired workloads (50\% SET and 50\% GET arriving
 randomly) was 43.5\% lower than that on 100\% SET workloads. \xxx's 
 ``wait-consensus" was almost 0 as it enables concurrent consensus requests 
 (\S\ref{sec:normal}).
+
+\begin{figure}[h]
+\centering
+\vspace{-.2in}
+\includegraphics[width=.4\textwidth]{figures/server-processing-compare}
+\vspace{-.1in}
+\caption{{\em \xxx and \dare consensus latency (divided into two parts) on 
+variant concurrent clients.} 
+``Wait-consensus" is the time an input request spent on waiting consensus to 
+start. ``Actual-consensus" is the time spent on running consensus.}
+\label{fig:compare}
+\vspace{-.1in}
+\end{figure}
 
 \dare evaluation also showed that, with 100\% SET workloads, its throughput 
 decreased by 30.1\% when the number of replicas increased from three to seven. 
