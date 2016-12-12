@@ -41,13 +41,11 @@ byzantine faults~\cite{pbft:osdi99,zyzzyva:sosp07}.
 
 Three SMR systems, Eve~\cite{eve:osdi12}, 
 Rex~\cite{rex:eurosys14}, and \crane~\cite{crane:sosp15}, use traditional 
-\paxos protocols to improve the availability of server programs. 
-These systems show that SMR services incur modest overhead on 
-server programs' throughput compared to unreplicated executions. None of 
-these three systems has evaluated their response time overhead on key-value 
-servers which are extremely sensitive on latency. \xxx is the first SMR system 
-that achieves low overhead on both response time and throughput on real-world 
-key-value servers.
+\paxos protocols to improve the availability of server programs with modest 
+overhead. None of these systems has evaluated their response time overhead on 
+key-value servers, which are extremely sensitive on latency. \xxx is the first 
+SMR system that achieves low overhead on both response time and throughput on 
+real-world key-value servers.
 % If programs (\eg, key-value 
 % stores) demand short request latency, \xxx  
 % \xxx's (\S\ref{sec:compare}).
