@@ -44,8 +44,8 @@ set yrange [0:43]
 set ytics ("" 5, "" 10, "" 25)
 #set ytics textcolor rgb "red"
 #set ytics add ("xx" 8)
-set label "8.1" at -2.0,8.1 textcolor rgb "red"
-set label "9.8" at 27.4,9.8 textcolor rgb "red"
+set label "8.2" at -2.0,8.1 textcolor rgb "red"
+set label "8.8" at 27.4,9.8 textcolor rgb "red"
 set label "24.8" at -2.5,24.8
 set label "41.5" at 27.4,41.5
 set xtics nomirror
