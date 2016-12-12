@@ -82,10 +82,10 @@ The rest of this section focuses on these questions:
 
 \begin{tightenum}
 
-\item[\S\ref{sec:eval-traditional}:] How does \xxx performance compare
-to traditional consensus protocols?
+\item[\S\ref{sec:eval-traditional}:] How does \xxx compare
+to traditional protocols?
 
-\item[\S\ref{sec:eval-dare}:] How does \xxx performance compare
+\item[\S\ref{sec:eval-dare}:] How does \xxx compare
 to \dare?
 
 \item[\S\ref{sec:overhead}:] What is the performance overhead of running \xxx
@@ -198,11 +198,9 @@ various systems layers, including OS kernels, network libraries, and
 language runtimes (\eg, JVM), are another major scalable bottleneck (the ``Sys" 
 column). This indicates that RDMA is useful on bypassing these systems layers.
 
-Note that on three replicas, \libpaxos and \crane's proposing 
-leader and acceptors are in different threads, so they two had different 
-``First" and ``Major" arrival times. \crane and \spaxos's proposing 
-leader itself is just an acceptor, so they two had same ``First" and ``Major" 
-arrival times (\ie, their ``Sys" times were 0).
+Note that both \crane and \spaxos's leader handles consensus replies 
+rapidly, so they two had same ``First" and ``Major" arrival times (\ie, 
+``Sys" times were 0).
 
 % We compared \xxx with \calvin's SMR system because \calvin's input consensus
 % uses \zookeeper, one of the most widely used coordination service built on
