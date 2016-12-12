@@ -158,14 +158,14 @@ programs' continuously arriving inputs).
 % programs.
 
 Speculative Paxos~\cite{specpaxos:nsdi15} and NOPaxos~\cite{nopaxos:osdi16} 
-leverage the synchrony feature of datacenter topology to order requests, so 
+use the datacenter topology to order requests, so 
 they can eliminate consensus rounds if packets are not reordered or lost. If 
 packets are lost or reordered, they invoke consensus to rescue.
 These two systems are not designed for scalability because when the 
 number of concurrent requests or replicas increase, the probability of 
 reordered or lost packets will increase. Moreover, these two systems' consensus 
-modules go through TCP/IP layers and incur high consensus latency, and 
-\xxx can help them.
+modules are TCP/UDP-based and incur high consensus latency, which 
+\xxx can help.
 
 \para{RDMA-based systems.} RDMA techniques have been implemented in various 
 architectures, including Infiniband~\cite{infiniband}, RoCE~\cite{roce}, and 
