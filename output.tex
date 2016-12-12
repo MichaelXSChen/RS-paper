@@ -2,9 +2,9 @@
 
 Most server programs are multithreaded and they may run into nondeterminism 
 (\eg, concurrency errors~\cite{lu:concurrency-bugs}), which may cause replicas 
-to diverge. \xxx provides a fast output checking protocol as a best-effort tool 
-for server program developers to detect replica divergence. If divergence is 
-detected, developers can restore them with \xxx checkpoints 
+to diverge. \xxx provides a fast output checking protocol as a practical, 
+best-effort tool for program developers to detect replica divergence. If 
+divergence is detected, developers can restore them with \xxx checkpoints 
 (\S\ref{sec:checkpoint}). If developers need a fully automatic tool, they can 
 run a deterministic 
 multithreading tool~\cite{parrot:sosp13,dthreads:sosp11,crane:sosp15} within 
