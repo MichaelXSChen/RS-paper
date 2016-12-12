@@ -52,8 +52,8 @@ overhead on server programs. For efficiency, \paxos typically assigns one
 replica as the leader to invoke consensus requests, and the other replicas as 
 backups to agree on requests. To agree on an input, at least one message 
 round-trip is required between the leader and a backup. Traditional \paxos 
-protocols, which run on TCP/IP, incur high latency as their messages go 
-through TCP/UDP stacks and OS kernels. This latency is acceptable for 
+protocols, which are TCP or UDP based, incur high latency as their messages go 
+through network stacks and OS kernels. This latency is acceptable for 
 leader election~\cite{chubby:osdi,zookeeper} or heavyweight 
 transactions~\cite{crane:sosp15,eve:osdi12}, but undesirable for
 key-value store servers (\eg, \redis and \memcached).
@@ -90,7 +90,7 @@ still exists, and synchronizations in these techniques frequently invoke
 expensive OS events such as context switches. We ran four parallel \paxos 
 protocols~\cite{zookeeper, spaxos:srds12, crane:sosp15, libpaxos} on a computer 
 with 24 CPU cores and 40Gbps network, then we spawned 24 concurrent consensus 
-requests. When the number of replicas increased from three to nine, the 
+connections. When the number of replicas increased from three to nine, the 
 consensus latency of three protocols increased by \tradlatencyincreaselow to 
 \tradlatencyincreasehigh, and \systemcostlow to \systemcosthigh of the increase 
 was in OS kernel.
@@ -544,8 +544,8 @@ concludes.
 \includegraphics[width=.48\textwidth]{figures/traditional_paxos_latency}
 \vspace{-.1in}
 \caption{{\em Comparing \xxx to five existing consensus protocols.} All 
-six protocols ran 24 concurrent proposing clients. The Y axis is broken 
-to fit in all protocols.}
+six protocols ran a client with 24 concurrent connections. The Y axis is 
+broken to fit in all protocols.}
 \label{fig:scalability}
 \vspace{-.3in}
 \end{figure}
