@@ -9,13 +9,13 @@ implementations~\cite{paxos:live,paxos:practical,chubby:osdi,crane:sosp15}.
 scalable~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}. Since consensus 
 protocols play a core role in datacenters~\cite{matei:hotcloud11, mesos:nsdi11, 
 datacenter:os} and worldwide 
-distributed systems~\cite{spanner:osdi12,mencius:osdi08}, a variety of study 
-have been conducted to improve specific aspects of consensus, 
+distributed systems~\cite{spanner:osdi12,mencius:osdi08}, much study 
+have been done to improve specific aspects of consensus, 
 including order commutativity~\cite{epaxos:sosp13,marandi:icdcs14}, 
 understandability~\cite{raft:usenix14,paxos}, and verifiable 
-reliability~\cite{modist:nsdi09,demeter:sosp11}. Recent 
-systems~\cite{brun:icdcs12,meling:icdcs12,bal:icdcs12} extend \paxos to tolerate 
-byzantine faults~\cite{pbft:osdi99,zyzzyva:sosp07}.
+rules~\cite{modist:nsdi09,demeter:sosp11}. \paxos is extended to tolerate 
+byzantine faults~\cite{brun:icdcs12,meling:icdcs12,bal:icdcs12,pbft:osdi99,
+zyzzyva:sosp07} and hardware faults~\cite{hardpaxos:srds14}.
 
 % Although \xxx tightly integrates 
 % RDMA features in \paxos, its implementation mostly complies with a popular, 
