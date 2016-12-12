@@ -21,13 +21,13 @@ leader election (\S\ref{sec:election}), and reliability guarantees
   %% On close().
 
 % First, basic roles. log format details.
-Recall that \xxx' input consensus protocol contains three roles. First, the 
-\paxos consensus log (\S\ref{sec:overview}). Second, a server 
-program thread on the leader replica (in short, a leader thread) which invokes 
-a consensus request. For efficiency, \xxx lets leader threads concurrently 
-invoke consensus requests when they call inbound socket calls (\eg, \recv). 
-Third, a backup eplica's \xxx internal follower thread (\S\ref{sec:overview}) 
-which agrees on or rejects consensus requests.
+\xxx' input consensus protocol contains three roles (\S\ref{sec:overview}). 
+First, the \paxos consensus log. Second, a server program thread on the leader 
+replica (in short, a leader thread) which invokes a consensus request. For 
+efficiency, \xxx lets leader threads concurrently invoke consensus requests 
+when they call inbound socket calls (\eg, \recv). Third, a backup eplica's \xxx 
+internal follower thread (\S\ref{sec:overview}) which agrees on or rejects 
+consensus requests.
 
 \begin{figure}[h]
 \vspace{-.2in}
@@ -68,12 +68,11 @@ logging storage on SSD (\S\ref{sec:logging}).
 % without allowing gaps (\ig, newer 
 % entries reach consensus but ).
 
-Then, each leader thread invokes a consensus on its entry concurrently with 
-other leader threads via the third step (\textbf{L3}): WRITE the log entry to 
-remote backups. Unlike a previous RDMA-based consensus 
-algorithm~\cite{dare:hpdc15} which has to wait for ACKs from remote NICs, our 
-WRITE immediately returns after copying the entry to its local QP between the 
-leader and each backup. In our evaluation, copying a log entry to local QP took 
+Third, each leader thread concurrently invokes a consensus via the third step 
+(\textbf{L3}): WRITE the log entry to remote backups. This step is thread-safe 
+because each leader thread works on its own entry. An \textbf{L3} WRITE 
+immediately returns after copying the entry to its local QP between the leader 
+and each backup. In our evaluation, copying a log entry to local QP took 
 no more than 0.2 \us. Therefore, the WRITEs to all backups are done almost in 
 parallel (all \textbf{L3} arrows in Figure~\ref{fig:logentry}).
 % , because \paxos has handled the reliability 
@@ -147,12 +146,12 @@ guarantees that the follower always reads a complete log entry.
 % completely written, it runs three steps. 
 
 A follower thread in a backup replica polls from the latest un-agreed log 
-entry and does three steps to agree on consensus requests, shown in 
-Figure~\ref{fig:consensus}. First (\textbf{B1}), it does a regular \paxos view 
-ID checking to see whether the leader is up-to-date, it then stores the log 
-entry in its local SSD. Second (\textbf{B2}), it does a WRITE to send back 
-a consensus reply to the leader's \v{reply} array element according to its 
-own node ID. Backups perform these two steps in parallel 
+entry, and it does three steps to agree on consensus requests in order without 
+allowing any consensus gaps~\cite{paxos:practical}. First (\textbf{B1}), it 
+does a regular \paxos view ID checking to see whether the leader is up-to-date, 
+it then stores the log entry in its local SSD. Second (\textbf{B2}), it does a 
+WRITE to send back a consensus reply to the leader's \v{reply} array element 
+according to its own node ID. Backups perform these two steps in parallel 
 (see Figure~\ref{fig:logentry}).
 
 Third (\textbf{B3}, not shown in Figure~\ref{fig:consensus}), the follower 
