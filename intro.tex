@@ -4,14 +4,13 @@
 % for general servers. Agree-execute: must reach consensus and then execute a
 % request. Emphasis ordering services, Scatter, 8~12 nodes.
 
-State machine replication (SMR) runs a program on several computer 
-replicas and enforces same inputs for this program as long as a quorum 
-(typically, majority) of replicas still behave normally, tolerating various 
-faults such as minor replicas failures and packet losses. To achieve 
-this powerful 
-fault-tolerance, SMR uses 
-a distributed consensus protocol (typically, 
-\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex}). Recent SMR 
+State machine replication (SMR) runs a program on computer replicas and 
+enforces same inputs for this program as long as a quorum 
+(typically, majority) of replicas behave normally, tolerating various 
+faults such as minor replicas failures. The core of SMR is 
+a distributed consensus protocol 
+(typically, \paxos~\cite{paxos:practical,paxos,paxos:complex}). 
+Recent SMR 
 systems~\cite{eve:osdi12,rex:eurosys14,crane:sosp15} have greatly 
 improved the availability of server programs that serve online requests and 
 store important data.
@@ -72,14 +71,17 @@ key-value store servers (\eg, \redis and \memcached).
 % parallilism, but still slow: despite the large latency, context switches (400
 % us).
 
-As the number of concurrent requests or replicas increases, \paxos consensus 
-latency often increases linearly~\cite{scatter:sosp11} due to the linearly 
-increasing number of consensus messages. This limited scalability hurts the 
-performance of server programs for two reasons. First, the performance of 
-server programs is often scalable to number of CPU cores in a computer when 
-serving concurrent client requests. Second, some advanced SMR systems (\eg, 
-Azure~\cite{azure:book}) deploy seven or nine replicas to handle replica 
-failures or updates.
+Worse, \paxos consensus latency increases almost 
+linearly~\cite{scatter:sosp11,zookeeper} to the number of concurrent requests or 
+replicas, because the leader receives linearly increasing consensus 
+messages on TCP/IP. This increased latency aggravates program performance due 
+to two trends. First, when serving concurrent requests, the performance of 
+modern server programs scales well with the increasing number of CPU cores in a 
+computer. Second, advanced SMR systems (\eg, Azure~\cite{azure:book}) 
+deploy more replicas (seven or nine) to handle replica failures or 
+updates.
+% This limited scalability hurts the 
+% performance of server programs for two reasons
 
 To improve \paxos scalability, one approach is introducing parallel techniques 
 such as multithreading~\cite{zookeeper, spaxos:srds12} or asynchronous 
@@ -540,11 +542,10 @@ concludes.
 \centering
 \vspace{-.10in}
 \includegraphics[width=.4\textwidth]{figures/traditional_paxos_latency}
-\vspace{-.1in}
+\vspace{-.05in}
 \caption{{\em Comparing \xxx to five existing consensus protocols.} All 
-six protocols ran 24 concurrent proposing clients. Both X and Y axes are broken 
-to fit 
-in all these protocols.}
+six protocols ran 24 concurrent proposing clients. The Y axis is broken 
+to fit in all protocols.}
 \label{fig:scalability}
 \vspace{-.25in}
 \end{figure}
