@@ -23,7 +23,7 @@ latency (it is only affected by the RDMA network among replicas).
 
 We compared \xxx with five popular, open source \paxos-compatible 
 implementations,
-including four TCP/IP-based ones (\libpaxos~\cite{libpaxos},
+including four traditional ones (\libpaxos~\cite{libpaxos},
 \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
 \spaxos~\cite{spaxos:srds12}) and an RDMA-based one 
 (\dare~\cite{dare:hpdc15}). \spaxos is designed to achieve scalable throughput 
@@ -81,7 +81,7 @@ The rest of this section focuses on these questions:
 \begin{tightenum}
 
 \item[\S\ref{sec:eval-traditional}:] How does \xxx performance compare
-to TCP/IP-based \paxos protocols?
+to traditional consensus protocols?
 
 \item[\S\ref{sec:eval-dare}:] How does \xxx performance compare
 to \dare?
@@ -109,7 +109,7 @@ electing a new leader?
 
 
 
-\subsection{Comparing with TCP/IP-based \paxos}
+\subsection{Comparing with traditional consensus protocols}
 \label{sec:eval-traditional}
 
 A common practice in 
@@ -125,7 +125,7 @@ showed that most server programs reached peak throughput before 16 requests
 % \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
 % \spaxos~\cite{spaxos:srds12}. 
 
-All four TCP/IP-based protocols were run on IPoIB (\S\ref{sec:rdma}). 
+All four traditional protocols were run on IPoIB (\S\ref{sec:rdma}). 
 Figure~\ref{fig:scalability} shows that the consensus latency of three 
 traditional protocols increased almost linearly to the number of replicas 
 (except \spaxos). \spaxos batches requests from replicas and invokes consensus 
@@ -221,7 +221,7 @@ Process}
 
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em Performance breakdown of TCP/IP-based \paxos protocols 
+\caption{{\em Performance breakdown of traditional consensus protocols 
 with only one client.} The ``Proto-\#Rep" column means the protocol name 
 and replica group size; ``Latency" means the consensus latency; ``First" means 
 the latency of its first consensus reply; ``Major" means the
