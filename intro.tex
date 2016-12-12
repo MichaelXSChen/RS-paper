@@ -9,9 +9,9 @@ replicas and enforces same inputs for this program as long as a quorum
 (typically, majority) of replicas still behave normally, tolerating various 
 faults such as minor replicas failures and packet losses. To achieve 
 this powerful 
-fault-tolerance, SMR typically uses 
-a distributed consensus protocol called 
-\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex}. Recent SMR 
+fault-tolerance, SMR uses 
+a distributed consensus protocol (typically, 
+\paxos~\cite{paxos:practical,paxos,paxos:simple,paxos:complex}). Recent SMR 
 systems~\cite{eve:osdi12,rex:eurosys14,crane:sosp15} have greatly 
 improved the availability of server programs that serve online requests and 
 store important data.
