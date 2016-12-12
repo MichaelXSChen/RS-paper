@@ -276,9 +276,9 @@ If a hash divergence is detected, the leader optionally invokes the local guard
 to forward a ``rollback" command to the diverged replica's guard. The diverged 
 replica's guard then rolls back and restores the server program to a latest 
 checkpoint before the last successful output check (\S\ref{sec:output}). The 
-replica then restores and re-executes socket calls to catch up. Because output 
-hash generations are fast and an output consensus is invoked occasionally, our 
-evaluation didn't observe performance impact on this checker.
+replica then restores and re-executes socket calls to catch up. As output 
+hash generations are fast and an output consensus is invoked occasionally, we 
+did not observe performance impact on the checker.
 
 % Then, for every \emph{Tcheck} hash generations, the checker invokes a consensus 
 % request on this hash value. This output consensus is the same as the 

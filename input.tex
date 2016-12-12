@@ -246,14 +246,13 @@ socket descriptors.
 % match the PMS intention. Explain why this design choice is good.
 
 % TBD. Four steps. Four entries?
-Compared to traditional \paxos leader election protocols, RDMA-based 
-leader election poses one main issue caused by RDMA. Because backups do not 
-communicate frequently with each other in normal case, thus a backup does not 
-know the remote memory locations where the other backups are polling. Writing to 
-a wrong remote memory location may cause the other backups to miss all leader 
-election messages. An existing system~\cite{dare:hpdc15} establishes an extra 
-control QP with extra remote memory to handle leader election, posing more
-complexity via the extra communication channels.
+% Compared to traditional \paxos leader election protocols, 
+Leader election on RDMA raises a main issue: because backups do 
+not communicate frequently with each other in normal case, thus a backup does 
+not know the remote memory locations where the other backups are polling. 
+Writing to a wrong remote memory location may cause the other backups to miss 
+all leader election messages. A recent system~\cite{dare:hpdc15} establishes 
+an extra control QP to handle leader election, complicating deployments.
 
 % If current leader fails, 
 % how does a backup know the other remote backups' memory location to WRITE to? 
@@ -266,14 +265,14 @@ complexity via the extra communication channels.
 % leader election state~\cite{paxos:practical}, but the old leader's WRITE may 
 % still corrupt the ongoing leader election. 
 
-\xxx addresses this issue with a simple, clean approach. It runs a leader 
+\xxx addresses this issue with a simple, clean design. It runs a leader 
 election with the same consensus log and the same QP. In normal case, the 
 leader does WRITEs to remote logs as heartbeats with a period of T. Each 
 consensus log maintains a control data structure called \v{elect[MAX]}, one 
 element for each replica. Normal case operations and heartbeats use the other 
 parts of the consensus log but leave this \v{elect} array alone. Once backups 
-have not received heartbeats from the leader for a period of 3*T, they start to 
-elect a new leader and let their follower threads poll from the \v{elect} array.
+miss heartbeats from the leader for 3*T, they close the outdated leader's QPs 
+and elect a new leader by making follower threads poll the \v{elect} array.
 
 % Before starting a standard leader election 
 % phase as in traditional \paxos protocols~\cite{paxos:practical}, each backup 
@@ -293,7 +292,11 @@ the same view but a higher index.
 Second, the winner proposes itself as a leader candidate using this 
 array, another two-round \paxos consensus. Third, after the second step reaches 
 a quorum, the new leader notifies remote replicas itself as the new leader and 
-it starts to WRITE periodic heartbeats.
+it starts to WRITE periodic heartbeats. Overall, \xxx safely avoids multiple 
+``leaders" to corrupte consensus logs, because only one leader is elected in 
+each view, and backups always close an outdated leader's QPs before electing a 
+new leader.
+
 
 \subsection{Reliability Guarantee} \label{sec:guarantees}
 
