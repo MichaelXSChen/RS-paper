@@ -275,8 +275,8 @@ and \dare on seven replicas with randomly arriving, update-heavy (50\% SETs and
 performance on these two workloads were different because it handles GETs with 
 only one consensus round~\cite{dare:hpdc15}. \xxx handles all requests with the 
 same protocol. When there was only one client, \xxx was slightly slower than 
-\dare because \dare does not store inputs persistently. On 6 to 24 requests, 
-\xxx was \fasterDARElow to \fasterDAREhigh faster than \dare due to two reasons.
+\dare because \dare does not store inputs persistently. In average, \xxx's 
+consensus latency was faster than \dare by \fasterDARE due to two reasons.
 
 First, \xxx is a one-round protocol and \dare is a two-round protocol (for 
 SETs), so \dare's actual consensus time was \fasterDAREconsensusonly higher than 
