@@ -46,7 +46,7 @@ set ytics 20
 #set title "(a) ClamAV"
 set label 11 center at graph 0.5,-0.18 "(a) ClamAV" font ",25"
 
-plot 'latency.dat' using 1:2 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:3 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:2 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:3 with linespoints title "APUS" ls 2
 #plot 'latency.dat' using 1:3 with linespoints title "hook" ls 2
 #,cos(x) ls 2 title "our"
 unset yrange
@@ -64,7 +64,7 @@ set size 1.0,0.85
 #set title "(b) MediaTomb"
 set label 11 center at graph 0.5,-0.18 "(b) MediaTomb" font ",25"
 
-plot 'latency.dat' using 1:4 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:5 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:4 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:5 with linespoints title "APUS" ls 2
 #plot sin(x) ls 2
 unset yrange
 unset ytics
@@ -79,7 +79,7 @@ set size 1.0,0.85
 #set title "(c) Memcached"
 set label 11 center at graph 0.5,-0.18 "(c) Memcached" font ",25"
 
-plot 'latency.dat' using 1:6 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:7 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:6 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:7 with linespoints title "APUS" ls 2
 #plot sin(x) ls 3
 unset yrange
 unset ytics
@@ -94,7 +94,7 @@ set size 1.0,0.85
 #set title "(d) MongoDB"
 set label 11 center at graph 0.5,-0.18 "(d) MongoDB" font ",25"
 
-plot 'latency.dat' using 1:8 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:9 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:8 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:9 with linespoints title "APUS" ls 2
 #plot sin(x) ls 4
 unset yrange
 unset ytics
@@ -111,7 +111,7 @@ set size 1.0,0.85
 #set title "(e) MySQL"
 set label 11 center at graph 0.5,-0.18 "(e) MySQL" font ",25"
 
-plot 'latency.dat' using 1:10 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:11 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:10 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:11 with linespoints title "APUS" ls 2
 #plot sin(x) ls 5
 unset yrange
 unset ytics
@@ -127,7 +127,7 @@ set size 1.0,0.85
 #set title "(f) OpenLDAP"
 set label 11 center at graph 0.5,-0.18 "(f) OpenLDAP" font ",25"
 
-plot 'latency.dat' using 1:12 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:13 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:12 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:13 with linespoints title "APUS" ls 2
 #plot sin(x) ls 6
 unset yrange
 unset ytics
@@ -143,7 +143,7 @@ set size 1.0,0.85
 #set title "(g) Redis"
 set label 11 center at graph 0.5,-0.18 "(g) Redis" font ",25"
 
-plot 'latency.dat' using 1:14 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:15 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:14 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:15 with linespoints title "APUS" ls 2
 #plot sin(x) ls 7
 unset yrange
 unset ytics
@@ -159,7 +159,7 @@ set size 1.0,0.85
 #set title "(h) SSDB"
 set label 11 center at graph 0.5,-0.18 "(h) SSDB" font ",25"
 
-plot 'latency.dat' using 1:16 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:17 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:16 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:17 with linespoints title "APUS" ls 2
 #plot sin(x) ls 8
 unset yrange
 unset ytics
@@ -177,7 +177,7 @@ set size 1.0,0.85
 #set title "(i) OpenTftp"
 set label 11 center at graph 0.5,-0.18 "(i) Calvin" font ",25"
 
-plot 'latency.dat' using 1:18 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:19 with linespoints title "Falcon" ls 2
+plot 'latency.dat' using 1:18 with linespoints title "Unreplicated" ls 1,'latency.dat' using 1:19 with linespoints title "APUS" ls 2
 #plot sin(x) ls 9
 unset yrange
 unset ytics
