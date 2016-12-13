@@ -29,14 +29,15 @@ set tmargin at screen bm + size * kk
 
 set key font ",15" maxrows 4
 set key spacing 1
-
+set key at 13.2, 1450
+set key width -4
+set key samplen 3
 set xrange [0:27]
 #set for [i=0:5] xtics (0,3**i)
 set xtics ("3" 0,"5" 9,"7" 18, "9" 27, "33" 50, "65" 68, "105" 98)
 
 set ylabel "Consensus latency (us)" offset -3,6 font ",25"
 set xlabel "Number of replicas" offset 0.5,0 font ",25"
-set key left top
 set xrange [0:27]
 set yrange [0:43]
 #set origin 0.0,1.85
