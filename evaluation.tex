@@ -60,7 +60,7 @@ audio files; \openldap, an LDAP server; \calvin, a widely studied transactional
 database system. All these programs are multithreaded except \redis (but it can 
 serve concurrent requests via Libevent). Table~\ref{tab:benchmarks} shows the 
 benchmarks and workloads. These servers all update or store 
-important data and files, thus \paxos' strong fault-tolerance is especially 
+important data or files, thus \paxos's strong fault-tolerance is especially 
 attractive to these programs. 
 
 
@@ -117,8 +117,8 @@ electing a new leader?
 We ran \xxx and four traditional consensus protocols using their own 
 client programs or popular client programs with 100K requests of similar sizes. 
 For each protocol, we ran a client with 24 concurrent connections on a 24-core 
-machine located in LAN, and we used up to nine replicas. Both 24 concurrent 
-connections and nine replicas are common high 
+machine located in LAN, and we used up to nine replicas. Both the number of 
+concurrent connections and replicas are common high 
 values~\cite{zookeeper,crane:sosp15,rex:eurosys14,dare:hpdc15}.
 % Our evaluation also 
 % showed that most server programs reached peak throughput at 16 requests 
