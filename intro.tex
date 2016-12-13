@@ -153,12 +153,12 @@ speed in software systems is widely considered
 challenging by the community~\cite{pilaf:usenix14,herd:sigcomm14,
 farm:sosp15,dare:hpdc15}. For instance, \dare~\cite{dare:hpdc15}, a recent 
 fastest \paxos protocol based on RDMA, presents a sole-leader, two-round 
-consensus: first, leader does RDMA writes consensus requests on each replica; 
-second, leader does RDMA writes on each replica to update a global variable 
-that points to the latest request. Unfortunately, such a global variable update 
-\emph{serializes} consensus requests: both \dare's and our 
-evaluation (\S\ref{sec:eval-dare}) showed that, as the number of concurrent 
-requests increased, \dare's consensus latency increased drastically.
+consensus: first, leader does RDMA writes of consensus requests on each remote 
+replica; second, leader does RDMA writes on each replica to update a global 
+variable that points to the latest consensus request. Unfortunately, such a 
+global variable update \emph{serializes} consensus requests: both \dare's and 
+our evaluation (\S\ref{sec:eval-dare}) showed that, as the number of concurrent 
+requests increased, \dare's consensus latency increased quickly.
 
 % \dare was fast with a small number of concurrent requests or replicas. 
 
