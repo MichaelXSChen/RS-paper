@@ -93,7 +93,7 @@ and Arrakis~\cite{arrakis:osdi14}).
 RDMA has three operation types, from fast to slow: one-sided 
 read/write operations, two sided send/recv operations, and IPoIB (IP over 
 Infiniband). IPoIB can run unmodified socket programs, but it is several times 
-slower than the other two primitives. A one-sided RDMA write 
+slower than the other two types. A one-sided RDMA write 
 operation can directly write from one replica's memory to a remote 
 replica's memory without involving the remote OS kernel or CPU. Prior 
 work~\cite{pilaf:usenix14} shows that one-sided operations are up to 2x faster 
