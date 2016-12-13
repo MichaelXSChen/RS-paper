@@ -58,9 +58,9 @@ variable to point to an earlier request. Therefore, the consensus of \dare's
 new requests can not start until the consensus of prior requests finish, 
 confirmed in both \dare's and our evaluation (\S\ref{sec:eval-dare}). Second, a 
 sole-leader protocol is difficult to add a stable storage or 
-checkpoint design. Therefore, \dare lacks durability 
+checkpoint design~\cite{lyu1995software}. Therefore, \dare lacks durability 
 (\S\ref{sec:background}), another essential \paxos 
-feature~\cite{lyu1995software}.
+feature.
 
 % With these 
 % two choices, \dare runs slightly faster than \xxx on three replicas.
