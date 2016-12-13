@@ -88,8 +88,8 @@ such as multithreading~\cite{zookeeper, spaxos:srds12} or asynchronous
 IO~\cite{crane:sosp15, libpaxos}. However, the high TCP/IP round-trip latency 
 still exists, and synchronizations in these techniques frequently invoke 
 expensive OS events such as context switches. We ran four parallel \paxos 
-protocols~\cite{zookeeper, spaxos:srds12, crane:sosp15, libpaxos} on a computer 
-with 24 CPU cores and 40Gbps network, then we spawned 24 concurrent consensus 
+protocols~\cite{zookeeper, spaxos:srds12, crane:sosp15, libpaxos} on 24-core 
+computers with 40Gbps network, then we spawned 24 concurrent consensus 
 connections. When the number of replicas increased from three to nine, the 
 consensus latency of three protocols increased by \tradlatencyincreaselow to 
 \tradlatencyincreasehigh, and \systemcostlow to \systemcosthigh of the increase 
