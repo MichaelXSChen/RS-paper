@@ -1,15 +1,15 @@
 \section{Related Work} \label{sec:related}
 
 
-\para{Software-based consensus.} A variety of
+\para{Software-based consensus.} Various
 \paxos algorithms~\cite{paxos:practical,paxos,paxos:simple,paxos:complex,
 epaxos:sosp13} and 
 implementations~\cite{paxos:live,paxos:practical,chubby:osdi,crane:sosp15} 
 exist. 
 \paxos is notoriously difficult to be fast and 
-scalable~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}, so currently server 
-programs' use weaker asynchronous replication (\eg, \redis~\cite{redis}). 
-Consensus is essential in
+scalable~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}, so server 
+programs use a weaker asynchronous replication approach (\eg, 
+\redis~\cite{redis}). Consensus is essential in
 datacenters~\cite{matei:hotcloud11, mesos:nsdi11, datacenter:os} and worldwide 
 distributed systems~\cite{spanner:osdi12,mencius:osdi08}, so much work 
 is done to improve specific aspects, 
