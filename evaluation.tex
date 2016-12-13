@@ -4,7 +4,7 @@
 
 
 
-Our evaluation machines include ten RDMA-enabled, Dell R430 servers as \paxos 
+Our evaluation machines include nine RDMA-enabled, Dell R430 servers as \paxos 
 replicas. Each server has Linux 3.16.0, 2.6 GHz Intel Xeon CPU with 24 
 hyper-threading cores, 64GB memory, and 1TB SSD. All NICs are Mellanox 
 ConnectX-3 Pro 40Gbps connected with Infiniband~\cite{infiniband}. 
@@ -116,10 +116,10 @@ electing a new leader?
 
 we ran \xxx and four traditional consensus protocols using their own 
 client programs or popular client programs with 100K requests of similar sizes. 
-For each protocol, we ran a client with 24 concurrent connections one dedicated 
-machine, and we used up to nine replicas. Both these two values are common and 
-high in relevant 
-evluation~\cite{zookeeper,crane:sosp15,rex:eurosys14,dare:hpdc15}.
+For each protocol, we ran a client with 24 concurrent connections on a 24-core 
+machine located in LAN, and we used up to nine RDMA replicas. Both these two 
+values are common and high in 
+relevant evluation~\cite{zookeeper,crane:sosp15,rex:eurosys14,dare:hpdc15}.
 % Our evaluation also 
 % showed that most server programs reached peak throughput at 16 requests 
 % (\S\ref{sec:overhead}).
