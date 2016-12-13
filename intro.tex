@@ -87,7 +87,7 @@ To improve \paxos scalability, one approach is introducing parallel techniques
 such as multithreading~\cite{zookeeper, spaxos:srds12} or asynchronous 
 IO~\cite{crane:sosp15, libpaxos}. However, the high TCP/IP round-trip latency 
 still exists, and synchronizations in these techniques frequently invoke 
-expensive OS events such as context switches. We ran four parallel \paxos 
+expensive OS events such as context switches. We ran four parallel consensus 
 protocols~\cite{zookeeper, spaxos:srds12, crane:sosp15, libpaxos} on 24-core 
 computers with 40Gbps network, then we spawned 24 concurrent consensus 
 connections. When the number of replicas increased from three to nine, the 
@@ -138,9 +138,9 @@ To improve \paxos performance, Remote Direct Memory Access (RDMA) becomes a
 promising solution as it becomes common in datacenters. RDMA not only bypasses 
 OS kernel, but it also provides dedicated network hardware to achieve a fast 
 round-trip. For instance, the fastest RDMA operation allows a process to 
-directly write to a remote replica's process without involving the remote OS 
-kernel or CPU (``one-sided" operation). Such a RDMA round-trip takes only about 
-3 \us~\cite{pilaf:usenix14}.
+directly write to another process's memory on a remote replica without 
+involving the remote replica's OS kernel or CPU. Such a RDMA round-trip takes 
+only 3 \us~\cite{pilaf:usenix14}.
 % Once an RDMA write successfully 
 % resides in the remote memory, remote NIC automatically sends back an RDMA ACK 
 % to local NIC.
