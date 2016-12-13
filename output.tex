@@ -1,8 +1,8 @@
-\section{Output Checking Protocol} \label{sec:output}
+\section{Output Checking Tool} \label{sec:output}
 
 Most server programs are multithreaded and they may run into nondeterminism 
 (\eg, concurrency errors~\cite{lu:concurrency-bugs}), which may cause replicas 
-to diverge. \xxx provides a fast output checking protocol as a best-effort tool 
+to diverge. \xxx provides a fast output checking tool as a best-effort tool 
 for program developers to detect replica divergence. We found this 
 tool useful (\S\ref{sec:robust}). If divergence is detected, developers can 
 manually restore them with \xxx checkpoints (\S\ref{sec:checkpoint}). A fully 
