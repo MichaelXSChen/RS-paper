@@ -13,7 +13,7 @@ set xtics font ",14"
 #set xrange[-0.75:14]
 set yrange [0:120]
 
-set xlabel "Number of clients" offset 0,-0.5
+set xlabel "Number of concurrent connections" offset 0,-0.5
 
 set style fill solid border -1
 set boxwidth 0.75
