@@ -56,10 +56,10 @@ the \recv type (\eg, \recv and \myread), the \send type (\eg, \send), and the
 % Non blocking. Wait % for over half agree, and then execute the operation.
 Figure~\ref{fig:consensus} shows the input consensus algorithm. Suppose a 
 leader thread invokes a consensus request when it calls a socket call with the 
-\recv type. A consensus request includes four steps. The first step 
-(\textbf{L1}) is executing the actual Libc socket call, because \xxx needs to 
-get the actual return values or received data bytes of this call and then 
-replicates them in remote replicas' logs.
+\recv type. A consensus has four steps. The first step 
+(\textbf{L1}, not shown) is executing the actual socket call, because \xxx 
+needs to get the actual return values or received data bytes of this call and 
+then replicates them in remote replicas' logs.
 
 The second step (\textbf{L2}) is local preparation, including assigning a 
 global viewstamp to locate this entry in the consensus log, building a log 
