@@ -42,17 +42,18 @@ attractive to these programs.
 
 % Benchmarks table.
 Table~\ref{tab:benchmarks} introduces the benchmarks and workloads we used. We 
-used the protocol or program developers' own performance benchmarks or popular 
-third-party benchmarks. For benchmark workload settings, we used the 
-benchmarks' default workloads whenever available. To perform a stress testing 
-on \xxx's input consensus protocol, we chose workloads with significant 
+used the benchmarks' default workloads whenever available. To perform a stress 
+testing on \xxx's input consensus protocol, we chose workloads with significant 
 portions of writes, because write operations often contain more input bytes 
 than reads (\eg, a key-value SET operation contains more bytes than a GET).
+% We 
+% used the protocol or program developers' own performance benchmarks or popular 
+% third-party benchmarks. 
 
 \begin{table}[h]
 \footnotesize
 \centering
-\vspace{-.1in}
+\vspace{-.05in}
 \begin{tabular}{lrr}
 {\bf Program} & {\bf Benchmark} & {\bf Workload/input description}\\
 \hline\\[-2.3ex]
@@ -112,14 +113,14 @@ electing a new leader?
 \subsection{Comparing with traditional consensus protocols}
 \label{sec:eval-traditional}
 
-A common practice in 
-\paxos evaluation~\cite{dare:hpdc15,nopaxos:osdi16}, when comparing \xxx with 
-other consensus protocols, we ran \xxx with a popular key value store \redis.  
-To stress \xxx on our 24-core machines, we spawned 24 concurrent requests for 
-all five protocols, a common high concurrent value in prior 
-evaluation~\cite{zookeeper,crane:sosp15,rex:eurosys14}. Our evaluation also 
-showed that most server programs reached peak throughput before 16 requests 
-(\S\ref{sec:overhead}).
+we ran \xxx and four traditional consensus protocols using their own 
+client programs or popular client programs with similar bytes of requests.
+We spawned up to 24 concurrent requests and used up to seven 
+replicas. Both these two values are common and high in relevant 
+evaluation~\cite{zookeeper,crane:sosp15,rex:eurosys14,dare:hpdc15}.
+% Our evaluation also 
+% showed that most server programs reached peak throughput at 16 requests 
+% (\S\ref{sec:overhead}).
 
 % We compared \xxx with four TCP/IP-based protocols, \libpaxos~\cite{libpaxos},
 % \zookeeper~\cite{zookeeper}, \crane~\cite{crane:sosp15} and
@@ -132,7 +133,7 @@ traditional protocols increased almost linearly to the number of replicas
 when the batch is full. More replicas can take shorter time to form a batch, so 
 \spaxos incurred a slightly better consensus latency with more replicas. 
 Nevertheless, its latency was always over 600 \us. \xxx's consensus latency 
-outperforms these four protocols by \comptradlow to \comptradhigh.
+outperforms these four protocols by at least \comptradlow.
 
 % \spaxos batch requests from replicas and it only invokes 
 % consensus when a fixed batch is full. More replicas will make this batch be 
@@ -140,9 +141,9 @@ outperforms these four protocols by \comptradlow to \comptradhigh.
 % more nodes. 
 
 
-To understand the scalability bottleneck in these four protocols, we spawned 
-only one client and inspected the micro events in their protocols 
-(Table~\ref{tab:traditional-latency}). From three to nine replicas, the 
+To find the scalability bottleneck in traditional protocols, we spawned 
+only one client and broke down their consensus 
+latency (Table~\ref{tab:traditional-latency}). From three to nine replicas, the 
 consensus latency (the ``Latency" column) of these protocols increased more 
 gently than that on 24 concurrent clients. For instance, when the number of 
 replicas increased from three to nine, \zookeeper latency increased by 30.3\% 
@@ -198,7 +199,7 @@ arrival times (\ie, their ``Sys" times were 0).
 \begin{table}[h]
 \footnotesize
 \centering
-\vspace{.05in}
+\vspace{-.05in}
 \begin{tabular}{lrrrrr}
 {\bf Proto-\#Rep} & {\bf Latency} & {\bf First} & {\bf Major} & {\bf
 Process}
@@ -236,29 +237,10 @@ reply. All times are in \us.}
 \subsection{Comparing with \dare}
 \label{sec:eval-dare}
 
-\begin{figure}[t]
-\centering
-\vspace{-.10in}
-\includegraphics[width=.4\textwidth]{figures/server-processing-compare}
-\vspace{-.1in}
-\caption{{\em \xxx and \dare consensus latency (divided into two parts) on 
-variant concurrent clients.} 
-``Wait-consensus" is the time an input request spent on waiting consensus to 
-start. ``Actual-consensus" is the time spent on running consensus.}
-\label{fig:compare}
-\vspace{-.25in}
-\end{figure}
 
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/throughput}
-\vspace{-.10in}
-\caption{\small {\em \xxx throughput compared to the unreplicated
-execution.}}
-\vspace{-.20in}
-\label{fig:tput}
-\end{figure*}
+
+
 
 We compared \xxx and \dare~\cite{dare:hpdc15} on key-value stores. \xxx ran a 
 popular one, \redis; \dare supported a 335-line, RDMA-based key-value 
@@ -270,7 +252,21 @@ workloads were different because it handles GETs with only one consensus
 round~\cite{dare:hpdc15}. \xxx handles all requests with the same protocol. When 
 there was only one client, \xxx was slightly slower than \dare because \dare 
 does not store inputs persistently. In average, \xxx's 
-consensus latency was faster than \dare by \fasterDARE due to two reasons.
+consensus latency was faster than \dare by \fasterDARE. We think this owes to 
+two reasons.
+
+\begin{figure}[h]
+\centering
+\vspace{-.10in}
+\includegraphics[width=.4\textwidth]{figures/server-processing-compare}
+\vspace{-.1in}
+\caption{{\em \xxx and \dare consensus latency (divided into two parts) on 
+variant concurrent clients.} 
+``Wait-consensus" is the time an input request spent on waiting consensus to 
+start. ``Actual-consensus" is the time spent on running consensus.}
+\label{fig:compare}
+\vspace{-.25in}
+\end{figure}
 
 % To thoroughly analyze 
 % their latency with scalability, we ran up to seven replicas and 24 clients. 
@@ -393,6 +389,16 @@ programs~\cite{rex:eurosys14,crane:sosp15}).
 
 \subsection{Performance Overhead} \label{sec:overhead}
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/throughput}
+\vspace{-.10in}
+\caption{\small {\em \xxx throughput compared to the unreplicated
+execution.}}
+\vspace{-.20in}
+\label{fig:tput}
+\end{figure*}
+
 % \begin{figure*}[t]
 % \centering
 % \includegraphics[width=0.9\textwidth]{figures/latency}
@@ -403,45 +409,54 @@ programs~\cite{rex:eurosys14,crane:sosp15}).
 % \label{fig:latency}
 % \end{figure*}
 
-To stress \xxx, we used a large replica group size of 9 to run all server 
-programs. We spawned up to 32 concurrent connections, and then we measured both 
-response time and throughput. We also measured \xxx's bare consensus latency. 
-Each performance data point was taken from a mean value of 10 executions.
+To stress \xxx, we used nine replicas to run all \nprog server 
+programs without modifying them. We used up to 32 concurrent 
+client connections (most evaluated programs reached peak throughput at 
+16), and then we measured mean response time and throughput in 50 runs.
 
 % \subsection{Ease of Use} \label{sec:ease-of-use}
 
-\xxx ran with \nprog evaluated programs without modifying them except
-\calvin. \calvin integrates its client program and server program within the
-same process and uses local memory to let these two programs talk. To
-make \calvin's client and server communicate with POSIX sockets so that \xxx
-can intercept the server's inputs, we wrote a \nlinescalvin-line patch for
-\calvin.
+% \xxx supported all programs without modifying them except \calvin. \calvin 
+% integrates its client program and server program within the same process and 
+% uses local memory to let these two programs talk. To
+% make \calvin's client and server communicate with POSIX sockets so that \xxx
+% can intercept the server's inputs, we wrote a \nlinescalvin-line patch for
+% \calvin.
 
-We turned on and off the output checking (\S\ref{sec:output}) and didn't 
-observe difference in \xxx performance. Only three programs (\mediatomb, 
-\mysql, and \openldap) have different output hashes cause by physical times.
+We turned on output checking (\S\ref{sec:output}) and didn't 
+observe an performance impact. Only two programs (\mysql and \openldap) 
+have different output hashes cause by physical times 
+(an approach~\cite{paxos:practical} can be leveraged to enforce same physical 
+times across replicas).
 
 %  and Figure~\ref{fig:latency}
 % response time
-Figure~\ref{fig:tput} shows \xxx's throughput. We varied the number of 
-concurrent client connections for each server program by from one to 32 
-threads. For \calvin, we only collected the 8-thread result because \calvin 
-uses this constant thread count in their code to serve client requests.
-
-Overall, compared to these server programs' unreplicated executions, \xxx 
-merely incurred a mean throughput overhead of \tputoverhead (note that in 
-Figure~\ref{fig:tput}, the Y-axises of most programs start from a large 
-number). As the number of threads increases, all programs' unreplicated 
-executions got a performance improvement except \memcached. A prior
-evaluation~\cite{rex:eurosys14} also observed a similar \memcached low
-scalability. \xxx scaled almost as well as the unreplicated executions.
+Figure~\ref{fig:tput} shows \xxx's throughput. For \calvin, we only collected 
+the 8-thread result because \calvin uses this constant thread count in their 
+code to serve client requests. Compared to these server programs' 
+unreplicated executions, \xxx merely incurred a mean throughput overhead of 
+\tputoverhead (note that in Figure~\ref{fig:tput}, the Y-axises of most 
+programs start from a large number). As the number of threads increases, all 
+programs' unreplicated executions got a performance improvement except 
+\memcached. Prior work~\cite{rex:eurosys14} also showed that
+\memcached itself scaled poorly. Overall, \xxx scaled as well as unreplicated 
+executions on concurrent requests.
 % a \latencyoverhead overhead compared to the unreplicated
 % executions.
 
-\xxx achieves such a low overhead in both throughput and response time mainly
-because of two reasons. First, for each \recv call in a server, \xxx's input
-coordination protocol only contains two one-sided RDMA writes and two efficient 
-local SSD writes (\S\ref{sec:logging}) for the leader and each backup.
+% \xxx achieves such a low overhead in both throughput and response time mainly
+% because of two reasons. First, for each \recv call in a server, \xxx's input
+% coordination protocol only contains two one-sided RDMA writes and two efficient 
+% local SSD writes (\S\ref{sec:logging}) for the leader and each backup.
+
+To understand \xxx's performance overhead, we broke down its consensus latency 
+on the leader replica. Table~\ref{tab:consensus-latency} shows these statistics 
+per 10K requests, 8 or max (if less than 8) threads. According to the consensus 
+algorithm in Figure~\ref{fig:consensus}, for each socket call, \xxx's leader 
+does an ``L2": SSD write (the ``SSD time" column in 
+Table~\ref{tab:consensus-latency}) and an ``L4": quorum waiting phase (the 
+``quorum time" column). L4 implies backups' performance because each backup 
+stores consensus requests in local SSD and then WRITEs a reply to leader.
 
 % A parallel SSD write
 % approach~\cite{Bessani:usenix13} may further improve \xxx's SSD performance.
@@ -465,7 +480,8 @@ local SSD writes (\S\ref{sec:logging}) for the leader and each backup.
 \mysql & 10,009  & 28.8 & 5.1 \us & 7.8 \us\\
 % TBD: normalize ldap to 10K req.
 \openldap & 10,016  & 27.3 & 5.5 \us & 6.4 \us\\
-\redis & 10,016  & 40.5 & 2.8 \us & 6.3 \us\\
+% Heming: not sure, why is this 9.1 (6.3), not 8.8 in NSDI submission?????
+\redis & 10,016  & 40.5 & 2.8 \us & 6.0 \us\\
 % TBD: normalize ssdb to 10K req.
 \ssdb & 10,016  & 47.0 & 3.0 \us & 6.2 \us\\
 \calvin & 10,002  & 128.0 & 8.7 \us  & 10.8 \us\\
@@ -484,26 +500,20 @@ quorum.}
 % Figure~\ref{fig:latency} shows \xxx's latency.
 % % Bare consensus latency, micro events.
 
-To understand \xxx's performance overhead, we collected the number of
-socket call events and consensus durations on the leader side.
-Table~\ref{tab:consensus-latency} shows these statistics per 10K requests, 8
-or max (if less than 8) threads. According to the consensus algorithm steps in
-Figure~\ref{fig:consensus}, for each socket call, \xxx's leader does an ``L2":
-SSD write (the ``SSD time" column in Table~\ref{tab:consensus-latency}) and an
-``L4": quorum waiting phase (the ``quorum time" column). L4 implies backups'
-performance because each backup stores the proposed socket call in local SSD and
-then WRITEs a consensus reply to the leader.
 
-By adding the last two columns in Table~\ref{tab:consensus-latency}, a 
-\xxx input consensus took only 9.1 \us (\redis) to 22.4 \us (\mediatomb). 
-% This consensus latency mainly depends on the ``Input" column: the average number of 
-% data bytes received in socket calls (\eg, \mongodb has the largest received bytes).
-\xxx's small consensus latency makes it achieve reasonable throughputs 
-in Figure~\ref{fig:tput}. Overall, Figure~\ref{fig:compare} and 
-Table~\ref{tab:consensus-latency}  indicate that \xxx has low overhead on 
-server programs' response time. \xxx's mean overhead on response time was 
+
+By adding the last two columns in Table~\ref{tab:consensus-latency}, \xxx 
+consensus latency for these programs took only 8.8 \us to 22.4 \us. 
+This small consensus latency makes it achieve reasonable throughputs 
+in Figure~\ref{fig:tput}. Moreover, Figure~\ref{fig:compare} and 
+Table~\ref{tab:consensus-latency} indicate that \xxx incurred low overhead on 
+server programs' response time. \xxx's mean response time overhead was 
 \latencyoverhead. Due to space limit, the response time overhead figure is put 
 here~\cite{apus}.
+% This consensus latency mainly depends on the ``Input" column: the average 
+% number of 
+% data bytes received in socket calls (\eg, \mongodb has the largest received bytes).
+
 
 % This small latency suggests that, even if clients are deployed within the same
 % datacenter network, \xxx may still achieve acceptable overhead on many programs
@@ -560,26 +570,25 @@ here~\cite{apus}.
 % TBD: what types of servers are good for output checking.
 
 We ran the same performance benchmark as in \S\ref{sec:overhead} and measured 
-programs' checkpoint timecost. Each \xxx periodic checkpoint operation 
-(\S\ref{sec:checkpoint}) cost 0.12s to 11.6s on the evaluated server programs, 
-depending on the amount of modified memory and files in the server programs 
-since their own last checkpoint. \clamav incurred the largest checkpoint time 
-(11.6s) because it loaded and scanned files in a \v{/lib} directory.
-
-Checkpoint operations did not affect \xxx's performance in normal case because 
-they were done on only one backup. The leader and other backups still formed 
-majority and reached consensus rapidly.
+programs' checkpoint timecost. Each periodic program checkpoint operation 
+(\S\ref{sec:checkpoint}) cost 0.12s to 11.6s depending on the amount of 
+modified memory and files since a program's last checkpoint. \clamav incurred 
+the largest checkpoint time (11.6s) because it loaded and scanned files in the 
+\v{/lib} directory. Checkpoints did not affect \xxx performance in 
+normal case because they were done on only one backup. Leader and other 
+backups still formed majority and reached consensus rapidly.
 % This indicates \paxos's fault-tolerance strength: a 
 % backup restart or failure does not affect consensus. 
 
-To evaluate \xxx's \paxos recovery feature, we ran \xxx with \redis and 
-manually killed one backup, and we did not observe a performance change in the 
-benchmark runs. We then manually killed the \xxx leader and measured the 
-latency of our RDMA-based leader election with three rounds 
-(\S\ref{sec:election}). Figure~\ref{tab:election} shows \xxx's election latency 
-from three to eleven replicas. Because \paxos leader election is rarely 
-invoked in practice, although \xxx's election latency was slightly higher than 
-its normal case consensus latency, we considered it reasonable.
+To evaluate \xxx's \paxos robustness, we ran \xxx with \redis. We manually 
+killed one backup and then modified another backup's code to drop all its 
+consensus reply messages. We did not observe a performance change, as other 
+seven replicas still reach consensus. We then manually killed the \xxx 
+leader and measured the latency of our leader election 
+approach (\S\ref{sec:election}), shown in Figure~\ref{tab:election}. Because 
+\paxos leader election is rarely invoked in practice, although this election
+latency was slightly higher than its normal case consensus latency, we 
+considered it reasonable.
 
 % efficiency of \xxx's rocovery, we ran \clamav and tried to randomly trigger its
 % output divergence. \clamav's rocovery time varied from 1.47s to 1.49s for
@@ -604,9 +613,9 @@ its normal case consensus latency, we considered it reasonable.
 \hline\\[-2.3ex]
 Election latency (\us) & 10.7  & 12.0 & 12.8 & 13.5\\
 \end{tabular}
-\vspace{-.1in}
+\vspace{-.05in}
 \caption{{\em \xxx's latency on on leader election.}}
-\vspace{-.3in}
+\vspace{-.2in}
 \label{tab:election}
 \end{table}
 
