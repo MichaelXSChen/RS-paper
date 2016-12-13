@@ -52,7 +52,7 @@ rounds are essential in case a backup becomes a new leader.
 \dare is not designed to work with large concurrent requests or 
 replicas for two reasons. First, its second round needs to update a global 
 variable for each replica, which \emph{serializes} concurrent consensus 
-requests, a essential feature for \paxos performance~\cite{paxos:practical}. 
+requests, an essential feature for \paxos performance~\cite{paxos:practical}. 
 For instance, two ongoing \dare consensus requests may interleave and cause the 
 variable to point to an earlier request. Therefore, the consensus of \dare's 
 new requests can not start until the consensus of prior requests finish, 

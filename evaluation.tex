@@ -82,7 +82,7 @@ The rest of this section focuses on these questions:
 
 \begin{tightenum}
 
-\item[\S\ref{sec:eval-traditional}:] How does \xxx compare
+\item[\S\ref{sec:eval-traditional}:] How does \xxx's performance compare
 to traditional protocols?
 
 \item[\S\ref{sec:eval-dare}:] How does \xxx compare
@@ -115,9 +115,10 @@ electing a new leader?
 \label{sec:eval-traditional}
 
 we ran \xxx and four traditional consensus protocols using their own 
-client programs or popular client programs with similar bytes of requests.
-We spawned up to 24 concurrent requests for client programs on one machine and 
-used up to nine replicas. Both these two values are common and 
+client programs or popular client programs with 100K requests of similar sizes. 
+For each protocol, we spawned up to 24 concurrent connections for each client 
+on one dedicated machine, and we used up to nine replicas. Both these two 
+values are common and 
 high~\cite{zookeeper,crane:sosp15,rex:eurosys14,dare:hpdc15}.
 % Our evaluation also 
 % showed that most server programs reached peak throughput at 16 requests 
