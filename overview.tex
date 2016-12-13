@@ -97,8 +97,8 @@ slower than the other two primitives. A one-sided RDMA write
 operation can directly write from one replica's memory to a remote 
 replica's memory without involving the remote OS kernel or CPU. Prior 
 work~\cite{pilaf:usenix14} shows that one-sided operations are up to 2x faster 
-than two-sided operations, so \xxx uses one-sided operations (or 
-``WRITE" in this paper). On a WRITE succeeds, the remote NIC sends
+than two-sided operations~\cite{fasst:osdi16}, so \xxx uses one-sided operations 
+(or ``WRITE" in this paper). On a WRITE succeeds, the remote NIC sends
 an RDMA ACK to local NIC.
 
 A one-sided RDMA communication between a local and a remote NIC needs
