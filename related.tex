@@ -1,19 +1,22 @@
 \section{Related Work} \label{sec:related}
 
 
-\para{Software-based consensus.} There are a rich set of
+\para{Software-based consensus.} A variety of
 \paxos algorithms~\cite{paxos:practical,paxos,paxos:simple,paxos:complex,
 epaxos:sosp13} and 
-implementations~\cite{paxos:live,paxos:practical,chubby:osdi,crane:sosp15}. 
+implementations~\cite{paxos:live,paxos:practical,chubby:osdi,crane:sosp15} 
+exist. 
 \paxos is notoriously difficult to be fast and 
-scalable~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}. Since consensus 
-protocols play a core role in datacenters~\cite{matei:hotcloud11, mesos:nsdi11, 
-datacenter:os} and worldwide 
-distributed systems~\cite{spanner:osdi12,mencius:osdi08}, much study 
-have been done to improve specific aspects of consensus, 
-including order commutativity~\cite{epaxos:sosp13,marandi:icdcs14}, 
-understandability~\cite{raft:usenix14,paxos}, and verifiable 
-rules~\cite{modist:nsdi09,demeter:sosp11}. \paxos is extended to tolerate 
+scalable~\cite{ellis:thesis,manos:hotdep10,scatter:sosp11}, so currently server 
+programs' use weaker asynchronous replication (\eg, \redis~\cite{redis}). 
+Consensus is essential in
+datacenters~\cite{matei:hotcloud11, mesos:nsdi11, datacenter:os} and worldwide 
+distributed systems~\cite{spanner:osdi12,mencius:osdi08}, so much work 
+is done to improve specific aspects, 
+including commutativity~\cite{epaxos:sosp13,marandi:icdcs14}, 
+understandability~\cite{raft:usenix14,paxos}, and 
+verification~\cite{modist:nsdi09,demeter:sosp11}. \paxos is extended to 
+tolerate 
 byzantine faults~\cite{brun:icdcs12,meling:icdcs12,bal:icdcs12,pbft:osdi99,
 zyzzyva:sosp07,martins2013experiences,araujo2012replication,amir2010steward} and 
 hardware faults~\cite{hardpaxos:srds14}.
