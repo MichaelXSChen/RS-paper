@@ -26,8 +26,8 @@ is designed for both a small number of concurrent requests and
 replicas. \dare follows a sole-leader manner with two-rounds: 
 first, leader does RDMA writes consensus requests on each replica; second, 
 leader does RDMA writes on each replica to update a global variable that points 
-to the latest request (tail of consensus log) in each backup. Both rounds are 
-essential in \dare to incase a backup becomes a new leader.
+to the latest request (tail of consensus log) in each backup. \dare's both 
+rounds are essential in case a backup becomes a new leader.
 % Figure~\ref{fig:dare} shows 
 % \dare's protocol. Figure~\ref{fig:consensus} shows \xxx's protocol.
 
