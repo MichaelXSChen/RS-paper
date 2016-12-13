@@ -305,7 +305,7 @@ new leader.
 % understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex} or 
 % implement~\cite{paxos:live,paxos:practical}. 
 % 
-To minimize protocol-level bugs, \xxx's protocol derives from viewstamp-based 
+To minimize protocol-level bugs, \xxx's protocol derives from a viewstamp-based 
 protocol~\cite{paxos:practical}. We made this design choice because \paxos is 
 notoriously difficult to 
 understand~\cite{raft:usenix14,paxos:simple,paxos,paxos:complex}, 
@@ -317,10 +317,10 @@ verified safety rules into our protocol.
 
 % TBD: reliability analyzes. We do not need the lossless assumption in RDMA QPs.
 Although \xxx's \paxos protocol works on a RDMA network, the reliability of 
-\xxx does not rely on a lossless RDMA. \xxx still provides same 
-fault-tolerance guarantee as the standard \paxos model, where a stable storage 
-exists, but the hardware (\eg, network devices) of replicas may fail, and 
-server programs may crash.
+\xxx does not rely on a lossless RDMA (\eg, network devices can fail). \xxx 
+still provides same fault-tolerance guarantee as the standard \paxos model, 
+where a stable storage exists, but replicas may fail, and server programs may 
+crash.
 
 
 % Define safety: TBD.
