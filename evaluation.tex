@@ -200,9 +200,9 @@ libraries, and language runtimes (\eg, JVM), are another major scalable
 bottleneck (the ``Sys" column). This indicates that RDMA is useful on bypassing 
 systems layers.
 
-Note that both \crane and \spaxos's leader handles consensus replies 
+Both \crane and \spaxos's leader handles consensus replies 
 rapidly, so they two had same ``First" and ``Major" arrival times (\ie, 
-``Sys" times were 0).
+``Sys" times were 0 on three replicas).
 
 % We compared \xxx with \calvin's SMR system because \calvin's input consensus
 % uses \zookeeper, one of the most widely used coordination service built on
