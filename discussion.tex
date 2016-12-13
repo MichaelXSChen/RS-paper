@@ -24,7 +24,7 @@ pointer of their consensus logs; and (3) on receiving a majority of ACKs in
 the fastest \paxos protocols. It is RDMA-based and most relevant to \xxx. \dare 
 is designed for both a small number of concurrent requests and 
 replicas. \dare follows a sole-leader manner with two-rounds: 
-first, leader does RDMA writes consensus requests on each replica; second, 
+first, leader does RDMA writes of consensus requests on each replica; second, 
 leader does RDMA writes on each replica to update a global variable that points 
 to the latest request (tail of consensus log) in each backup. \dare's both 
 rounds are essential in case a backup becomes a new leader.
