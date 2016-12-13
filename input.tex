@@ -293,7 +293,7 @@ Second, the winner proposes itself as a leader candidate using this
 array, another two-round \paxos consensus. Third, after the second step reaches 
 a quorum, the new leader notifies remote replicas itself as the new leader and 
 it starts to WRITE periodic heartbeats. Overall, \xxx safely avoids multiple 
-``leaders" to corrupte consensus logs, because only one leader is elected in 
+``leaders" to corrupt consensus logs, because only one leader is elected in 
 each view, and backups always close an outdated leader's QPs before electing a 
 new leader.
 
