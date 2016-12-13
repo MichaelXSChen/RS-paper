@@ -166,12 +166,12 @@ Process}
 
 \end{tabular}
 \vspace{-.05in}
-\caption{{\em Performance breakdown of traditional consensus protocols 
-with only one client.} The ``Proto-\#Rep" column means the protocol name 
-and replica group size; ``Latency" means the consensus latency; ``First" means 
-the latency of its first consensus reply; ``Major" means the
-latency of its the majority reply; ``Process" means time spent in
-processing all replies; and ``Sys" means time spent in systems (OS
+\caption{{\em Performance breakdown of traditional protocols on leader
+with only one client.} The ``Proto-\#Rep" column is the protocol name 
+and replica group size; ``Latency" is the consensus latency; ``First" 
+is the latency of leader's first received consensus reply; ``Major" is the
+latency of leader's consensus; ``Process" is leader's time spent in
+processing all replies; and ``Sys" is leader's time spent in systems (OS
 kernel, network libraries, and JVM) between the ``First" and the ``Major" 
 reply. All times are in \us.}
 \label{tab:traditional-latency}
@@ -180,23 +180,24 @@ reply. All times are in \us.}
 
 To find the scalability bottleneck in traditional protocols, we spawned 
 only one client and broke down their consensus 
-latency (Table~\ref{tab:traditional-latency}). From three to nine replicas, the 
-consensus latency (the ``Latency" column) of these protocols increased more 
-gently than that on 24 concurrent clients. For instance, when the number of 
-replicas increased from three to nine, \zookeeper latency increased by 30.3\% 
-with one client; this latency increased by 168.3\% with 24 clients 
-(Figure~\ref{fig:scalability}). This indicates that concurrent consensus 
-requests are the major scalability bottleneck for these protocols.
+latency on leader (Table~\ref{tab:traditional-latency}). From three to nine 
+replicas, the consensus latency (the ``Latency" column) of these protocols 
+increased more gently than that on 24 concurrent clients. For instance, when 
+the number of replicas increased from three to nine, \zookeeper latency 
+increased by 30.3\% with one client; this latency increased by 168.3\% with 24 
+clients (Figure~\ref{fig:scalability}). This indicates that concurrent 
+consensus requests are the major scalability bottleneck for these protocols.
 
 Specifically, three protocols had scalable latency on the arrival of their 
 first consensus reply (the ``First" column), which implies that network is not 
 saturate. \libpaxos is an exception because its two-round protocol consumed 
-much bandwidth. However, there is a big gap between the arrival of the first 
-consensus reply and the ``majority" reply (the ``Major" column). Given that the 
-replies' CPU processing time was small (the ``Process" column), we can see that 
-various systems layers, including OS kernels, network libraries, and 
-language runtimes (\eg, JVM), are another major scalable bottleneck (the ``Sys" 
-column). This indicates that RDMA is useful on bypassing these systems layers.
+much bandwidth. However, on leader, there is a big gap between the arrival of 
+the first consensus reply and the ``majority" reply (the ``Major" column). 
+Given that the replies' CPU processing time was small (the ``Process" column), 
+we can see that various systems layers, including OS kernels, network 
+libraries, and language runtimes (\eg, JVM), are another major scalable 
+bottleneck (the ``Sys" column). This indicates that RDMA is useful on bypassing 
+systems layers.
 
 Note that both \crane and \spaxos's leader handles consensus replies 
 rapidly, so they two had same ``First" and ``Major" arrival times (\ie, 
