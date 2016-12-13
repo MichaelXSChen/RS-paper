@@ -70,10 +70,10 @@ storage (\S\ref{sec:logging}).
 
 Third, each leader thread concurrently invokes a consensus via the third step 
 (\textbf{L3}): WRITE the log entry to remote backups. This step is thread-safe 
-because each leader thread works on its own entry and backups' corresponding 
-remote entries. An \textbf{L3} WRITE immediately returns after copying the entry 
-to its local QP between the leader and each backup. In our evaluation, copying 
-a log entry to local QP took 
+because each leader thread works on its own entry and remote backups' 
+corresponding entries. An \textbf{L3} WRITE immediately returns after 
+copying the entry to its local QP between the leader and each backup. In our 
+evaluation, copying a log entry to local QP took 
 no more than 0.2 \us. Therefore, the WRITEs to all backups are done almost in 
 parallel (all \textbf{L3} arrows in Figure~\ref{fig:logentry}).
 % , because \paxos has handled the reliability 
