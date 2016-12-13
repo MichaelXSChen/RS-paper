@@ -50,13 +50,13 @@ having fewer performance bottlenecks on network bandwidth and CPU resources.
 However, software TCP/IP layers and OS kernels remain performance 
 bottleneck~\cite{arrakis:osdi14}. To quantify this bottleneck, we evaluated 
 four traditional consensus protocols on 24-core computers with 40Gbps 
-network, and we spawned 24 concurrent consensus clients. When changing the 
+network, and we spawned 24 concurrent consensus connections. When changing the 
 replica group size from three to nine, although network and CPUs were not 
 saturate, the consensus latency of three protocols drastically increased by 
 \tradlatencyincreaselow to \tradlatencyincreasehigh 
 (Figure~\ref{fig:scalability}), and \systemcostlow to \systemcosthigh of this 
-increase was in OS kernel. If only one consensus client was spawned, the latency 
-increase on the number of replicas was more gentle 
+increase was in OS kernel. If only one consensus connection was spawned, the 
+latency increase on the number of replicas was more gentle 
 (Table~\ref{tab:traditional-latency}).
 
 This evaluation also shows that both the number of concurrent requests and 
