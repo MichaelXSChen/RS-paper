@@ -25,20 +25,8 @@ set termoption enhanced
 set style histogram rowstacked title offset 0,0.5
 
 plot newhistogram "{/*0.7 DARE (update-heavy)}" lt 1, \
-'throughput-compare2.dat' u 3:xtic(1) fs pattern 2 notitle, '' u 2 fs pattern 2, \
+'throughput-compare2.dat' u 3:xtic(1) fs pattern 2 notitle, '' u 2 fs pattern 4, \
 newhistogram "{/*0.7 DARE (read-heavy)}" lt 1, \
-'throughput-compare2.dat' u 5:xtic(1) fs pattern 2, '' u 4 fs pattern 2 notitle, \
+'throughput-compare2.dat' u 5:xtic(1) fs pattern 2, '' u 4 fs pattern 4 notitle, \
 newhistogram "{/*0.7 APUS}" lt 1, \
-'throughput-compare2.dat' u 7:xtic(1) fs pattern 2 notitle, '' u 6 fs pattern 2 notitle
-
-#plot newhistogram "1" lt 1, \
-#'throughput-compare2.dat' u 2:xtic(1) fs pattern 2, '' u 3 fs pattern 2,  \
-#newhistogram "6" lt 1, \
-#'throughput-compare2.dat' u 4:xtic(1) fs pattern 2 notitle, '' u 5 fs pattern 2 notitle, \
-#newhistogram "12" lt 1, \
-#'throughput-compare.dat' u 6:xtic(1) fs pattern 2 notitle, '' u 7 fs pattern 2 notitle, \
-#newhistogram "18" lt 1, \
-#'throughput-compare.dat' u 8:xtic(1) fs pattern 2 notitle, '' u 9 fs pattern 2 notitle, \
-#newhistogram "24" lt 1, \
-#'throughput-compare.dat' u 10:xtic(1) fs pattern 2 notitle, '' u 11 fs pattern 2 notitle, \
-
+'throughput-compare2.dat' u 7:xtic(1) fs pattern 2 notitle, '' u 6 fs pattern 4 notitle
