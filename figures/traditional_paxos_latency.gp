@@ -15,9 +15,9 @@ lm = 0.12
 rm = 0.95
 gap = 0.05
 size = 0.75
-kk = 0.5 # relative height of bottom plot
+kk = 0.45 # relative height of bottom plot
 y1 = 0.0; y2 = 15.0; y3 = 180.0; y4 = 220.0
-
+#set size 1, 1.1
 #set size 3.0,2.7
 set multiplot
 set border 1+2+8
@@ -27,11 +27,11 @@ set bmargin at screen bm
 set tmargin at screen bm + size * kk
 
 
-set key font ",15" maxrows 4
+set key font ",14" maxrows 3
 set key spacing 1
-set key at 13.2, 1450
-set key width -4
-set key samplen 3
+set key at 10.5, 1500
+set key width -5
+set key samplen 1.5
 set xrange [0:27]
 #set for [i=0:5] xtics (0,3**i)
 set xtics ("3" 0,"5" 9,"7" 18, "9" 27, "33" 50, "65" 68, "105" 98)
