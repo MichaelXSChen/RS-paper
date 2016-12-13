@@ -74,12 +74,11 @@ key-value store servers (\eg, \redis and \memcached).
 Worse, \paxos consensus latency increases almost 
 linearly~\cite{scatter:sosp11,zookeeper} to the number of concurrent requests or 
 replicas, because the leader receives linearly increasing consensus 
-messages on TCP/IP. This limited scalability aggravates program performance due 
-to two trends. First, when serving concurrent requests, the performance of 
+messages on TCP/IP. This limited scalability aggravates program performance 
+under two trends. First, when serving concurrent requests, the performance of 
 modern server programs scales well with the increasing number of CPU cores in a 
-computer. Second, advanced SMR systems (\eg, Azure~\cite{azure:book}) 
-deploy more replicas (seven or nine) to handle replica failures or 
-upgrades.
+computer. Second, advanced SMR systems (\eg, Azure~\cite{azure:book}) deploy 
+more replicas (seven or nine) to handle replica failures or upgrades.
 % This limited scalability hurts the 
 % performance of server programs for two reasons
 
