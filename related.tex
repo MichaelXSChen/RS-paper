@@ -151,10 +151,11 @@ improve \paxos consensus latency.
 Three systems~\cite{consensusbox:nsdi16,netpaxos:sosr15,caans} implement 
 consensus protocols in hardware devices (\eg, switches). ``Consensus in a 
 Box"~\cite{consensusbox:nsdi16} implemented \zookeeper's protocol in 
-FPGA. These systems are suitable to maintain compact metadata. However, 
-as mentioned in prior work~\cite{nopaxos:osdi16}, these systems' programmable 
-hardware are not suitable to store large amount of replicated states (\eg, 
-server programs' continuously arriving inputs).
+FPGA. These systems reported similar performance as \dare and they are 
+suitable to maintain compact metadata. Prior work~\cite{nopaxos:osdi16} 
+mentioned that these systems' programmable hardware are not suitable to store 
+large amount of replicated states (\eg, server programs' continuously arriving 
+inputs).
 
 % Compared to this protocol, 
 % \xxx does 
@@ -179,11 +180,10 @@ stores~\cite{pilaf:usenix14,herd:sigcomm14,farm:nsdi14,memcached:rdma},
 transactional systems~\cite{drtm:sosp15,farm:sosp15,fasst:osdi16}, 
 and file 
 systems~\cite{gibson:nfs}. For instance, FaRM~\cite{farm:nsdi14} leverages RDMA 
-to build a fast DHT. FaRM uses a data replication 
-approach~\cite{ramcloud:sosp11}, which works in a primary-backup 
-manner~\cite{remus:nsdi08}. In general, \paxos provides better consistency and 
-availability than primary-backup. These systems use RDMA to speed up 
-system-specific aspects, so they are complementary to \xxx.
+to build a fast DHT. FaRM works in a primary-backup 
+manner~\cite{remus:nsdi08,ramcloud:sosp11}. \paxos provides better availability 
+than primary-backup. These systems use RDMA to speed up system-specific aspects, 
+so they are complementary to \xxx.
 % It will be interesting to investigate whether \xxx can improve the 
 % availability for both the client and server for some of these advanced systems 
 % within a datacenter, and we leave it for future work.
