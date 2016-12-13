@@ -149,12 +149,12 @@ systems~\cite{consensusbox:nsdi16,netpaxos:sosr15,caans,specpaxos:nsdi15,
 nopaxos:osdi16} leverage augmented network hardware or topology to 
 improve \paxos consensus latency. 
 Three systems~\cite{consensusbox:nsdi16,netpaxos:sosr15,caans} implement 
-consensus protocols in network devices (\eg, switches). ``Consensus in a 
+consensus protocols in hardware devices (\eg, switches). ``Consensus in a 
 Box"~\cite{consensusbox:nsdi16} implemented \zookeeper's protocol in 
-FPGA. These systems are suitable on maintaining compact metadata. However, 
-as mentioned in prior work~\cite{nopaxos:osdi16}, these systems' hardware may 
-not be sufficient to store large amount of replicated states (\eg, server 
-programs' continuously arriving inputs).
+FPGA. These systems are suitable to maintain compact metadata. However, 
+as mentioned in prior work~\cite{nopaxos:osdi16}, these systems' programmable 
+hardware are not suitable to store large amount of replicated states (\eg, 
+server programs' continuously arriving inputs).
 
 % Compared to this protocol, 
 % \xxx does 
